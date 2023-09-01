@@ -10,82 +10,10 @@
     <loc>/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/articles/01-code-coralseed-main.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-11.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-12.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-18.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-21.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-22.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-24.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-25.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-27.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-29.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-30.html</loc>
-  </url>
-  <url>
-    <loc>/articles/01-code-coralseed-main_files/figure-html/widgets/widget_unnamed-chunk-32.html</loc>
-  </url>
-  <url>
-    <loc>/articles/02-code-coralseed-example.html</loc>
-  </url>
-  <url>
-    <loc>/articles/02-code-coralseed-example_files/figure-html/widgets/widget_mapoutputframe.html</loc>
-  </url>
-  <url>
-    <loc>/articles/03-code-coralseed-parallel.html</loc>
-  </url>
-  <url>
-    <loc>/articles/04-coralseed-clamgarden.html</loc>
-  </url>
-  <url>
-    <loc>/articles/04-coralseed-clamgarden_files/figure-html/widgets/widget_mapoutput.html</loc>
-  </url>
-  <url>
-    <loc>/articles/05-coralseed-mermaidbay.html</loc>
-  </url>
-  <url>
-    <loc>/articles/05-coralseed-mermaidbay_files/figure-html/widgets/widget_mapoutput.html</loc>
-  </url>
-  <url>
-    <loc>/articles/06-coralseed-palfreyn.html</loc>
-  </url>
-  <url>
-    <loc>/articles/06-coralseed-palfreyn_files/figure-html/widgets/widget_mapoutput.html</loc>
-  </url>
-  <url>
-    <loc>/articles/07-coralseed-spawnhub.html</loc>
-  </url>
-  <url>
-    <loc>/articles/07-coralseed-spawnhub_files/figure-html/widgets/widget_mapoutput.html</loc>
-  </url>
-  <url>
-    <loc>/articles/08-coralseed-watsons.html</loc>
-  </url>
-  <url>
-    <loc>/articles/08-coralseed-watsons_files/figure-html/widgets/widget_mapoutput.html</loc>
-  </url>
-  <url>
     <loc>/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>/articles/test-leafletmap.html</loc>
   </url>
   <url>
     <loc>/authors.html</loc>
@@ -121,6 +49,12 @@
     <loc>/reference/pipe.html</loc>
   </url>
   <url>
+    <loc>/reference/plot_particles.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_settlers.html</loc>
+  </url>
+  <url>
     <loc>/reference/predict_competency.html</loc>
   </url>
   <url>
@@ -131,6 +65,9 @@
   </url>
   <url>
     <loc>/reference/seed_particles.html</loc>
+  </url>
+  <url>
+    <loc>/reference/seed_particles2.html</loc>
   </url>
   <url>
     <loc>/reference/seed_settle_particles.html</loc>
@@ -152,5 +89,8 @@
   </url>
   <url>
     <loc>/reference/simulate_mortality.html</loc>
+  </url>
+  <url>
+    <loc>/reference/test_functioning.html</loc>
   </url>
 </urlset>

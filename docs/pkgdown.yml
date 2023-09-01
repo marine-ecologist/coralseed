@@ -2,13 +2,6 @@ pandoc: 3.1.1
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
-  01-code-coralseed-main: 01-code-coralseed-main.html
-  02-code-coralseed-example: 02-code-coralseed-example.html
-  03-code-coralseed-parallel: 03-code-coralseed-parallel.html
-  04-coralseed-clamgarden: 04-coralseed-clamgarden.html
-  05-coralseed-mermaidbay: 05-coralseed-mermaidbay.html
-  06-coralseed-palfreyn: 06-coralseed-palfreyn.html
-  07-coralseed-spawnhub: 07-coralseed-spawnhub.html
-  08-coralseed-watsons: 08-coralseed-watsons.html
-last_built: 2023-08-23T11:09Z
+  test-leafletmap: test-leafletmap.html
+last_built: 2023-09-01T12:58Z
 
