@@ -1,0 +1,367 @@
+---
+title: "4. Quantifying spatial footprints from coralseed"
+author: "George Roff"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{4. Quantifying spatial footprints from coralseed}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+### Summary statistics of settlers
+
+The output of `coralseed` can (settlement points and particle paths) be used to quantify summary statistics for
+spatial patterns, allowing for comparisons between sites or between
+tidal cycles/days/years. Some key questions that stem from larval
+restoration include:
+
+1.  What proportion of larvae settled from the initial reseeding number?
+
+2.  How long on average did it take for larvae to settle? (time in
+    minutes)
+
+3.  How far did larvae travel before settling? (distance in metres)
+
+4.  Over what area did the larvae settle? (i.e. what is the restoration
+    footprint in km2?)
+
+5.  What is the mean density of settlers? (individuals per 20m2)
+
+6.  What is the maximum density of settlers? (individuals per 20m2)
+
+7.  What is the mean distance between settlers? (distance in metres)
+
+8.  How clustered are the larvae in space? (nearest neighbour index -
+    Clark Evans index)
+
+9.  How dispersed are the larvae? (sum of squared distances around the
+    mean)
+
+Below is an example run with a realistic number of larvae for reseeding:
+1 million larvae. As with the parallel processing example, we import
+10,000 particle tracks and iterate 100 simulations across each particle
+track to generate variance from the `coralseed` model. In practice this
+can be any number of simulations for any number of tracks depending on
+the compute time (warning: 1e-06 particles takes up compute time, 
+see `tic()` `toc()` times inset in the code from an M2 Max processor)
+
+The below example uses `foreach` and `%dopar%` loops (see parallel
+processing examples) but can also run as a nested forloop or with
+`future_lapply()` from `library(futures)`.
+
+<details>
+
+<summary align="right">
+
+<b>Show Code</b>
+
+</summary>
+
+```{r libraries TRUE}
+library(tidyverse)
+library(doParallel)
+library(foreach)
+library(sf)
+library(coralseed)
+```
+
+```{r cache=TRUE}
+
+# first set spatial mosaic of habitat preference via coralseed
+seascape <- coralseed::seascape_probability(reefoutline=reef_map, habitat=benthic_map)
+
+library(tictoc)
+tic()
+# use n-1 cores
+ncores <- detectCores()
+cl <- makeCluster(ncores-1, port=12345, outfile="seed_futures_log.txt")
+registerDoParallel(cl)
+
+library(tidyverse)
+library(doParallel)
+library(foreach)
+library(sf)
+library(coralseed)
+
+# load simimulation inputs
+palfrey01 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim1/plots/day_12036/run_day_12036_lizard_del_14_1512_sim1_13.json"
+palfrey02 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim2/plots/day_12036/run_day_12036_lizard_del_14_1512_sim2_13.json"
+palfrey03 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim3/plots/day_12036/run_day_12036_lizard_del_14_1512_sim3_13.json"
+palfrey04 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim4/plots/day_12036/run_day_12036_lizard_del_14_1512_sim4_13.json"
+palfrey05 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim5/plots/day_12036/run_day_12036_lizard_del_14_1512_sim5_13.json"
+palfrey06 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim6/plots/day_12036/run_day_12036_lizard_del_14_1512_sim6_13.json"
+palfrey07 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim7/plots/day_12036/run_day_12036_lizard_del_14_1512_sim7_13.json"
+palfrey08 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim8/plots/day_12036/run_day_12036_lizard_del_14_1512_sim8_13.json"
+palfrey09 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim9/plots/day_12036/run_day_12036_lizard_del_14_1512_sim9_13.json"
+palfrey10 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim10/plots/day_12036/run_day_12036_lizard_del_14_1512_sim10_13.json"
+
+nsims_seed <- 100
+
+palfrey01_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+
+palfrey02_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+
+palfrey03_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+palfrey04_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+palfrey05_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+palfrey06_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+palfrey07_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+palfrey08_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+palfrey09_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+palfrey10_parallel <- foreach(i = 1:nsims_seed, .packages = "coralseed") %dopar% seed_futures(
+  limit_time = 6.95, input = palfrey01,
+  set.centre = TRUE, seascape = seascape, tracks = TRUE, silent = TRUE,
+  competency.function = "exponential", limit.time = 6.95, probability = "additive",
+  simulate.mortality = "typeI", simulate.mortality.n = 0.1
+)
+
+stopCluster(cl)
+
+
+palfrey <- c(palfrey01_parallel, palfrey02_parallel, palfrey03_parallel, palfrey04_parallel, palfrey05_parallel, palfrey06_parallel, palfrey07_parallel, palfrey08_parallel, palfrey09_parallel, palfrey10_parallel)
+
+### every set of dispersal simulations (n=1000) has 100 simulations.
+
+palfrey_points <- extract_parallel(type = "points", palfrey)
+palfrey_paths <- extract_parallel(type = "paths", palfrey)
+
+toc()
+
+```
+
+</details>
+
+As output of `seed_futures` (via `settle_particles`) is an `sf` format, then the output can be  converted to `ppp` format using
+`spatstat.geom::as.ppp(sf::st_as_sf(outputfile))` and leverage the
+extensive `spatstat` package for quantifying spatial point patterns (`nndist` and `nni` are included below as
+examples). Below are examples of how to interpret the output of `coral_seed` models:
+
+### 1) What proportion of larvae settled?
+
+```{r }
+
+paste0(nrow(palfrey_points), " / 1,000,000 larvae settled")
+```
+
+```{r}
+summary.proportion <- palfrey_points |>
+  group_by(id) |>
+  dplyr::summarise(proportion = n() / 1000 * 100)
+
+summary.proportion <- summary.proportion$proportion
+df_meanproportion <- data.frame(values = summary.proportion, factor = "meantimetosettlement")
+paste0(round(mean(summary.proportion),1), "% settlement")
+```
+
+### 2) How long on average do larvae take to settle?
+
+```{r}
+settlement.time <- palfrey_points |>
+  group_by(id) |>
+  summarise(disp = mean(dispersaltime))
+settlement.time <- settlement.time$disp
+df_meantime <- data.frame(values = settlement.time, factor = "meantimetosettlement")
+paste0(round(mean(settlement.time)/60,1), " hours")
+```
+
+### 3) How far on average did larvae travel before settling?
+
+```{r}
+# mean dispersal length per iter
+summary.dispersaldistances <- sapply(split(
+  palfrey_paths,
+  palfrey_paths$id
+), function(sub_df) { # Applying function over each split
+  mean(sf::st_length(sub_df$geometry)) / 1000
+})
+df_meandistance <- data.frame(values = summary.dispersaldistances, factor = "meandistancetosettlement")
+paste0(round(mean(summary.dispersaldistances),2), " kilometres")
+```
+
+### 4) Over what area did larvae disperse? (i.e. what is the total restoration footprint?)
+
+```{r}
+summary.dispersal.area <- sapply(split(
+  palfrey_points,
+  palfrey_points$id
+), function(sub_df) { # Applying function over each split
+  st_area(settlement_statistics(sub_df, cellsize = 20)$area)
+})
+df_footprint <- data.frame(values = summary.dispersal.area, factor = "spatialfootprint")
+
+paste0(round(mean(summary.dispersal.area)*0.0001,2), " ha")
+```
+
+### 5) what is the mean count of settlers (per 20m2)?
+
+```{r}
+summary.dispersal.mean.count <- sapply(split(
+  palfrey_points,
+  palfrey_points$id
+), function(sub_df) { # Applying function over each split
+  tmp <- (settlement_statistics(sub_df, cellsize = 20)$grid)
+  tmp$count[is.na(tmp$count)] <- 0
+  mean(tmp$count)
+})
+df_meandensity <- data.frame(values = summary.dispersal.mean.count, factor = "meandensity")
+paste0(round(mean(summary.dispersal.mean.count)/20,2), " settlers per m2")
+```
+
+### 6) what is the max count of settlers (per 20m2)?
+
+```{r}
+summary.dispersal.max.count <- sapply(split(
+  palfrey_points,
+  palfrey_points$id
+), function(sub_df) { # Applying function over each split
+  tmp <- (settlement_statistics(sub_df, cellsize = 20)$grid)
+  tmp$count[is.na(tmp$count)] <- 0
+  max(tmp$count)
+})
+df_maxdensity <- data.frame(values = summary.dispersal.max.count, factor = "maxdensity")
+paste0(round(mean(summary.dispersal.max.count)/20,2), " settlers per m2")
+```
+
+### 7) How clustered are the larvae? (how close are the nearest neighbours in meters?)
+
+```{r}
+summary.nnd <- sapply(split(palfrey_points, palfrey_points$id), function(sub_df) { # Applying function over each split
+  mean(spatstat.geom::nndist(spatstat.geom::as.ppp(st_as_sf(select(sub_df, id))))) # nnd
+})
+df_nnd <- data.frame(values = summary.nnd, factor = "nnd")
+paste0(round(mean(summary.nnd),2), " metres")
+
+```
+
+### 8) How clustered are the larvae? Clark-Evans Index.
+
+```{r}
+summary.nni <- sapply(split(palfrey_points, palfrey_points$id), function(sub_df) { # Applying function over each split
+  points_ppp <- spatstat.geom::as.ppp(st_as_sf(select(sub_df, id))) # nnd
+  nn_distances <- spatstat.geom::nndist(points_ppp)
+  nn_mean <- mean(nn_distances)
+  nn_expected <- 0.5 / sqrt(points_ppp$n / spatstat.geom::area.owin(spatstat.geom::as.owin(points_ppp)))
+  nn_mean / nn_expected # nearest neighbour index
+})
+df_nni <- data.frame(values = summary.nni, factor = "nni")
+paste0(round(mean(summary.nni),2), " (<1 = clustering, >1 = dispersion)")
+```
+
+### 9) How dispersed are the larvae? (sum of squared distances around the mean)
+
+```{r}
+summary.dispersion <- sapply(
+  split(palfrey_points, palfrey_points$id),
+  function(sub_df) { # Applying function over each split
+    mean(calculate_dispersion(sub_df))
+  }
+)
+df_dispersion <- data.frame(values = summary.dispersion, factor = "dispersion")
+paste0(round(mean(summary.dispersion),2), " m2")
+```
+
+### plot all outputs:
+
+As violin plots:
+
+```{r, message=FALSE, warning=FALSE, fig.width = 8, height=6}
+df_all <- rbind(df_meanproportion, df_meantime, df_meandistance, df_footprint, df_meandensity, df_maxdensity, df_nnd, df_nni, df_dispersion) |> mutate(level = "a")
+
+ggplot() +
+  theme_bw() +
+  ggtitle("Palfrey summary statistics") +
+  facet_wrap(~factor, scales = "free") +
+  geom_violin(data = df_all, aes(
+    x = factor, y = values,
+    fill = factor
+  ), alpha = 0.8, show.legend = FALSE) +
+  ggbeeswarm::geom_quasirandom(
+    data = df_all, aes(x = factor, y = values),
+    alpha = 0.2, size = 0.2, show.legend = FALSE
+  )
+```
+
+or as ridge plots:
+
+```{r message=FALSE, warning=FALSE, fig.width = 8, height=6}
+
+ggplot() +
+  theme_bw() + ylab("") + xlab("") +
+  ggtitle("Palfrey summary ridges") +
+  facet_wrap(~factor, scales = "free") +
+  ggridges::geom_density_ridges2(
+    data = df_all,
+    aes(x = values, y = 0, fill = factor), alpha = 0.8, show.legend = FALSE
+  )
+```
+
+To map settlers and visualise the spatial footprint, use `map_coralseed_future`:
+
+
+```{r mapoutput, eval = FALSE, message=FALSE, warning=FALSE}
+
+map_coralseed_future(points=palfrey_points, paths=palfrey_paths, 
+                     seascape_probability=seascape, restoration.plot=c(100,100))
+```
+
+```{r mapoutputframe, echo = FALSE, eval = TRUE, message=FALSE, warning=FALSE}
+
+tmapa1 <- map_coralseed_future(seed_particles=particles, settle_particles=settlers, 
+              seascape_probability=seascape, restoration.plot=c(100,100))
+
+frameWidget(tmapa1, width = 1000, height=1000)
+
+```

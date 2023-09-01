@@ -1,0 +1,186 @@
+---
+title: "3. Parallel processing with coralseed"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{3. Parallel processing with coralseed}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+## Scaling up coralseed
+
+The basic `seed_particles` function for 1000 particles takes \~15-16 seconds on a 2019 Macbook Pro (6-core Intel Core i7) and \~3-4 seconds on a 2023 Macbook Pro (M2 Max). The bottleneck in processing speed comes from using `sf` functionality and is difficult to improve in the `R` environment.
+
+As `seed_particles` and other functions in `coralseed` rely on random draws from Bayesian posteriors with each run to simulate variance, iterating `seed_particles` improves model estimates by incorporating some of this variance. To scale up `coralseed`, each input simulation can be run multiple times (i.e. if there are 1000 particles as input, the results can be run 100 times to give 100,000 simulated particles).
+
+There are different approaches to iterating across a function in R - either singularly (`for`/`foreach` loops) vectorising (`lapply`), or in parallel (`doparallel` and `futures`). To speed up the results, running in parallel reduces compute times.
+
+-   `doParallel` is a parallel backend for `foreach` , using multicore functionality on Unix-like systems and snow functionality on Windows.
+
+-   `futures` allows for running functions (e.g. `lapply`) sequentially, in parallel background sessions, and with forked multicore approaches
+
+In both options parallel approaches are limited by the cross-platform availability - e.g. multicore is [not available on Windows](https://rstudio.github.io/promises/articles/promises_04_futures.html) or on [any operating system with RStudio](https://github.com/HenrikBengtsson/future.apply/issues/88), which raises issues with cross-platform compatability of code.
+
+Below is an optimisation of `seed_futures` (a stripped back function combining `seed_particles` and `settle_particles`) comparing the speed of different approaches. The code is run on MacOS 13.4 on an M2 Max processor, so expect this to be slower on different machines/OS.
+
+`> sessionInfo() R version 4.3.1 (2023-06-16)` `Platform: aarch64-apple-darwin20 (64-bit)` `Running under: macOS Ventura 13.4`
+
+The approach below imports a single `geojson` simulation for 1000 particles, and then repeats the code x100 to give a 100,000 individual particles (i.e. 100 simulated particles/settlers per track). `library(tictoc)` is used to time the R code in each instance:
+
+First, load packages:
+
+```{r intro, message=FALSE, warning=FALSE}
+#remotes::install_github("marine-ecologist/coralseed",  lib = "/Users/rof011/coralseed")
+#remotes::install_github("marine-ecologist/coralseed")
+#devtools::install("/Users/rof011/coralseed", force=TRUE)
+
+library("coralseed")
+library("data.table")
+library("foreach")
+library("future.apply")
+library("doParallel")
+library("tictoc")
+library("ggplot2")
+
+```
+
+## i) basic example
+
+basic example using `seed_futures` across 1000 input particles
+
+```{r basic, cache = TRUE, warning=FALSE}
+
+palfrey01 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim1/plots/day_12036/run_day_12036_lizard_del_14_1512_sim1_10.json"
+
+# spatial mosaic of habitat preference
+seascape <- coralseed::seascape_probability(reefoutline=reef_map, habitat=benthic_map)
+
+tic()
+tmp <- seed_futures(input=palfrey01, limit_time=6.95, seascape=seascape,  silent=TRUE, set.seed=NULL,
+                    tracks=TRUE, competency.function = "exponential", limit.time = 6.95, probability="additive",
+                    simulate.mortality = "typeI", simulate.mortality.n = 0.1)
+toc()
+
+
+```
+
+## ii) %do% and foreach()
+
+use `foreach` with `%do%` to loop the function 100 times
+
+```{r do, cache = TRUE, message=FALSE}
+
+tic()
+tmp <- foreach(i=1:100, .packages="coralseed") %do%  seed_futures(limit_time=6.95, input=palfrey01,  
+                    set.centre = TRUE, seascape=seascape,  tracks=TRUE, silent=TRUE, set.seed=NULL,
+                    competency.function = "exponential", limit.time = 6.95, probability="additive", 
+                    simulate.mortality = "typeI", simulate.mortality.n = 0.1)
+time_foreach <- toc()
+
+```
+
+## iii) %doparallel% and foreach()
+
+use `foreach` with `%doparallel%` to loop the function 100 times in parallel across 11 (n-1) cores (OS and system dependent)
+
+```{r doparallel, cache=TRUE, message=FALSE}
+
+ncores <- detectCores()
+cl <- makeCluster(ncores-1)
+registerDoParallel(cl)
+
+tic()
+tmp <- foreach(i=1:100, .packages="coralseed") %dopar% seed_futures(limit_time=6.95, input=palfrey01,  
+                    set.centre = TRUE, seascape=seascape,  tracks=TRUE, silent=TRUE, 
+                    competency.function = "exponential", limit.time = 6.95, probability="additive", 
+                    simulate.mortality = "typeI", simulate.mortality.n = 0.1)
+time_foreach_parallel <- toc()
+stopCluster(cl)
+
+```
+
+## iv) future_lapply 'sequential'
+
+use `future_lapply` from the `future.apply` package with sequential processing. `lapply` applies a function over list/vector and is run 100 times (one after another).
+
+```{r sequential, message=FALSE, cache=TRUE}
+iters=100
+
+###### futures sequential
+
+plan(sequential)
+tic()
+
+m1 <- future_lapply(rep(palfrey01,iters), seed_futures, future.seed = NULL,  seascape=seascape,  
+                   limit_time=6.95, set.centre = TRUE, tracks=TRUE, silent=TRUE, set.seed=NULL,
+                   competency.function = "exponential", limit.time = 6.95, probability="additive",
+                   simulate.mortality = "typeI", simulate.mortality.n = 0.1)
+
+time_futures <- toc()
+
+```
+
+## v) future_lapply 'multisession'
+
+use `future_lapply` from the `future.apply` package. `lapply` applies a function over list/vector, so the input file `palfrey01` is replicated here n times (iters) in background R sessions
+
+```{r multisession, message=FALSE, cache=TRUE}
+
+iters=100
+
+tic()
+plan(multisession, workers = iters)
+m1 <- future_lapply(rep(palfrey01,iters), seed_futures, future.seed = NULL,  seascape=seascape,  
+                   limit_time=6.95, set.centre = TRUE, tracks=TRUE, silent=TRUE, set.seed=NULL,
+                   competency.function = "exponential", limit.time = 6.95, probability="additive",
+                   simulate.mortality = "typeI", simulate.mortality.n = 0.1)
+time_futures_multisession <- toc()
+plan(sequential)
+```
+
+## vi) future_lapply 'multicore'
+
+Use `future_lapply` from the `future.apply` package. Note - forked processing ('multicore') is not supported when running `seed_futures` from RStudio.
+
+```{r multicore, eval=FALSE, echo=TRUE}
+
+iters=100
+plan(multicore, workers = iters) # n input files needs to equal n workers
+tic()
+m1 <- future_lapply(rep(palfrey01,iters), seed_futures, future.seed = NULL, set.seed=NULL, seascape=seascape,
+                   limit_time=6.95, set.centre = TRUE, tracks=TRUE, silent=TRUE, set.seed=NULL,
+                   competency.function = "exponential", limit.time = 6.95, probability="additive",
+                   simulate.mortality = "typeI", simulate.mortality.n = 0.1)
+time_futures_multicore <- toc()
+plan(sequential)
+
+```
+
+```{r input, echo=FALSE}
+time_futures_multicore <- 96.828  # manually enter
+```
+
+## Compare results
+
+Below is the output from the above simulations. Parallel processing substantially speeds up processing time, with `%dopar%' 
+returning a marginally faster result than `future_lapply": 
+
+```{r plot, fig.width=7, height=7, cache=TRUE}
+
+
+timetests <- data.frame(functions=c("foreach", "foreach_parallel", "futures_sequential", "futures_multisession", "futures_multicore"),
+  time=c(as.numeric((time_foreach$toc-time_foreach$tic)),
+    as.numeric((time_foreach_parallel$toc-time_foreach_parallel$tic)),
+    as.numeric((time_futures$toc-time_futures$tic)),
+    as.numeric((time_futures_multisession$toc-time_futures_multisession$tic)),
+    as.numeric((time_futures_multicore))))
+
+timetests$functions <- factor(timetests$functions, levels = timetests$functions)
+
+ggplot() + theme_bw() +
+  xlab("function") + ylab("time taken (mins)") +
+  geom_bar(data=timetests, aes(functions, time/60, fill=functions), color="black", stat = "identity", show.legend=FALSE)
+
+```

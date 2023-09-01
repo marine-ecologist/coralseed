@@ -1,0 +1,35 @@
+Package: coralseed
+Title: Spatially explicit probabilistic modelling of coral settlement
+Version: 0.1.0
+Authors@R: 
+    person(given = "George", family = "Roff", email = "george.roff@csiro.au", role = c("aut","cre"))
+Description: coralseed: a spatially explicit reef-scale model of coral settlement following larval reseeding
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+VignetteBuilder: knitr
+Imports: 
+    concaveman,
+    data.table,
+    magrittr,
+    forcats,
+    sp,
+    sf,
+    tidyr,
+    ggpubr,
+    lubridate,
+    rlang,
+    leaflet,
+    viridis,
+    shape,
+    tmap
+Depends: 
+    ggplot2,
+    dplyr,
+    R (>= 2.10)
+LazyData: true
+URL: https://marine-ecologist.github.io/coralseed/
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

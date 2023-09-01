@@ -1,0 +1,61 @@
+---
+title: "Examples: ii) Mermaid Bay, Lizard Island"
+output: 
+  rmarkdown::html_vignette:
+      toc: yes
+    
+vignette: >
+  %\VignetteIndexEntry{Examples: ii) Mermaid Bay, Lizard Island}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Example `coralseed` scenario from Mermaid Bay, an enclosed bay at Lizard Island (nGBR), December 2022. The model simulates a point source release of 1000 particles from a 5\*5m area within the site across a 6.95hrs period.
+
+```{r, fig.width=8, fig.height=10, fig.align = 'center', warning=FALSE, message=FALSE}
+
+#devtools::install_github("marine-ecologist/coralseed",  lib = "/Users/rof011/coralseed")
+#devtools::document("/Users/rof011/coralseed")
+
+library(coralseed)
+library(ggplot2)
+library(tidyverse)
+library(sf)
+library(tmap)
+library(widgetframe)
+
+  
+suppressMessages(library(leaflet))
+
+seascape <- seascape_probability(reefoutline=reef_map, habitat=benthic_map)
+
+#input_mermaid <- coralseed:::Mermaid_PointSource_Bay_01
+
+palfrey09 <- "/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/Dispersal_SettlementRate/lizard_del_14_1512_sim1/lizard_del_14_1512_sim1/plots/day_12036/run_day_12036_lizard_del_14_1512_sim1_18.json"
+
+particles <- seed_particles(input=palfrey09, seascape=seascape,
+                            limit_time=6.95, competency.function = "exponential", 
+                            limit.time = 720, simulate.mortality = "typeI", 
+                            simulate.mortality.n = 0.1, probability="additive",
+                            return.plot=FALSE, silent=TRUE)
+
+settlers <-  settle_particles(particles, probability="additive", silent=TRUE)
+
+map_output <- map_coralseed(seed_particles=particles, settle_particles=settlers, 
+              seascape_probability=seascape, restoration.plot=c(100,100)) 
+
+print(map_output)
+
+```
+
+now with iframe. not showing?
+
+```{r}
+
+
+m <- leaflet() %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  addMarkers(lng=174.768, lat=-36.852, popup="The birthplace of R")
+m  # Print the map
+
+```
