@@ -7,21 +7,30 @@
 #' check and be careful converting other factors to paths:
 #' https://gis.stackexchange.com/questions/447578/geosexception-illegalargumentexception-point-array-must-contain-0-or-1-elemen
 #'
+#' !!sym(by)
+#' 
 #' @param input input (defaults to NULL)
+#' 
 #' @export
 #'
 #'
 
-particles_to_tracks <- function(input = NULL) {
+particles_to_tracks <- function(input = NULL, by="competency") {
   options(dplyr.summarise.inform = FALSE)
-  tracks <- input |>
-    dplyr::arrange(id, time) |>
-    #  dplyr::group_by(id,{{by}}) |>
-    dplyr::group_by(id, competency) |>
-    dplyr::filter(dplyr::n() >= 3) |>
-    dplyr::group_by(id, competency) |>
-    dplyr::summarise(do_union = FALSE) |>
-    sf::st_cast("MULTILINESTRING")
+  
+  tracks <- input %>% 
+    #mutate(id=as.factor(id)) |> 
+    #mutate(competency=as.factor(competency)) |> 
+    arrange(id, dispersaltime) %>% 
+    group_by(id, competency) %>%
+    summarise(do_union = FALSE) %>% 
+    st_make_valid() %>%
+    st_cast("MULTILINESTRING") 
+  
+  tracks_filtered <- tracks[sapply(st_geometry(tracks), st_is_valid), ]
+  
+  
   options(dplyr.summarise.inform = TRUE)
-  return(tracks)
+  
+  return(tracks_filtered)
 }
