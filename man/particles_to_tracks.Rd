@@ -4,7 +4,7 @@
 \alias{particles_to_tracks}
 \title{Particles to tracks}
 \usage{
-particles_to_tracks(input = NULL)
+particles_to_tracks(input = NULL, by = "competency")
 }
 \arguments{
 \item{input}{input (defaults to NULL)}
@@ -17,4 +17,6 @@ note: GEOS throws an error when n points is less than 3. When using the by argum
 levels with less than 3. This isn't an issue for mapping as only removes late competency particles, but
 check and be careful converting other factors to paths:
 https://gis.stackexchange.com/questions/447578/geosexception-illegalargumentexception-point-array-must-contain-0-or-1-elemen
+
+!!sym(by)
 }

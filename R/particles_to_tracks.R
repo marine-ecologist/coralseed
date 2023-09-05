@@ -15,22 +15,26 @@
 #'
 #'
 
-particles_to_tracks <- function(input = NULL, by="competency") {
+particles_to_tracks <- function(input = NULL, slicesample=100, by="competency") {
   options(dplyr.summarise.inform = FALSE)
   
   tracks <- input %>% 
-    #mutate(id=as.factor(id)) |> 
+    # remove duplicate geometries if particle is static or breaks linestring
+    #group_by(geometry) %>% 
+    #slice_head(n = 1) %>% 
+    #ungroup() %>%
+   
+     #mutate(id=as.factor(id)) |> 
     #mutate(competency=as.factor(competency)) |> 
     arrange(id, dispersaltime) %>% 
     group_by(id, competency) %>%
     summarise(do_union = FALSE) %>% 
     st_make_valid() %>%
-    st_cast("MULTILINESTRING") 
-  
-  tracks_filtered <- tracks[sapply(st_geometry(tracks), st_is_valid), ]
+    st_cast("MULTILINESTRING") |> 
+    slice_sample(n=slicesample)
   
   
   options(dplyr.summarise.inform = TRUE)
   
-  return(tracks_filtered)
+  return(tracks)
 }

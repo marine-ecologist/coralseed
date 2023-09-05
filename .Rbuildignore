@@ -5,3 +5,4 @@
 ^pkgdown$
 ^\.github$
 ^docs/_pkgdown\.yml$
+^vignettes/
