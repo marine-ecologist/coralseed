@@ -8,7 +8,8 @@ map_coralseed(
   seed_particles = particles,
   settle_particles = settlers,
   seascape_probability = seascape,
-  restoration.plot = c(100, 100)
+  restoration.plot = c(100, 100),
+  subset.tracks = 1000
 )
 }
 \arguments{

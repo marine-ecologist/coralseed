@@ -11,6 +11,8 @@
 
 
 seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability = NULL, ...) {
+  
+  options(dplyr.summarise.inform = FALSE)
   if (is.null(probability) == TRUE) {
     probability <- data.frame(
       class = c("Back Reef Slope", "Lagoon", "Inner Reef Flat", "Outer Reef Flat", "Plateau", "Reef Crest", "Reef Slope", "Sheltered Reef Slope"),
@@ -70,6 +72,6 @@ seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability
       dplyr::select(-means, -se) |>
       sf::st_make_valid()
   })
-
+  options(dplyr.summarise.inform = TRUE)
   return(allen_map_probability)
 }

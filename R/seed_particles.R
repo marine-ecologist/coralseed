@@ -184,7 +184,7 @@ seed_particles <- function(
     dplyr::ungroup() |>
     dplyr::left_join(competency_times, by = "id") |> # join with probability
     dplyr::mutate(state = ifelse(dispersaltime <= settlement_point, 0, 1)) |>
-    dplyr::mutate(competency = (dplyr::recode(state, "1" = "competent", "0" = "incompetent"))) |>
+    dplyr::mutate(competency = (dplyr::recode(state, "1" = "competent", "0" = "incompetent"))) |> ####### intermittent error here, check for NA on loop
     dplyr::arrange(id) |>
     sf::st_as_sf(coords = c("X", "Y"), crs = 20353) |>
     sf::st_cast("POINT")
@@ -229,7 +229,7 @@ seed_particles <- function(
       ggplot2::geom_sf(data = particle_points_probability_settlers, size = 1.5, shape = 21, fill = "aquamarine3", alpha = 0.6)
 
     kde_settle <- ggplot2::ggplot() +
-      ggplot2::theme_bw() +
+      ggplot2::theme_bw() + 
       ggplot2::geom_histogram(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime, y = ggplot2::after_stat(density)), color = "black", fill = "lightblue", binwidth = 5) +
       ggplot2::geom_density(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime, y = ggplot2::after_stat(density)), color = "darkred", linewidth = 1.2) +
       ggplot2::labs( # title = "Kernel Density Estimation (KDE) of max dispersaltime for settled larvae",
@@ -237,13 +237,22 @@ seed_particles <- function(
         y = "Density"
       )
 
-    print(ggpubr::ggarrange(
-      na.omit(competency_times_output$simulated_settlers_plot),
-      particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Survival curve"),
-      particle_points_probability_plot + ggplot2::ggtitle("3. Spatial pattern settlers"),
-      kde_settle + ggplot2::ggtitle("4. Dispersaltime prior to settlement"),
-      ncol = 2, nrow = 2
-    ))
+    
+    p1 <- na.omit(competency_times_output$simulated_settlers_plot)
+    p2 <- particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Survival curve") 
+    p3 <- kde_settle + ggplot2::ggtitle("3. Dispersaltime prior to settlement")
+    p4 <- particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers")
+    
+    print(cowplot::plot_grid(p1, p2, p3, p4, align = "lr", ncol=2, nrow = 2))
+
+    # print(ggpubr::ggarrange(
+    #   na.omit(competency_times_output$simulated_settlers_plot),
+    #   particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Survival curve"),
+    #   kde_settle + ggplot2::ggtitle("3. Dispersaltime prior to settlement"),
+    #   particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers"),
+    #   ncol = 2, nrow = 2
+    # ))
+    
   }
   # options(warn = oldwarning)
 

@@ -15,26 +15,30 @@
 #'
 #'
 
-particles_to_tracks <- function(input = NULL, slicesample=100, by="competency") {
+particles_to_tracks <- function(input = NULL,  by="competency") {
   options(dplyr.summarise.inform = FALSE)
+  
   
   tracks <- input %>% 
     # remove duplicate geometries if particle is static or breaks linestring
-    #group_by(geometry) %>% 
-    #slice_head(n = 1) %>% 
-    #ungroup() %>%
-   
-     #mutate(id=as.factor(id)) |> 
-    #mutate(competency=as.factor(competency)) |> 
-    arrange(id, dispersaltime) %>% 
-    group_by(id, competency) %>%
-    summarise(do_union = FALSE) %>% 
-    st_make_valid() %>%
-    st_cast("MULTILINESTRING") |> 
-    slice_sample(n=slicesample)
+    group_by(geometry) %>% 
+    slice_head(n = 1) %>% 
+    ungroup() %>%
+    mutate(id=as.factor(id)) |> 
+    mutate(competency=as.factor(competency)) |> 
+    dplyr::arrange(id, dispersaltime) %>% 
+    dplyr::group_by(id, competency) %>%
+    dplyr::summarise(do_union = FALSE) %>% 
+    sf::st_make_valid() %>%
+    sf::st_cast("MULTILINESTRING") %>%
+    # dplyr::ungroup() %>%
+    # dplyr::mutate(id=as.factor(id)) %>%
+    # dplyr::group_by(id) %>%
+    # dplyr::sample_n(slicesample) %>%
+    # dplyr::mutate(id=as.character(id))
+    
   
-  
-  options(dplyr.summarise.inform = TRUE)
+  #options(dplyr.summarise.inform = TRUE)
   
   return(tracks)
 }

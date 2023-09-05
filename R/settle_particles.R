@@ -71,7 +71,8 @@ settle_particles <- function(input, probability = "additive", silent = TRUE, ...
     dplyr::filter(dispersaltime <= maxdispersaltime) |>
     dplyr::group_by(id) |>
     dplyr::summarise(do_union = FALSE) |>
-    sf::st_cast("MULTILINESTRING") # |>
+    sf::st_cast("MULTILINESTRING") |>
+    sf::st_make_valid()
 
   results <- list(
     select_particles,

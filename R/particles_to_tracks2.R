@@ -15,19 +15,22 @@
 #'
 #'
 
-particles_to_tracks2 <- function(input = NULL, by="competency") {
+particles_to_tracks2 <- function(input = NULL, slicesample=100, by="competency") {
   options(dplyr.summarise.inform = FALSE)
   
+  idstring <- sample(unique(input$id), slicesample)
+  
   tracks <- input %>% 
-    arrange(id, dispersaltime) %>% 
-    group_by(id) %>%
-    summarise(do_union = FALSE) %>% 
-    st_make_valid() %>%
-    st_cast("MULTILINESTRING") 
+    dplyr::arrange(id, dispersaltime) %>% 
+    dplyr:: group_by(id, competency) %>%
+    dplyr::summarise(do_union = FALSE) %>% 
+    sf::st_make_valid() %>%
+    sf::st_cast("MULTILINESTRING") 
   
   tracks_filtered <- tracks[sapply(st_geometry(tracks), st_is_valid), ]
   
-  
+  tracks_filtered <- tracks_filtered %>% filter(id %in% idstring)
+
   options(dplyr.summarise.inform = TRUE)
   
   return(tracks_filtered)

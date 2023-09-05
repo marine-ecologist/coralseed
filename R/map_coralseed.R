@@ -9,16 +9,15 @@
 #' @param restoration.plot dimensions of the restoration plot in metres
 #' @export
 #'
-map_coralseed <- function(seed_particles = particles, settle_particles = settlers, seascape_probability = seascape, restoration.plot = c(100, 100)) {
+map_coralseed <- function(seed_particles = particles, settle_particles = settlers, seascape_probability = seascape, restoration.plot = c(100, 100), subset.tracks=1000) {
 
  
-  particletracks <- particles |> particles_to_tracks(slicesample=100, by="competency") |> st_make_valid()
+  particletracks <- seed_particles |> particles_to_tracks(by="competency") 
   settler_density <- settle_particles |> settlement_density()
-  restoration_plot <- seed_particles |> set_restoration_plot(100, 100)
+  restoration_plot <- particles |> set_restoration_plot(100, 100) 
   
-  seascape_probability <- seascape
-  particle_paths <- settlers$paths
-  particle_points <- settlers$points
+  particle_paths <- settle_particles$paths
+  particle_points <- settle_particles$points
   
   tmp <- tmap::tmap_mode("view") +
     
@@ -35,8 +34,8 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     tmap::tm_fill("settlement_probability", id = "P settlement", alpha = 0.6) +
     
     # particle tracks   
-    #tmap::tm_shape(particletracks) +
-    #tmap::tm_lines("competency", lwd = 0.8, palette = c("lightblue", "cadetblue4")) +
+    tmap::tm_shape(particletracks, name = "<b> [Particles]</b> competency") +
+    tmap::tm_lines("competency", lwd = 0.8, palette = c("lightblue", "cadetblue4")) +
     
     # pre-settlement tracks   
     tmap::tm_shape(particle_paths,  id="id", name = "<b> [Settlers]</b> pre-settlement tracks") +
@@ -78,13 +77,17 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     leaflet::addProviderTiles('Esri.WorldImagery', group = "<b> [Seascape]</b> satellite map", options=leaflet::providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
     leaflet::addProviderTiles('Esri.WorldTopoMap',  group = "<b> [Seascape]</b> base map", options=leaflet::providerTileOptions(maxNativeZoom=19,maxZoom=100)) |>
     leaflet::addLayersControl(position="topleft", overlayGroups=c("<b> [Seascape]</b> base map", "<b> [Seascape]</b> satellite map",
-                                                                  "<b> [Seascape]</b> habitats", "<b> [Seascape]</b> probability", "<b> [Particles]</b> competency",
-                                                                  "<b> [Settlers]</b> pre-settlement tracks", "<b> [Settlers]</b> post-settlement location", "<b> [Settlers]</b> post-settlement area", "<b> [Stats]</b> spatial grid",
-                                                                  "<b> [Stats]</b> spatial grid", "<b> [Stats]</b> settlement count", "<b> [Stats]</b> settlement density", "<b> [Stats]</b> restoration hectare"),
+                                                                  "<b> [Seascape]</b> habitats", "<b> [Seascape]</b> probability", 
+                                                                  "<b> [Particles]</b> competency", "<b> [Settlers]</b> pre-settlement tracks", 
+                                                                  "<b> [Settlers]</b> post-settlement location", "<b> [Settlers]</b> post-settlement area", 
+                                                                  "<b> [Stats]</b> spatial grid", "<b> [Stats]</b> settlement count",
+                                                                  "<b> [Stats]</b> settlement density", "<b> [Stats]</b> restoration hectare"),
                               options=leaflet::layersControlOptions(collapsed = FALSE)) |>
     leaflet::hideGroup(c("<b> [Seascape]</b> probability", "<b> [Particles]</b> competency",
-                         "<b> [Settlers]</b> pre-settlement tracks", "<b> [Settlers]</b> post-settlement location", "<b> [Settlers]</b> post-settlement area",
-                         "<b> [Stats]</b> spatial grid", "<b> [Stats]</b> settlement count", "<b> [Stats]</b> settlement density", "<b> [Stats]</b> restoration hectare")) |> 
+                         "<b> [Settlers]</b> pre-settlement tracks", "<b> [Settlers]</b> post-settlement location", 
+                         "<b> [Settlers]</b> post-settlement area", "<b> [Stats]</b> spatial grid", 
+                         "<b> [Stats]</b> settlement count", "<b> [Stats]</b> settlement density", 
+                         "<b> [Stats]</b> restoration hectare")) |> 
     leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = FALSE)
   
 }

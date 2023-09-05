@@ -4,7 +4,7 @@
 \alias{particles_to_tracks2}
 \title{Particles to tracks}
 \usage{
-particles_to_tracks2(input = NULL, by = "competency")
+particles_to_tracks2(input = NULL, slicesample = 100, by = "competency")
 }
 \arguments{
 \item{input}{input (defaults to NULL)}

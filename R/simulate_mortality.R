@@ -16,6 +16,7 @@
 #' @export
 #'
 
+
 simulate_mortality <- function(
     input, simulate.mortality = NULL, simulate.mortality.n = 0.1,
     return.plot = FALSE, silent = FALSE, set.seed = NULL, ...) {
@@ -102,11 +103,13 @@ simulate_mortality <- function(
     oldwarning <- getOption("warn")
     options(warn = -1)
     plot1 <- ggplot2::ggplot() +
-      ggplot2::theme_bw() +
+      ggplot2::theme_bw() + 
       ggplot2::geom_point(data = survivorship_loop, ggplot2::aes(x = time, y = n, color = as.factor(type)), size = 1.5, alpha = 0.02) +
       ggplot2::scale_color_manual(values = viridis::viridis(n = 4)[-4]) +
       ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(alpha = 1.0, size = 2))) +
-      ggplot2::geom_point(data = survivorship_output_plot, ggplot2::aes(mortalitytime, as.numeric(id)), size = 2, shape = 21, show.legend = FALSE, fill = NA, color = "black")
+      ggplot2::geom_point(data = survivorship_output_plot, ggplot2::aes(mortalitytime, as.numeric(id)), size = 2, shape = 21, show.legend = FALSE, fill = NA, color = "black") +
+      ggplot2::theme(legend.position = c(0.8,0.2), legend.title = element_blank(), legend.background = element_blank()) 
+      
     options(warn=oldwarning)
 
     return_list <- list(plot1, df_joined)
