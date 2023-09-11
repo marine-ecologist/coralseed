@@ -31,15 +31,14 @@
 map_coralseed <- function(seed_particles = particles, settle_particles = settlers, seascape_probability = seascape, restoration.plot = c(100, 100), show.tracks=TRUE) {
   
   
-  particletracks <- seed_particles |> particles_to_tracks(by=c("id", "competency")) 
+  particletracks <- seed_particles |>  dplyr::filter(dispersaltime %in% seq(0,1800,5)) |>  particles_to_tracks(by=c("id", "competency")) 
   settler_density <- settle_particles |> settlement_density()
   restoration_plot <- particles |> set_restoration_plot(100, 100) 
   
   particle_paths <- settle_particles$paths
   particle_points <- settle_particles$points
   
-  particletracks <- particles |> particles_to_tracks(by=c("id", "competency"))
-  
+
   # particle_rainbow <- seed_particles |> 
   # #   # remove duplicate geometries if particle is static or breaks linestring
   #    dplyr::group_by(geometry) %>% 
@@ -76,7 +75,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
       ))) %>% 
     dplyr::select(id, line, dispersalbin)
   
-  particle_rainbow <- particle_rainbow_form %>%
+  particle_rainbow <- particle_rainbow_form  |> 
     sf::st_sf(geometry = sf::st_sfc(particle_rainbow_form$line, crs = sf::st_crs(particle_rainbow_form))) |> 
     dplyr::arrange(id, dispersalbin)
   
@@ -99,21 +98,13 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     tmap::tm_fill("settlement_probability", id = "P settlement", alpha = 0.6) +
     
     # particle tracks dispersal 
-    #tmap::tm_shape(particle_rainbow, name = "<b> [Particles]</b> dispersaltime") +
-    #tmap::tm_lines("dispersalbin", lwd = 0.8, palette = "Spectral", type="cont", breaks=seq(0,ceiling(max(particles$dispersaltime/60))*60,60)) +
+    tmap::tm_shape(particle_rainbow, name = "<b> [Particles]</b> dispersaltime") +
+    tmap::tm_lines("dispersalbin", lwd = 0.8, palette = "Spectral", type="cont", breaks=seq(0,ceiling(max(particles$dispersaltime/60))*60,60)) +
    
-    # particle tracks dispersal 2
-    
-    n_rainbow <- length(unique(particle_rainbow$dispersalbin))
-    palette_rainbow <- colorRampPalette(brewer.pal(11, "Spectral"))(n_rainbow) # Create a color palette
-    dispersal$dispersal_color <- palette_rainbow[as.numeric(particle_rainbow$dispersalbin)] # Convert factor column into numeric values and map to the palette
-    
-    leafgl::addGlPolylines(data = particle_rainbow, group = "<b> [Particles]</b> dispersaltime", color=~dispersal_color, weight="1", opacity=0.5, popup = FALSE) |>
-    
     # particle tracks competency 
-    # tmap::tm_shape(particletracks, name = "<b> [Particles]</b> competency") +
-    # tmap::tm_lines("competency", lwd = 0.8, palette = c("lightblue", "cadetblue4")) +
-    # 
+    tmap::tm_shape(particletracks, name = "<b> [Particles]</b> competency") +
+    tmap::tm_lines("competency", lwd = 0.8, palette = c("lightblue", "cadetblue4")) +
+       
     # pre-settlement tracks   
     tmap::tm_shape(particle_paths,  id="id", name = "<b> [Settlers]</b> pre-settlement tracks") +
     tmap::tm_lines(lwd = 0.8, col = "darkgrey") +
@@ -155,13 +146,14 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     leaflet::addProviderTiles('Esri.WorldTopoMap',  group = "<b> [Seascape]</b> base map", options=leaflet::providerTileOptions(maxNativeZoom=19,maxZoom=100)) |>
     leaflet::addLayersControl(position="topleft", overlayGroups=c("<b> [Seascape]</b> base map", "<b> [Seascape]</b> satellite map",
                                                                   "<b> [Seascape]</b> habitats", "<b> [Seascape]</b> probability", 
-                                                                  "<b> [Particles]</b> dispersaltime", "<b> [Particles]</b>  competency",
+                                                                  "<b> [Particles]</b> dispersaltime", "<b> [Particles]</b> competency",
                                                                   "<b> [Settlers]</b> pre-settlement tracks", 
                                                                   "<b> [Settlers]</b> post-settlement location", "<b> [Settlers]</b> post-settlement area", 
                                                                   "<b> [Stats]</b> spatial grid", "<b> [Stats]</b> settlement count",
                                                                   "<b> [Stats]</b> settlement density", "<b> [Stats]</b> restoration hectare"),
                               options=leaflet::layersControlOptions(collapsed = FALSE)) |>
-    leaflet::hideGroup(c("<b> [Seascape]</b> probability", "<b> [Particles]</b> competency",
+    leaflet::hideGroup(c("<b> [Seascape]</b> probability", 
+                         "<b> [Particles]</b> competency",
                          "<b> [Settlers]</b> pre-settlement tracks", "<b> [Settlers]</b> post-settlement location", 
                          "<b> [Settlers]</b> post-settlement area", "<b> [Stats]</b> spatial grid", 
                          "<b> [Stats]</b> settlement count", "<b> [Stats]</b> settlement density")) |> 
