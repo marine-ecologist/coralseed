@@ -15,22 +15,25 @@
 #'
 #'
 
-particles_to_tracks <- function(input = NULL,  by="competency") {
+particles_to_tracks <- function(input = NULL,  by="id", type="MULTILINESTRING") {
   options(dplyr.summarise.inform = FALSE)
   
   
   tracks <- input %>% 
-    # remove duplicate geometries if particle is static or breaks linestring
-    group_by(geometry) %>% 
-    slice_head(n = 1) %>% 
+    #remove duplicate geometries if particle is static or breaks linestring
+    group_by(geometry) %>%
+    slice_head(n = 1) %>%
     ungroup() %>%
-    mutate(id=as.factor(id)) |> 
-    mutate(competency=as.factor(competency)) |> 
+    #drop less than 3 points per group
+    group_by(id, competency) |> 
+    filter(n() > 3 ) |> 
+    #mutate(id=as.factor(id)) |> 
+    #mutate(competency=as.factor(competency)) |> 
     dplyr::arrange(id, dispersaltime) %>% 
-    dplyr::group_by(id, competency) %>%
+    dplyr::group_by(!!!syms(by)) %>%
     dplyr::summarise(do_union = FALSE) %>% 
     sf::st_make_valid() %>%
-    sf::st_cast("MULTILINESTRING") %>%
+    sf::st_cast(type) %>%
     # dplyr::ungroup() %>%
     # dplyr::mutate(id=as.factor(id)) %>%
     # dplyr::group_by(id) %>%
