@@ -4,7 +4,7 @@
 \alias{particles_to_tracks}
 \title{Particles to tracks}
 \usage{
-particles_to_tracks(input = NULL, by = "competency")
+particles_to_tracks(input = NULL, by = "id", type = "MULTILINESTRING")
 }
 \arguments{
 \item{input}{input (defaults to NULL)}
