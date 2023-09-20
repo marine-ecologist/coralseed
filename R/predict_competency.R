@@ -19,30 +19,67 @@ predict_competency <- function(n_id, n_sims=1000, competency.function = "exponen
 
   
   if (competency.function == "exponential") {
-    dataset_quartiles <- foreach(i=1:n_sims, .combine="rbind") %do% {
-      post_sm1_sample_exp <- coralseed::parameter_draws_exp %>% slice_sample(n = n_sims)
-      individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1]))) 
-      data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
-    }
+    # dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
+    #   post_sm1_sample_exp <- coralseed::parameter_draws_exp %>% slice_sample(n = n_sims)
+    #   individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1]))) 
+    #   data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
+    # }
+    # 
+    
+    dataset_quartiles <- purrr::map_dfr(1:n_sims, ~{
+      post_sm1_sample_exp <- coralseed::parameter_draws_exp %>%
+        slice_sample(n = n_sims)
+      individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1, 1])))
+      data.frame(
+        settlement_point = sort(round(individual_times)),
+        id = (n_id) - seq(0, n_id - 1, 1),
+        sim = .x
+      )
+    })
+    
     
     simulated_settlers <- dataset_quartiles |> filter(sim %in% sample(1:n_sims,1)) |> select(-sim)
     
   } else if (competency.function == "lognormal") {
-    dataset_quartiles <- foreach(i=1:n_sims, .combine="rbind") %do% {
-      post_sm1_sample_lognormal <- parameter_draws_lognormal %>% slice_sample(n = n_sims)
-      individual_times <- rlnorm(runif(n_id), meanlog=post_sm1_sample_lognormal[1,1], sdlog=post_sm1_sample_lognormal[1,2]) 
-      data.frame(settlement_point=sort(round(individual_times)), id=n_id-seq(0,n_id,1), sim=(i))
-    }
-    
+    # dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
+    #   post_sm1_sample_lognormal <- parameter_draws_lognormal %>% slice_sample(n = n_sims)
+    #   individual_times <- rlnorm(runif(n_id), meanlog=post_sm1_sample_lognormal[1,1], sdlog=post_sm1_sample_lognormal[1,2]) 
+    #   data.frame(settlement_point=sort(round(individual_times)), id=n_id-seq(0,n_id,1), sim=(i))
+    # }
+    # 
+    dataset_quartiles <- purrr::map_dfr(1:n_sims, ~{
+      post_sm1_sample_lognormal <- parameter_draws_lognormal %>%
+        slice_sample(n = n_sims)
+      individual_times <- rlnorm(runif(n_id), 
+                                 meanlog = post_sm1_sample_lognormal[1, 1], 
+                                 sdlog = post_sm1_sample_lognormal[1, 2])
+      data.frame(
+        settlement_point = sort(round(individual_times)),
+        id = n_id - seq(0, n_id, 1),
+        sim = .x
+      )
+    })
     simulated_settlers <- dataset_quartiles |> filter(sim %in% sample(1:n_sims,1)) |> select(-sim)
     
   } else if (competency.function == "weibull") {
-    dataset_quartiles <- foreach(i=1:n_sims, .combine="rbind") %do% {
-      post_sm1_sample <- coralseed::parameter_draws_weibull %>% slice_sample(n = n_sims)
-      individual_times <- rweibull(runif(1000), shape = post_sm1_sample[1,2], scale = post_sm1_sample[1,1]) 
-      data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
-    }
+    # dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
+    #   post_sm1_sample <- coralseed::parameter_draws_weibull %>% slice_sample(n = n_sims)
+    #   individual_times <- rweibull(runif(1000), shape = post_sm1_sample[1,2], scale = post_sm1_sample[1,1])
+    #   data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
+    # }
     
+    dataset_quartiles <- purrr::map_dfr(1:n_sims, ~{
+      post_sm1_sample <- coralseed::parameter_draws_weibull %>%
+        slice_sample(n = n_sims)
+      individual_times <- rweibull(runif(1000), 
+                                   shape = post_sm1_sample[1, 2], 
+                                   scale = post_sm1_sample[1, 1])
+      data.frame(
+        settlement_point = sort(round(individual_times)),
+        id = n_id - seq(0, n_id - 1, 1),
+        sim = .x
+      )
+    })
     simulated_settlers <- dataset_quartiles |> filter(sim %in% sample(1:n_sims,1)) |> select(-sim)
 
     

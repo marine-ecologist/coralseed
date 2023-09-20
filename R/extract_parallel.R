@@ -2,6 +2,7 @@
 #'
 #' Function to extract points and paths from multiple %dopar% outputs
 #'
+#' @name extract_parallel
 #' @param input list of %dopar% outputs
 #' @param type either points or paths
 #' @param ... pass arguments
@@ -9,8 +10,6 @@
 #'
 #'
 #'
-globalVariables("id")
-globalVariables("id_full")
 
 extract_parallel <- function(input, type, ...) {
   if (type == "points") {

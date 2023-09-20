@@ -22,7 +22,7 @@
 
 
 seed_particles <- function(
-    input=NULL, example=NULL, seascape = NULL, subsample=NULL,
+    input = NULL, example = NULL, seascape = NULL, subsample = NULL,
     simulate.mortality = "none", simulate.mortality.n = 0.1,
     competency.function = "exp", limit.time = NA,
     set.centre = TRUE, set.seed = NULL,
@@ -36,18 +36,17 @@ seed_particles <- function(
 
   if (is.null(set.seed) == TRUE) {
     set.seed(sample(-9999999:9999999, 1))
-  } 
-  
+  }
 
-  if (is.null(input)==FALSE) {
-  load_particles <- input |>
-    sf::st_zm(drop = TRUE, what = "ZM") |>
-    sf::st_transform(20353) |>
-    dplyr::select(-decay_value)
 
+  if (is.null(input) == FALSE) {
+    load_particles <- input |>
+      sf::st_zm(drop = TRUE, what = "ZM") |>
+      sf::st_transform(20353) |>
+      dplyr::select(-decay_value)
   } else {
   }
-  
+
   data_sources <- list(
     mermaid = coralseed:::Mermaid_PointSource_Bay_01,
     watson = coralseed:::WatsonN_PointSource_ForeReefSh_01,
@@ -55,33 +54,48 @@ seed_particles <- function(
     spawnhub = coralseed:::SpHub_PointSource_SELaggon_01,
     clamgarden = coralseed:::ClamGarden_PointSource_OpenLagoon_01
   )
-  
-  if (is.null(example)==TRUE){
-    
+
+  data_sources_df <- data.frame(
+    dataset_name = c("mermaid", "watson", "palfrey", "spawnhub", "clamgarden"),
+    linked_file_name = c(
+      "coralseed:::Mermaid_PointSource_Bay_01",
+      "coralseed:::WatsonN_PointSource_ForeReefSh_01",
+      "coralseed:::PalfreyN_PointSource_ForeReefEx_01",
+      "coralseed:::SpHub_PointSource_SELaggon_01",
+      "coralseed:::ClamGarden_PointSource_OpenLagoon_01"
+    ),
+    stringsAsFactors = FALSE
+  )
+
+
+  if (is.null(example) == TRUE) {
+
   } else if (example %in% names(data_sources)) {
-     load_particles <- data_sources[[example]] %>%
-       sf::st_zm(drop = TRUE, what = "ZM") %>%
-       sf::st_transform(20353) %>%
-       dplyr::mutate(time = time + lubridate::hours(14))
-     cat(paste0("Example: ", data_sources_df[data_sources_df$dataset_name == dataset_name_to_find, 2], " \n"))
+    load_particles <- data_sources[[example]] %>%
+      sf::st_zm(drop = TRUE, what = "ZM") %>%
+      sf::st_transform(20353) %>%
+      dplyr::mutate(time = time + lubridate::hours(14))
+    # if (is.null(silent) == FALSE) {
+    #   cat(paste0("Example: ", data_sources_df[data_sources_df$dataset_name == example, 2], " \n"))
+    # }
   } else if (!example %in% names(data_sources)) {
     cat("\n error: example not found, must be one of mermaid, watson, palfrey, spawnhub, clamgarden. \n\n")
-    } 
-      
-  if (is.null(load_particles)==TRUE) {
+  }
+
+  if (is.null(load_particles) == TRUE) {
     cat("\n\n error: coralseed requires either an input file or an example file\n\n\n\n")
     stop()
   } else {
-  
-  } 
 
-    if (is.null(subsample)==FALSE){
-      load_particles <- load_particles |>
-        dplyr::mutate(id=as.factor(id)) |>
-        dplyr::filter(id %in% sample(x=as.numeric(unique(load_particles$id)), size=as.numeric(subsample))) |>
-        dplyr:: mutate(id=as.integer(id))
-      } else { }
-      
+  }
+
+  if (is.null(subsample) == FALSE) {
+    load_particles <- load_particles |>
+      dplyr::mutate(id = as.factor(id)) |>
+      dplyr::filter(id %in% sample(x = as.numeric(unique(load_particles$id)), size = as.numeric(subsample))) |>
+      dplyr::mutate(id = as.integer(id))
+  } else { }
+
   # get details from input
   t0 <- min(load_particles$time)
   tmax <- max(load_particles$time)
@@ -90,7 +104,7 @@ seed_particles <- function(
   # print details while loading
   if (silent == FALSE) {
     (cat(paste0("\n")))
-   #(cat(paste0("Filename: ", basename(input), " \n")))
+    # (cat(paste0("Filename: ", basename(input), " \n")))
     (cat(paste0("Importing ", length(levels(as.factor(load_particles$id))), " particle tracks", "\n")))
     if (is.null(set.seed) == TRUE) {
       (cat(paste0("[No seed set, random draws used] \n")))
@@ -157,11 +171,13 @@ seed_particles <- function(
   ##########################################################################################
   ###  #2 Predict competency
 
-  competency_times_output <- predict_competency(n_id = length(levels(as.factor(particle_points$id))), 
-                                                competency.function = competency.function, set.seed = set.seed, return.plot = return.plot)
+  competency_times_output <- predict_competency(
+    n_id = length(levels(as.factor(particle_points$id))),
+    competency.function = competency.function, set.seed = set.seed, return.plot = return.plot
+  )
 
-  #head(competency_times_output$simulated_settlers)
-  
+  # head(competency_times_output$simulated_settlers)
+
   competency_times <- competency_times_output |>
     with(simulated_settlers) |>
     dplyr::sample_frac(size = 1) |>
@@ -195,11 +211,11 @@ seed_particles <- function(
     sf::st_as_sf(coords = c("X", "Y"), crs = 20353) |>
     sf::st_cast("POINT")
 
-  #tail(particle_points_expanded)
-  
+  # tail(particle_points_expanded)
+
   ### add mortality
 
-  #particle_points_expanded_postmortality <- particle_points_expanded
+  # particle_points_expanded_postmortality <- particle_points_expanded
   particle_points_expanded_postmortality <- simulate_mortality(
     input = particle_points_expanded,
     simulate.mortality = simulate.mortality, simulate.mortality.n = simulate.mortality.n,
@@ -228,43 +244,42 @@ seed_particles <- function(
 
   if (return.plot == TRUE) {
     suppressWarnings({
-    particle_points_probability_settlers <- particle_points_probability |>
-      dplyr::group_by(id) |>
-      dplyr::filter(outcome == 1) |>
-      dplyr::slice(1)
+      particle_points_probability_settlers <- particle_points_probability |>
+        dplyr::group_by(id) |>
+        dplyr::filter(outcome == 1) |>
+        dplyr::slice(1)
 
-    particle_points_probability_plot <- ggplot2::ggplot() +
-      ggplot2::theme_bw() +
-      ggplot2::geom_sf(data = particle_points_probability_settlers, size = 1.5, shape = 21, fill = "aquamarine3", alpha = 0.6)
+      particle_points_probability_plot <- ggplot2::ggplot() +
+        ggplot2::theme_bw() +
+        ggplot2::geom_sf(data = particle_points_probability_settlers, size = 1.5, shape = 21, fill = "aquamarine3", alpha = 0.6)
 
-    kde_settle <- ggplot2::ggplot() +
-      ggplot2::theme_bw() + 
-      ggplot2::geom_histogram(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime, y = ggplot2::after_stat(density)), color = "black", fill = "lightblue", binwidth = 5) +
-      ggplot2::geom_density(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime, y = ggplot2::after_stat(density)), color = "darkred", linewidth = 1.2) +
-      ggplot2::labs( # title = "Kernel Density Estimation (KDE) of max dispersaltime for settled larvae",
-        x = "Dispersal time (mins)",
-        y = "Density"
-      )
+      kde_settle <- ggplot2::ggplot() +
+        ggplot2::theme_bw() +
+        ggplot2::geom_histogram(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime, y = ggplot2::after_stat(density)), color = "black", fill = "lightblue", binwidth = 5) +
+        ggplot2::geom_density(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime, y = ggplot2::after_stat(density)), color = "darkred", linewidth = 1.2) +
+        ggplot2::labs( # title = "Kernel Density Estimation (KDE) of max dispersaltime for settled larvae",
+          x = "Dispersal time (mins)",
+          y = "Density"
+        )
 
-    
-    p1 <- na.omit(competency_times_output$simulated_settlers_plot)
-    p2 <- particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Survival curve") 
-    p3 <- kde_settle + ggplot2::ggtitle("3. Dispersaltime prior to settlement")
-    p4 <- particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers")
-    
-    print(cowplot::plot_grid(p1, p2, p3, p4, align = "lr", ncol=2, nrow = 2))
 
-    # print(ggpubr::ggarrange(
-    #   na.omit(competency_times_output$simulated_settlers_plot),
-    #   particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Survival curve"),
-    #   kde_settle + ggplot2::ggtitle("3. Dispersaltime prior to settlement"),
-    #   particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers"),
-    #   ncol = 2, nrow = 2
-    # ))
+      p1 <- na.omit(competency_times_output$simulated_settlers_plot)
+      p2 <- particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Survival curve")
+      p3 <- kde_settle + ggplot2::ggtitle("3. Dispersaltime prior to settlement")
+      p4 <- particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers")
+
+      print(cowplot::plot_grid(p1, p2, p3, p4, align = "lr", ncol = 2, nrow = 2))
+
+      # print(ggpubr::ggarrange(
+      #   na.omit(competency_times_output$simulated_settlers_plot),
+      #   particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Survival curve"),
+      #   kde_settle + ggplot2::ggtitle("3. Dispersaltime prior to settlement"),
+      #   particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers"),
+      #   ncol = 2, nrow = 2
+      # ))
     })
-    
   }
-  
+
   #
   # data.frame(descriptors=c("Filename", "n particle tracks", "", "Time start", "Time end", "Total dispersaltime (hrs)", "Time limit", "", "Competency at t6", "Competency at t12", "Competency at t24"),
   #          values=c(basename(input), length(levels(as.factor(load_particles$id))), "", set.seed, t0, tmax, tmax-t0, limit.time, "", t6, t12, t24) ) |>
@@ -273,5 +288,4 @@ seed_particles <- function(
   #
 
   return(particle_points_probability)
- 
 }

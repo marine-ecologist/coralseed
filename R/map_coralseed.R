@@ -2,7 +2,7 @@
 #'
 #' Function to quickly map settlers
 #'
-#'
+#' @name extract_parallel
 #' @param seed_particles input from seed_particles
 #' @param settle_particles input from settle_particles
 #' @param seascape_probability input from seascape_probability
@@ -27,18 +27,6 @@
   #   sf::st_cast("MULTILINESTRING") %>%
   #   # drop intersections
   #   filter(st_is_valid(geometry))
-
-
-globalVariables("particles")
-globalVariables("settlers")
-globalVariables("seascape")
-globalVariables("dispersaltime")
-globalVariables("competency")
-
-globalVariables("geometry")
-globalVariables("geometry_lagged")
-globalVariables("line")
-globalVariables("dispersalbin")
 
 
 map_coralseed <- function(seed_particles = particles, settle_particles = settlers, seascape_probability = seascape, restoration.plot = c(100, 100), show.tracks=TRUE) {
@@ -67,9 +55,6 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
   # #   # drop intersections
   #    filter(st_is_valid(geometry))
   
-  
-  
-  
   particle_rainbow_form <- particles |> 
     dplyr::filter(dispersaltime %in% seq(0,1800,5)) %>%
     dplyr::mutate(dispersalbin = as.numeric(as.character((cut(dispersaltime, breaks = seq(0, 1800, 60), labels = seq(1, 1800, 60), include.lowest = TRUE))))-1) %>%
@@ -91,9 +76,6 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
   particle_rainbow <- particle_rainbow_form  |> 
     sf::st_sf(geometry = sf::st_sfc(particle_rainbow_form$line, crs = sf::st_crs(particle_rainbow_form))) |> 
     dplyr::arrange(id, dispersalbin) |> select(-id)
-  
-  
-  
   
   if(show.tracks==TRUE){
   tmp <- tmap::tmap_mode("view") +
@@ -236,14 +218,15 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     leaflet::addProviderTiles('Esri.WorldTopoMap',  group = "<b> [Seascape]</b> base map", options=leaflet::providerTileOptions(maxNativeZoom=19,maxZoom=100)) |>
     leaflet::addLayersControl(position="topleft", overlayGroups=c("<b> [Seascape]</b> base map", "<b> [Seascape]</b> satellite map",
                                                                   "<b> [Seascape]</b> habitats", "<b> [Seascape]</b> probability", 
-                                                                  #"<b> [Particles]</b> competency", "<b> [Particles]</b> dispersaltime", 
-                                                                  "<b> [Settlers]</b> pre-settlement tracks", 
-                                                                  "<b> [Settlers]</b> post-settlement location", "<b> [Settlers]</b> post-settlement area", 
+                                                                  "<b> [Particles]</b> competency", "<b> [Particles]</b> dispersaltime", 
+                                                                  #"<b> [Settlers]</b> pre-settlement tracks", 
+                                                                  #"<b> [Settlers]</b> post-settlement location", 
+                                                                  "<b> [Settlers]</b> post-settlement area", 
                                                                   "<b> [Stats]</b> spatial grid", "<b> [Stats]</b> settlement count",
                                                                   "<b> [Stats]</b> settlement density", "<b> [Stats]</b> restoration hectare"),
                               options=leaflet::layersControlOptions(collapsed = FALSE)) |>
-    leaflet::hideGroup(c("<b> [Seascape]</b> probability", #"<b> [Particles]</b> competency",
-                         "<b> [Settlers]</b> pre-settlement tracks", "<b> [Settlers]</b> post-settlement location", 
+    leaflet::hideGroup(c("<b> [Seascape]</b> probability", "<b> [Particles]</b> competency",
+                         #"<b> [Settlers]</b> pre-settlement tracks", "<b> [Settlers]</b> post-settlement location", 
                          "<b> [Settlers]</b> post-settlement area", "<b> [Stats]</b> spatial grid", 
                          "<b> [Stats]</b> settlement count", "<b> [Stats]</b> settlement density")) |> 
     leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = FALSE)  
