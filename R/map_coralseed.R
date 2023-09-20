@@ -44,11 +44,11 @@ globalVariables("dispersalbin")
 map_coralseed <- function(seed_particles = particles, settle_particles = settlers, seascape_probability = seascape, restoration.plot = c(100, 100), show.tracks=TRUE) {
   
   
-  particletracks <- seed_particles |>  dplyr::filter(dispersaltime %in% seq(0,1800,5)) |>  particles_to_tracks(by=c("id", "competency")) 
+  particletracks <- seed_particles |>  dplyr::filter(dispersaltime %in% seq(0,1800,5)) |>  particles_to_tracks(by=c("id", "competency")) |> select(-id)
   settler_density <- settle_particles |> settlement_density()
   restoration_plot <- particles |> set_restoration_plot(100, 100) 
   
-  particle_paths <- settle_particles$paths
+  particle_paths <- rbind(settle_particles$paths, settle_particles$paths[1:117,])
   particle_points <- settle_particles$points
   
 
@@ -70,7 +70,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
   
   
   
-  particle_rainbow_form <- seed_particles |> 
+  particle_rainbow_form <- particles |> 
     dplyr::filter(dispersaltime %in% seq(0,1800,5)) %>%
     dplyr::mutate(dispersalbin = as.numeric(as.character((cut(dispersaltime, breaks = seq(0, 1800, 60), labels = seq(1, 1800, 60), include.lowest = TRUE))))-1) %>%
     dplyr::arrange(id) %>% # Ensure data is sorted by id for lag function
@@ -90,7 +90,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
   
   particle_rainbow <- particle_rainbow_form  |> 
     sf::st_sf(geometry = sf::st_sfc(particle_rainbow_form$line, crs = sf::st_crs(particle_rainbow_form))) |> 
-    dplyr::arrange(id, dispersalbin)
+    dplyr::arrange(id, dispersalbin) |> select(-id)
   
   
   
@@ -112,14 +112,14 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
 
     # particle tracks dispersal
     tmap::tm_shape(particle_rainbow, name = "<b> [Particles]</b> dispersaltime") +
-    tmap::tm_lines("dispersalbin", lwd = 0.8, palette = "Spectral", type="cont", breaks=seq(0,ceiling(max(particles$dispersaltime/60))*60,60)) +
+    tmap::tm_lines("dispersalbin", lwd = 0.8, id="dispersalbin", palette = "Spectral", type="cont", breaks=seq(0,ceiling(max(particles$dispersaltime/60))*60,60)) +
     
     # particle tracks competency
     tmap::tm_shape(particletracks, name = "<b> [Particles]</b> competency") +
-    tmap::tm_lines("competency", lwd = 0.8, palette = c("lightblue", "cadetblue4")) +
+    tmap::tm_lines("competency", lwd = 0.8, id="competency", palette = c("lightblue", "cadetblue4")) +
     
     # pre-settlement tracks
-    tmap::tm_shape(particle_paths,  id="id", name = "<b> [Settlers]</b> pre-settlement tracks") +
+    tmap::tm_shape(particle_paths,  id="dispersaltime", name = "<b> [Settlers]</b> pre-settlement tracks") +
     tmap::tm_lines(lwd = 0.8, col = "darkgrey") +
     
     # particle points

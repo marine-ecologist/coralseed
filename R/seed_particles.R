@@ -34,48 +34,53 @@ seed_particles <- function(
   # so add a zero point at centroid of particle release area and set to t0 for
   # particles that aren't currently t0.
 
-  if (input %in% "example-mermaid") {
-    load_particles <- coralseed:::Mermaid_PointSource_Bay_01 |> 
-      sf::st_zm(drop = TRUE, what = "ZM") |>
-      sf::st_transform(20353) |>
-      #dplyr::select(-decay_value) |>
-      dplyr::mutate(time = time + lubridate::hours(14))
-    } else if (input %in% "example-watson") {
-    load_particles <- coralseed:::WatsonN_PointSource_ForeReefSh_01 |> 
-      sf::st_zm(drop = TRUE, what = "ZM") |>
-      sf::st_transform(20353) |>
-      dplyr::mutate(time = time + lubridate::hours(14))
-    } else if (input %in% "example-palfrey") {
-    load_particles <- coralseed:::PalfreyN_PointSource_ForeReefEx_01 |> 
-      sf::st_zm(drop = TRUE, what = "ZM") |>
-      sf::st_transform(20353) |>
-      dplyr::mutate(time = time + lubridate::hours(14))
-    } else if (input %in% "example-spawnhub") {
-      load_particles <- coralseed:::SpHub_PointSource_SELaggon_01 |> 
-        sf::st_zm(drop = TRUE, what = "ZM") |>
-        sf::st_transform(20353) |>
-        dplyr::mutate(time = time + lubridate::hours(14))
-    } else if (input %in% "example-clamgarden") {
-      load_particles <- coralseed:::ClamGarden_PointSource_OpenLagoon_01 |> 
-        sf::st_zm(drop = TRUE, what = "ZM") |>
-        sf::st_transform(20353) |>
-        dplyr::mutate(time = time + lubridate::hours(14))
-    } else {
-    load_particles <- sf::st_read(input, drivers = "GeoJSON", quiet = TRUE) |> 
-      sf::st_zm(drop = TRUE, what = "ZM") |>
-      sf::st_transform(20353) |>
-      dplyr::select(-decay_value) |>
-      dplyr::mutate(time = time + lubridate::hours(14))
-    
+  if (is.null(set.seed) == TRUE) {
+    set.seed(sample(-9999999:9999999, 1))
   } 
   
+
+  if (is.null(input)==FALSE) {
+  load_particles <- input |>
+    sf::st_zm(drop = TRUE, what = "ZM") |>
+    sf::st_transform(20353) |>
+    dplyr::select(-decay_value)
+
+  } else {
+  }
+  
+  data_sources <- list(
+    mermaid = coralseed:::Mermaid_PointSource_Bay_01,
+    watson = coralseed:::WatsonN_PointSource_ForeReefSh_01,
+    palfrey = coralseed:::PalfreyN_PointSource_ForeReefEx_01,
+    spawnhub = coralseed:::SpHub_PointSource_SELaggon_01,
+    clamgarden = coralseed:::ClamGarden_PointSource_OpenLagoon_01
+  )
+  
+  if (is.null(example)==TRUE){
+    
+  } else if (example %in% names(data_sources)) {
+     load_particles <- data_sources[[example]] %>%
+       sf::st_zm(drop = TRUE, what = "ZM") %>%
+       sf::st_transform(20353) %>%
+       dplyr::mutate(time = time + lubridate::hours(14))
+     cat(paste0("Example: ", data_sources_df[data_sources_df$dataset_name == dataset_name_to_find, 2], " \n"))
+  } else if (!example %in% names(data_sources)) {
+    cat("\n error: example not found, must be one of mermaid, watson, palfrey, spawnhub, clamgarden. \n\n")
+    } 
+      
+  if (is.null(load_particles)==TRUE) {
+    cat("\n\n error: coralseed requires either an input file or an example file\n\n\n\n")
+    stop()
+  } else {
+  
+  } 
 
     if (is.null(subsample)==FALSE){
       load_particles <- load_particles |>
         dplyr::mutate(id=as.factor(id)) |>
         dplyr::filter(id %in% sample(x=as.numeric(unique(load_particles$id)), size=as.numeric(subsample))) |>
         dplyr:: mutate(id=as.integer(id))
-      }
+      } else { }
       
   # get details from input
   t0 <- min(load_particles$time)
@@ -88,7 +93,6 @@ seed_particles <- function(
    #(cat(paste0("Filename: ", basename(input), " \n")))
     (cat(paste0("Importing ", length(levels(as.factor(load_particles$id))), " particle tracks", "\n")))
     if (is.null(set.seed) == TRUE) {
-      set.seed(sample(-9999999:9999999, 1))
       (cat(paste0("[No seed set, random draws used] \n")))
     } else {
       (cat(paste0("[seed = ", set.seed, "] \n")))
@@ -156,6 +160,8 @@ seed_particles <- function(
   competency_times_output <- predict_competency(n_id = length(levels(as.factor(particle_points$id))), 
                                                 competency.function = competency.function, set.seed = set.seed, return.plot = return.plot)
 
+  #head(competency_times_output$simulated_settlers)
+  
   competency_times <- competency_times_output |>
     with(simulated_settlers) |>
     dplyr::sample_frac(size = 1) |>
@@ -189,7 +195,11 @@ seed_particles <- function(
     sf::st_as_sf(coords = c("X", "Y"), crs = 20353) |>
     sf::st_cast("POINT")
 
+  #tail(particle_points_expanded)
+  
   ### add mortality
+
+  #particle_points_expanded_postmortality <- particle_points_expanded
   particle_points_expanded_postmortality <- simulate_mortality(
     input = particle_points_expanded,
     simulate.mortality = simulate.mortality, simulate.mortality.n = simulate.mortality.n,
@@ -217,8 +227,7 @@ seed_particles <- function(
 
 
   if (return.plot == TRUE) {
-    # oldwarning <- getOption("warn")
-    # options(warn = -1)
+    suppressWarnings({
     particle_points_probability_settlers <- particle_points_probability |>
       dplyr::group_by(id) |>
       dplyr::filter(outcome == 1) |>
@@ -252,16 +261,17 @@ seed_particles <- function(
     #   particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers"),
     #   ncol = 2, nrow = 2
     # ))
+    })
     
   }
-  # options(warn = oldwarning)
-
+  
   #
   # data.frame(descriptors=c("Filename", "n particle tracks", "", "Time start", "Time end", "Total dispersaltime (hrs)", "Time limit", "", "Competency at t6", "Competency at t12", "Competency at t24"),
   #          values=c(basename(input), length(levels(as.factor(load_particles$id))), "", set.seed, t0, tmax, tmax-t0, limit.time, "", t6, t12, t24) ) |>
   #   mmtable(values) |> mmtable::header_left(everything())
   #
   #
+
   return(particle_points_probability)
-  set.seed(NULL)
+ 
 }

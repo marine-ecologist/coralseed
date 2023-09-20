@@ -16,12 +16,25 @@
 #' @export
 #'
 
-
 simulate_mortality <- function(
-    input, simulate.mortality = NULL, simulate.mortality.n = 0.1,
+    input, simulate.mortality = NULL, simulate.mortality.n = 0.1, # change to %?
     return.plot = FALSE, silent = FALSE, set.seed = NULL, ...) {
+  
   if (simulate.mortality == "none") {
-    return(input)
+  
+    plot0 <- ggplot2::ggplot() +  
+      ggplot2::geom_text(ggplot2::aes(x=0.5, y=0.5, label="no data \n(mortality set to zero)"), size=4, color="darkred", inherit.aes = FALSE) +
+      ggplot2::xlim(0, 1) + ggplot2::ylim(0, 1) + 
+      ggplot2::theme_bw() +
+      ggplot2::ggtitle("no mortality selected")
+
+    df.bypass <- input
+    
+    return_list <- list(plot0, df.bypass)
+    
+    names(return_list) <- c("simulated_mortality_plot", "simulated_mortality")
+    return(return_list)
+  
   } else {
     set.seed(set.seed)
     n_mortality <- length(levels(unique(as.factor(input$id)))) * simulate.mortality.n
@@ -36,7 +49,7 @@ simulate_mortality <- function(
       dplyr::filter(!(id %in% dead_id_levels)) |>
       tidyr::drop_na(id) # keep live particles
 
-
+    
     survivorship_type <- function(n, shape, scale) {
       dispersaltime <- seq(1, 1440, 1)
       probabilities <- dweibull(dispersaltime, shape, scale)
@@ -110,14 +123,15 @@ simulate_mortality <- function(
       ggplot2::geom_point(data = survivorship_output_plot, ggplot2::aes(mortalitytime, as.numeric(id)), size = 2, shape = 21, show.legend = FALSE, fill = NA, color = "black") +
       ggplot2::theme(legend.position = c(0.8,0.2), legend.title = element_blank(), legend.background = element_blank()) 
       
-    options(warn=oldwarning)
 
     return_list <- list(plot1, df_joined)
     names(return_list) <- c("simulated_mortality_plot", "simulated_mortality")
     return(return_list)
+    options(warn=oldwarning)
   } else if (return.plot == FALSE) {
     return_list <- list(df_joined)
     names(return_list) <- c("simulated_mortality")
     return(return_list)
+ 
   }
 }

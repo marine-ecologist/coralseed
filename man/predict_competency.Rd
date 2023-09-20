@@ -6,6 +6,7 @@
 \usage{
 predict_competency(
   n_id,
+  n_sims = 1000,
   competency.function = "exponential",
   sort = FALSE,
   set.seed = NULL,
@@ -14,7 +15,9 @@ predict_competency(
 )
 }
 \arguments{
-\item{n_id}{input n_id}
+\item{n_id}{input n_id (number of particles)}
+
+\item{n_sims}{number of sims for randomised datasets (see plot for traces)}
 
 \item{competency.function}{distribution, one of "weibull", "exp", "log"}
 

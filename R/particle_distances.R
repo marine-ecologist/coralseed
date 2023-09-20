@@ -24,6 +24,7 @@ particle_distances <- function(input = NULL, tmax = NULL, type = "df") {
     # options(dplyr.summarise.inform = TRUE)
 
     return(lengths)
+    
   } else if (type == "df") {
     lengths <- input |>
       dplyr::filter(dispersaltime < tmax) |>
