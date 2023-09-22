@@ -12,7 +12,8 @@
 
 seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability = NULL, ...) {
   
-  options(dplyr.summarise.inform = FALSE)
+  oldwarning <- getOption("warn")
+  options(dplyr.summarise.inform = FALSE, warn = -1)
   if (is.null(probability) == TRUE) {
     probability <- data.frame(
       class = c("Back Reef Slope", "Lagoon", "Inner Reef Flat", "Outer Reef Flat", "Plateau", "Reef Crest", "Reef Slope", "Sheltered Reef Slope"),
@@ -40,8 +41,6 @@ seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability
         sf::st_transform(crs = sf::st_crs("EPSG:20353"))
 
 
-    oldwarning <- getOption("warn")
-    options(warn = -1)
     allen_map <- sf::st_intersection(benthic_map, reef_map) |>
       sf::st_collection_extract("POLYGON") |>
       dplyr::group_by(class) |>
@@ -50,11 +49,14 @@ seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability
         sprintf(paste0("%0", ceiling(log10(max(1:length(class)))), "d"), 1:length(class))
       )) |>
       sf::st_make_valid()
-    options(warn = oldwarning)
+    
 
     benthic_probability <- probability
     class_means <- rlang::set_names(benthic_probability$means, benthic_probability$class)
 
+    st_agr(allen_map) = "constant"
+  
+    
     allen_map_probability <- allen_map |>
       dplyr::filter(!class == "Lagoon") |>
       sf::st_make_valid() |>
@@ -72,6 +74,6 @@ seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability
       dplyr::select(-means, -se) |>
       sf::st_make_valid()
   })
-  options(dplyr.summarise.inform = TRUE)
+  options(dplyr.summarise.inform = TRUE, warn=oldwarning)
   return(allen_map_probability)
 }

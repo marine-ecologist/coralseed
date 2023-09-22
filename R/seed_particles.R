@@ -168,20 +168,23 @@ seed_particles <- function(
     particle_points <- load_particles |>
       dplyr::arrange(id, dispersaltime)
   }
+  
+ 
   ##########################################################################################
   ###  #2 Predict competency
 
   competency_times_output <- predict_competency(
-    n_id = length(levels(as.factor(particle_points$id))),
+    n_id = length(levels(as.factor(particle_points$id))), n_sims=1000,
     competency.function = competency.function, set.seed = set.seed, return.plot = return.plot
   )
 
-  # head(competency_times_output$simulated_settlers)
 
   competency_times <- competency_times_output |>
     with(simulated_settlers) |>
     dplyr::sample_frac(size = 1) |>
-    dplyr::mutate(id = (unique(as.factor(particle_points$id))))
+    dplyr::mutate(id = unique(as.factor(particle_points$id))) |> 
+    dplyr::mutate(id = as.factor(id))
+    
 
   t6 <- (sum(competency_times$settlement_point < 360)) # / n_id) #* 100
   t12 <- (sum(competency_times$settlement_point < 720)) # / n_id) #* 100
@@ -206,13 +209,13 @@ seed_particles <- function(
     dplyr::ungroup() |>
     dplyr::left_join(competency_times, by = "id") |> # join with probability
     dplyr::mutate(state = ifelse(dispersaltime <= settlement_point, 0, 1)) |>
-    dplyr::mutate(competency = (dplyr::recode(state, "1" = "competent", "0" = "incompetent"))) |> ####### intermittent error here, check for NA on loop
+    dplyr::mutate(competency = (dplyr::recode(as.numeric(state), "1" = "competent", "0" = "incompetent"))) |> ####### intermittent error here, check for NA on loop
     dplyr::arrange(id) |>
     sf::st_as_sf(coords = c("X", "Y"), crs = 20353) |>
     sf::st_cast("POINT")
-
-  # tail(particle_points_expanded)
-
+  
+ 
+  
   ### add mortality
 
   # particle_points_expanded_postmortality <- particle_points_expanded
@@ -222,6 +225,8 @@ seed_particles <- function(
     return.plot = return.plot, set.seed = set.seed, silent = silent
   )
 
+ 
+  
 
   ##########################################################################################
   #####  #3 Settle particles by probability
@@ -240,10 +245,8 @@ seed_particles <- function(
   particle_points_probability$id <- paste0(idstring, particle_points_probability$id)
 
 
-
-
   if (return.plot == TRUE) {
-    suppressWarnings({
+  #  suppressWarnings({
       particle_points_probability_settlers <- particle_points_probability |>
         dplyr::group_by(id) |>
         dplyr::filter(outcome == 1) |>
@@ -268,7 +271,7 @@ seed_particles <- function(
       p3 <- kde_settle + ggplot2::ggtitle("3. Dispersaltime prior to settlement")
       p4 <- particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers")
 
-      print(cowplot::plot_grid(p1, p2, p3, p4, align = "lr", ncol = 2, nrow = 2))
+      ggplot_silent(cowplot::plot_grid(p1, p2, p3, p4, align = "lr", ncol = 2, nrow = 2))
 
       # print(ggpubr::ggarrange(
       #   na.omit(competency_times_output$simulated_settlers_plot),
@@ -277,7 +280,7 @@ seed_particles <- function(
       #   particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers"),
       #   ncol = 2, nrow = 2
       # ))
-    })
+   # })
   }
 
   #

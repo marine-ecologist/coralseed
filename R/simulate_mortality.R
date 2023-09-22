@@ -18,7 +18,7 @@
 
 simulate_mortality <- function(
     input, simulate.mortality = NULL, simulate.mortality.n = 0.1, # change to %?
-    return.plot = FALSE, silent = FALSE, set.seed = NULL, ...) {
+    return.plot = TRUE, silent = FALSE, set.seed = NULL, ...) {
   
   if (simulate.mortality == "none") {
   

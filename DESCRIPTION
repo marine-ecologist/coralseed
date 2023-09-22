@@ -23,7 +23,8 @@ Imports:
     leaflet,
     viridis,
     shape,
-    tmap
+    tmap,
+    foreach
 Depends: 
     ggplot2,
     dplyr,
