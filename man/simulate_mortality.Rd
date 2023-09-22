@@ -8,7 +8,7 @@ simulate_mortality(
   input,
   simulate.mortality = NULL,
   simulate.mortality.n = 0.1,
-  return.plot = FALSE,
+  return.plot = TRUE,
   silent = FALSE,
   set.seed = NULL,
   ...

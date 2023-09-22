@@ -11,7 +11,7 @@
 #' @param return.plot return output
 #' @param ... passes functions
 #' @export
-foreach::`%do%`
+
 #'
 #' 
 predict_competency <- function(n_id, n_sims=1000, competency.function = "exponential", sort = TRUE, set.seed = NULL, return.plot = TRUE, ...) {

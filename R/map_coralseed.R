@@ -216,7 +216,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
                                                                   "<b> [Stats]</b> spatial grid", "<b> [Stats]</b> settlement count",
                                                                   "<b> [Stats]</b> settlement density", "<b> [Stats]</b> restoration hectare"),
                               options=leaflet::layersControlOptions(collapsed = FALSE)) |>
-    leaflet::hideGroup(c("<b> [Seascape]</b> probability", "<b> [Particles]</b> dispersaltime", "<b> [Particles]</b> competency",
+    leaflet::hideGroup(c("<b> [Seascape]</b> probability",
                          "<b> [Settlers]</b> post-settlement area", "<b> [Stats]</b> spatial grid", 
                          "<b> [Stats]</b> settlement count", "<b> [Stats]</b> settlement density")) |> 
     leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = FALSE)  
