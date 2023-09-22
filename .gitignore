@@ -9,3 +9,5 @@
 coralseed.Rproj
 vignettes/
 inst/doc
+inst/*
+!inst/doc/
