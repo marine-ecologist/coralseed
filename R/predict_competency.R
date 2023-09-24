@@ -137,12 +137,12 @@ predict_competency <- function(n_id, n_sims=1000, competency.function = "exponen
 
    plot <- ggplot() +
       ggplot2::theme_bw() +
-      ggplot2::ggtitle(paste0("1. Predicted competency (n=", length(unique(simulated_settlers$id)), " , ", competency.function, " distribution)")) +
+      ggplot2::ggtitle(paste0("1. Predicted competency (",competency.function, " n=", length(unique(simulated_settlers$id)),")")) +
       ggplot2::xlim(0, 720/60) +
       ggplot2::geom_point(data = dataset_quartiles, ggplot2::aes(settlement_point/60, as.numeric(id), group=sim), color="lightblue", size=0.1, alpha=0.6) +
       ggplot2::geom_point(data = simulated_settlers, ggplot2::aes(settlement_point/60, as.numeric(id)), colour="black", size=1, alpha=0.8) +
-      ggplot2::xlab("Timing of competency (hrs)") +
-      ggplot2::ylab("Individual")
+      ggplot2::xlab("Time till competent following release (hrs)") +
+      ggplot2::ylab("Number of individuals")
    
    
      

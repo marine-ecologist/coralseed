@@ -89,7 +89,7 @@ simulate_mortality <- function(
 
   if (return.plot == TRUE) {
     survivorship_loop <- NULL
-    for (i in 1:n_mortality) {
+    for (i in 1:(n_mortality/2)) {
       # Fit the types to the individuals and sample the time of death
       typeI_time <- survivorship_type(n_mortality, 2.5, 1440)
       typeII_time <- survivorship_type(n_mortality, 1.5, 1440)
@@ -116,12 +116,13 @@ simulate_mortality <- function(
     oldwarning <- getOption("warn")
     options(warn = -1)
     plot1 <- ggplot2::ggplot() +
-      ggplot2::theme_bw() + 
-      ggplot2::geom_point(data = survivorship_loop, ggplot2::aes(x = time, y = n, color = as.factor(type)), size = 1.5, alpha = 0.02) +
+      ggplot2::theme_bw() + xlab("Time following larval release (hrs)") + ylab("Percent mortality") +
+      ggplot2::geom_point(data = survivorship_loop, ggplot2::aes(x = time/60, y = n, color = as.factor(type)), size = 1.5, alpha = 0.01) +
       ggplot2::scale_color_manual(values = viridis::viridis(n = 4)[-4]) +
       ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(alpha = 1.0, size = 2))) +
-      ggplot2::geom_point(data = survivorship_output_plot, ggplot2::aes(mortalitytime, as.numeric(id)), size = 2, shape = 21, show.legend = FALSE, fill = NA, color = "black") +
-      ggplot2::theme(legend.position = c(0.8,0.2), legend.title = element_blank(), legend.background = element_blank()) 
+      ggplot2::geom_point(data = survivorship_output_plot, ggplot2::aes(mortalitytime/60, as.numeric(id)), size = 2, shape = 21, show.legend = FALSE, fill = NA, color = "black") +
+      ggplot2::theme(legend.position = c(0.86,0.3), legend.title = element_blank(), legend.background = element_blank(), 
+                     legend.key = element_blank(), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8)) 
       
 
     return_list <- list(plot1, df_joined)

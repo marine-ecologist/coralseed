@@ -168,13 +168,13 @@ seed_particles <- function(
     particle_points <- load_particles |>
       dplyr::arrange(id, dispersaltime)
   }
-  
- 
+
+
   ##########################################################################################
   ###  #2 Predict competency
 
   competency_times_output <- predict_competency(
-    n_id = length(levels(as.factor(particle_points$id))), n_sims=1000,
+    n_id = length(levels(as.factor(particle_points$id))), n_sims = 1000,
     competency.function = competency.function, set.seed = set.seed, return.plot = return.plot
   )
 
@@ -182,9 +182,9 @@ seed_particles <- function(
   competency_times <- competency_times_output |>
     with(simulated_settlers) |>
     dplyr::sample_frac(size = 1) |>
-    dplyr::mutate(id = unique(as.factor(particle_points$id))) |> 
+    dplyr::mutate(id = unique(as.factor(particle_points$id))) |>
     dplyr::mutate(id = as.factor(id))
-    
+
 
   t6 <- (sum(competency_times$settlement_point < 360)) # / n_id) #* 100
   t12 <- (sum(competency_times$settlement_point < 720)) # / n_id) #* 100
@@ -213,23 +213,22 @@ seed_particles <- function(
     dplyr::arrange(id) |>
     sf::st_as_sf(coords = c("X", "Y"), crs = 20353) |>
     sf::st_cast("POINT")
-  
- 
-  
-  ### add mortality
 
-  # particle_points_expanded_postmortality <- particle_points_expanded
+
+  ##########################################################################################
+  ###  #2 Predict mortality
+
   particle_points_expanded_postmortality <- simulate_mortality(
     input = particle_points_expanded,
     simulate.mortality = simulate.mortality, simulate.mortality.n = simulate.mortality.n,
     return.plot = return.plot, set.seed = set.seed, silent = silent
   )
 
- 
-  
+
+
 
   ##########################################################################################
-  #####  #3 Settle particles by probability
+  #####  #4 Settle particles by probability
   # bind with benthic substrates
   particle_points_probability <- sf::st_join((particle_points_expanded_postmortality |> with(simulated_mortality)), seascape) |>
     dplyr::mutate(class = forcats::fct_na_value_to_level(class, "Ocean")) |> # replace NA with Ocean
@@ -246,41 +245,113 @@ seed_particles <- function(
 
 
   if (return.plot == TRUE) {
-  #  suppressWarnings({
+    suppressWarnings({
       particle_points_probability_settlers <- particle_points_probability |>
         dplyr::group_by(id) |>
         dplyr::filter(outcome == 1) |>
         dplyr::slice(1)
 
-      particle_points_probability_plot <- ggplot2::ggplot() +
-        ggplot2::theme_bw() +
-        ggplot2::geom_sf(data = particle_points_probability_settlers, size = 1.5, shape = 21, fill = "aquamarine3", alpha = 0.6)
 
-      kde_settle <- ggplot2::ggplot() +
+      coralseed_themes <- theme(
+        plot.title = element_text(size = 9, face = "bold"), axis.title.x = element_text(size = 9),
+        axis.title.y = element_text(size = 9), axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7)
+      )
+
+
+      if (is.na(limit.time)) {
+        p1 <- na.omit(competency_times_output$simulated_settlers_plot) + coralseed_themes
+        p2 <- particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Larval survival post-release") + coralseed_themes
+        
+      } else {
+        p1 <- na.omit(competency_times_output$simulated_settlers_plot) + coralseed_themes +
+          geom_vline(xintercept = as.numeric(limit.time), color = "darkred", alpha = 0.6, linetype = "dotted", linewidth = 0.8)
+
+        p2 <- particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Larval survival post-release") + coralseed_themes +
+          geom_vline(xintercept = as.numeric(limit.time), color = "darkred", alpha = 0.6, linetype = "dotted", linewidth = 0.8)
+      }
+
+      #-----3.KDE ----------@
+      p3 <- kde_settle <- ggplot2::ggplot() +
         ggplot2::theme_bw() +
-        ggplot2::geom_histogram(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime, y = ggplot2::after_stat(density)), color = "black", fill = "lightblue", binwidth = 5) +
-        ggplot2::geom_density(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime, y = ggplot2::after_stat(density)), color = "darkred", linewidth = 1.2) +
+        ggplot2::geom_histogram(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime / 60, y = ggplot2::after_stat(density)), fill = "snow", color = "black", linewidth = 0.2, binwidth = 0.5) +
+        ggplot2::geom_density(data = particle_points_probability_settlers, ggplot2::aes(x = dispersaltime / 60, y = ggplot2::after_stat(density)), color = "darkred", linewidth = 1, alpha = 0.6) +
         ggplot2::labs( # title = "Kernel Density Estimation (KDE) of max dispersaltime for settled larvae",
-          x = "Dispersal time (mins)",
+          x = "Time to settlement (hours)",
           y = "Density"
-        )
+        ) +
+        ggplot2::scale_x_continuous(breaks = pretty(range(particle_points_probability_settlers$dispersaltime / 60)))
 
 
-      p1 <- na.omit(competency_times_output$simulated_settlers_plot)
-      p2 <- particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Survival curve")
-      p3 <- kde_settle + ggplot2::ggtitle("3. Dispersaltime prior to settlement")
-      p4 <- particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers")
+      p3 <- p3 + ggplot2::ggtitle(paste0(
+        "3. Dispersaltime prior to settlement (n=",
+        length(unique(particle_points_probability_settlers$id)), "/",
+        length(unique(load_particles$id)), ")"
+      )) + coralseed_themes
 
-      ggplot_silent(cowplot::plot_grid(p1, p2, p3, p4, align = "lr", ncol = 2, nrow = 2))
+      #-----4.habitat counts ----------@
 
-      # print(ggpubr::ggarrange(
-      #   na.omit(competency_times_output$simulated_settlers_plot),
-      #   particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Survival curve"),
-      #   kde_settle + ggplot2::ggtitle("3. Dispersaltime prior to settlement"),
-      #   particle_points_probability_plot + ggplot2::ggtitle("4. Spatial pattern settlers"),
-      #   ncol = 2, nrow = 2
-      # ))
-   # })
+      settle_habitat_count <- particle_points_probability_settlers |>
+        dplyr::group_by(class) |>
+        dplyr::summarise(sum = n()) |>
+        dplyr::ungroup() |>
+        tidyr::complete(class = unique(seascape$class), fill = list(sum = 0)) |>
+        dplyr::select(-geometry) |>
+        dplyr::mutate(class2 = stringr::str_replace_all(class, " ", "\n"))
+
+
+
+      p4 <- ggplot2::ggplot() +
+        ggplot2::theme_bw() +
+        ggplot2::xlab("") +
+        ggplot2::ggtitle("4. Settlement by habitat") +
+        ggplot2::geom_bar(data = settle_habitat_count, ggplot2::aes(class2, sum, fill = class), alpha = 0.6, color = "black", show.legend = FALSE, stat = "identity") +
+        ggplot2::geom_hline(yintercept = sum(settle_habitat_count$sum), color = "darkred", alpha = 0.6, linetype = "dotted", linewidth = 0.8) +
+        ggplot2::scale_fill_manual(values = c(
+          "Plateau" = "cornsilk2", "Back Reef Slope" = "darkcyan",
+          "Reef Slope" = "darkseagreen4", "Sheltered Reef Slope" = "darkslategrey",
+          "Inner Reef Flat" = "darkgoldenrod4", "Outer Reef Flat" = "darkgoldenrod2",
+          "Reef Crest" = "coral3"
+        ))
+
+      p4 <- p4 + coralseed_themes
+
+
+      #-----5.map ----------@
+      #
+      # inset <- sf::st_bbox(sf::st_buffer(particle_points_probability_settlers,50)) |> as.numeric()
+      #
+      # p5 <- ggplot2::ggplot() +
+      #   ggplot2::theme_bw() +
+      #   ggplot2::geom_sf(data = particle_points_probability_settlers, size = 1.5, shape = 21, fill = "aquamarine3", alpha = 0.6) +
+      #   ggplot2::geom_sf(data = seascape, ggplot2::aes(fill=class), alpha = 0.25) +
+      #   ggplot2::coord_sf(xlim = c(inset[1], inset[3]), ylim = c(inset[2], inset[4])) +
+      #   theme(legend.text = element_text(size = 7),
+      #         legend.title = element_blank()) +
+      #   ggplot2::scale_fill_manual(values = c("Plateau" = "cornsilk2", "Back Reef Slope" = "darkcyan",
+      #                                  "Reef Slope" = "darkseagreen4", "Sheltered Reef Slope" = "darkslategrey",
+      #                                  "Inner Reef Flat" = "darkgoldenrod4", "Outer Reef Flat" = "darkgoldenrod2",
+      #                                  "Reef Crest" = "coral3"))
+      #
+      # p5 <- p5 + ggplot2::ggtitle("5. Spatial pattern settlers (lon/lat)") +
+      #   coralseed_themes
+      #
+      #-----combine ----------@
+
+      #
+      #       multiplot <- gridExtra::grid.arrange(p1,p2,
+      #                                            p3,p4,
+      #                                            p5,
+      #                                            layout_matrix = rbind(c(1,2),
+      #                                                                  c(3,4),
+      #                                                                  c(5,5),
+      #                                                                  c(5,5)))
+      #
+      suppressWarnings({
+        multiplot <- ggpubr::ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2, align = "hv")
+        print(multiplot)
+      })
+    })
   }
 
   #
