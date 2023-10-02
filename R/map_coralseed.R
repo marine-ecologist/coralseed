@@ -36,7 +36,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
   settler_density <- settle_particles |> settlement_density()
   restoration_plot <- particles |> set_restoration_plot(100, 100) 
   
-  particle_paths <- rbind(settle_particles$paths, settle_particles$paths[1:117,])
+  particle_paths <- rbind(settle_particles$paths, settle_particles$paths[1:117,]) # why 1:117?
   particle_points <- settle_particles$points
   
 
@@ -83,34 +83,34 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     # seascape habitats
     tmap::tm_shape(seascape_probability, name = "<b> [Seascape]</b> habitats") +
     tmap::tm_borders(col = "black", lwd = 0.2) +
-    tmap::tm_fill("class", name = "Benthic habitats", palette = c("Plateau" = "cornsilk2", "Back Reef Slope" = "darkcyan",
+    tmap::tm_fill("class", name = "Benthic habitats", title="Habitat type", palette = c("Plateau" = "cornsilk2", "Back Reef Slope" = "darkcyan",
                                                                   "Reef Slope" = "darkseagreen4", "Sheltered Reef Slope" = "darkslategrey",
                                                                   "Inner Reef Flat" = "darkgoldenrod4", "Outer Reef Flat" = "darkgoldenrod2",
                                                                   "Reef Crest" = "coral3"), alpha = 0.6) +
     # seascape habitats
     tmap::tm_shape(seascape_probability, name = "<b> [Seascape]</b> probability") +
     tmap::tm_borders(col = "black", lwd = 0.2) +
-    tmap::tm_fill("settlement_probability", id = "P settlement", alpha = 0.6) +
+    tmap::tm_fill("settlement_probability", title="Settlement probability", id = "P settlement", alpha = 0.6) +
 
     # particle tracks dispersal
     tmap::tm_shape(particle_rainbow, name = "<b> [Particles]</b> dispersaltime") +
-    tmap::tm_lines("dispersalbin", lwd = 0.8, id="dispersalbin", palette = "-Spectral", type="cont", breaks=seq(0,ceiling(max(particles$dispersaltime/60))*60,60)) +
+    tmap::tm_lines("dispersalbin", title.col="Dispersal time", lwd = 0.8, id="dispersalbin", palette = "-Spectral", type="cont", breaks=seq(0,ceiling(max(particles$dispersaltime/60))*60,60)) +
     
     # particle tracks competency
     tmap::tm_shape(particletracks, name = "<b> [Particles]</b> competency") +
-    tmap::tm_lines("competency", lwd = 0.8, id="competency", palette = c("lightblue", "cadetblue4")) +
+    tmap::tm_lines("competency", title.col="Competency", lwd = 0.8, id="competency", palette = c("lightblue", "cadetblue4")) +
     
     # pre-settlement tracks
     tmap::tm_shape(particle_paths,  id="dispersaltime", name = "<b> [Settlers]</b> pre-settlement tracks") +
-    tmap::tm_lines(lwd = 0.8, col = "darkgrey") +
+    tmap::tm_lines(lwd = 0.8, col = "darkgrey", title.col="Settled larval tracks") +
     
     # particle points
     tmap::tm_shape(particle_points, is.master=TRUE, id="dispersaltime", name = "<b> [Settlers]</b> post-settlement location") +
-    tmap::tm_dots("dispersaltime", palette="-Spectral") +
+    tmap::tm_dots("dispersaltime", palette="-Spectral", title="Dispersal time") +
     
     # post-settlement area
     tmap::tm_shape(settler_density$area, id="area", name = "<b> [Settlers]</b> post-settlement area") +
-    tmap::tm_fill("polygons", col = "indianred4",  alpha = 0.6) +
+    tmap::tm_fill("polygons", col = "indianred4",  alpha = 0.6, title="Restoration footprint") +
     tmap::tm_borders(lwd = 0, col = "black") +
     
     # settlement grid
@@ -119,12 +119,12 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     
     # settlement count
     tmap::tm_shape(settler_density$count, name = "<b> [Stats]</b> settlement count") +
-    tmap::tm_fill("count", colorNA = "transparent", name = "Settlement density", palette = "plasma", alpha = 0.6) +
+    tmap::tm_fill("count", colorNA = "transparent",title="Settlement density", name = "Settlement density", palette = "plasma", alpha = 0.6) +
     tmap::tm_borders(lwd = 0, col = "black") +
     
     # settlement density
     tmap::tm_shape(settler_density$density, name = "<b> [Stats]</b> settlement density") +
-    tmap::tm_fill("density", colorNA = "transparent", name = "Settlement density", palette = "magma", alpha = 0.6) +
+    tmap::tm_fill("density", colorNA = "transparent", name = "Settlement density", title="Settlement density", palette = "magma", alpha = 0.6) +
     tmap::tm_borders(lwd = 0, col = "black") +
     
     # restoration plot
@@ -205,7 +205,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
   
   
   tmp |> tmap::tmap_leaflet() |>
-    leaflet::leafletOptions(preferCanvas = TRUE) |> 
+    #leaflet::leafletOptions(preferCanvas = TRUE) |> 
     leaflet::addProviderTiles('Esri.WorldImagery', group = "<b> [Seascape]</b> satellite map", options=leaflet::providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
     leaflet::addProviderTiles('Esri.WorldTopoMap',  group = "<b> [Seascape]</b> base map", options=leaflet::providerTileOptions(maxNativeZoom=19,maxZoom=100)) |>
     leaflet::addLayersControl(position="topleft", overlayGroups=c("<b> [Seascape]</b> base map", "<b> [Seascape]</b> satellite map",

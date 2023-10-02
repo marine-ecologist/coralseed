@@ -54,7 +54,7 @@ seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability
     benthic_probability <- probability
     class_means <- rlang::set_names(benthic_probability$means, benthic_probability$class)
 
-    st_agr(allen_map) = "constant"
+    sf::st_agr(allen_map) = "constant"
   
     
     allen_map_probability <- allen_map |>

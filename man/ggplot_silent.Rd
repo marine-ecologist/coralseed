@@ -10,5 +10,5 @@ ggplot_silent(...)
 \item{...}{arguments are passed to \code{ggplot2:::print.ggplot()}}
 }
 \description{
-replacement for ggplot() call that mutes warnings
+replacement for \code{ggplot2()} that mutes warnings
 }

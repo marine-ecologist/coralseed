@@ -17,8 +17,15 @@
 #'
 
 simulate_mortality <- function(
-    input, simulate.mortality = NULL, simulate.mortality.n = 0.1, # change to %?
+    input=NULL, simulate.mortality = NULL, simulate.mortality.n = 0.1, # change to %?
     return.plot = TRUE, silent = FALSE, set.seed = NULL, ...) {
+  
+  
+  if (is.null(input)) {
+   
+    input <- data.frame(id = as.factor(seq(0,999,1)))
+  
+  }
   
   if (simulate.mortality == "none") {
   
@@ -125,8 +132,8 @@ simulate_mortality <- function(
                      legend.key = element_blank(), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8)) 
       
 
-    return_list <- list(plot1, df_joined)
-    names(return_list) <- c("simulated_mortality_plot", "simulated_mortality")
+    return_list <- list(plot1, df_joined, survivorship_output)
+    names(return_list) <- c("simulated_mortality_plot", "simulated_mortality", "survivorship_output")
     return(return_list)
     options(warn=oldwarning)
   } else if (return.plot == FALSE) {

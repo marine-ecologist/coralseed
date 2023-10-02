@@ -10,6 +10,7 @@
 
 
 
+<meta name="date" content="2023-10-02" />
 
 <title>coralseed</title>
 
@@ -29,7 +30,11 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
@@ -58,6 +63,7 @@ if (window.hljs) {
 
 
 
+<link rel="stylesheet" href="coralseed.css" type="text/css" />
 
 
 
@@ -216,7 +222,79 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
 
 
 
@@ -226,6 +304,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -243,7 +331,25 @@ $(document).ready(function () {
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">Theory</a>
+  <a href="theory.html">Theory</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Parameterisation
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="competency-models.html">Larval competency</a>
+    </li>
+    <li>
+      <a href="mortality-models.html">Larval mortality</a>
+    </li>
+    <li>
+      <a href="settlement-models.html">Larval settlement</a>
+    </li>
+  </ul>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -253,13 +359,13 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="file.html">Running coralseed</a>
+      <a href="instructions.html">1. Run coralseed</a>
     </li>
     <li>
-      <a href="file.html">Visualising coralseed</a>
+      <a href="visualise-coralseed.html">2. Visualise coralseed outputs</a>
     </li>
     <li>
-      <a href="file.html">Parallel/multicore processing</a>
+      <a href="parallel-multicore.html">3. Parallel/multicore processing</a>
     </li>
   </ul>
 </li>
@@ -271,15 +377,12 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="outputs1.html">Spatial footprints</a>
+      <a href="restoration-footprint.html">Spatial footprint of restoration</a>
     </li>
     <li>
-      <a href="outputs1.html">Larval dispersal</a>
+      <a href="variance-partitioning.html">Partitioning model variance</a>
     </li>
   </ul>
-</li>
-<li>
-  <a href="about.html">Diagnostics</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -290,19 +393,19 @@ $(document).ready(function () {
   <ul class="dropdown-menu" role="menu">
     <li class="dropdown-header">Lizard Island (2022)</li>
     <li>
-      <a href="readings-module1.html">Mermaid Bay</a>
+      <a href="example-mermaid.html">Mermaid Bay</a>
     </li>
     <li>
-      <a href="readings-module2.html">Watsons North</a>
+      <a href="example-watsons.html">Watsons North</a>
     </li>
     <li>
-      <a href="readings-module2.html">Palfrey North</a>
+      <a href="example-palfrey.html">Palfrey North</a>
     </li>
     <li>
-      <a href="readings-module2.html">Spawn Hub</a>
+      <a href="example-spawnhub.html">Spawn Hub</a>
     </li>
     <li>
-      <a href="readings-module2.html">Clam Garden</a>
+      <a href="example-clamgarden.html">Clam Garden</a>
     </li>
   </ul>
 </li>
@@ -316,17 +419,145 @@ $(document).ready(function () {
 
 <div id="header">
 
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">coralseed</h1>
+<h4 class="date">2023-10-02</h4>
 
 </div>
 
 
-<p>Test!</p>
+<div id="coralseed" class="section level1">
+<h1>coralseed</h1>
+<p><code>coralseed</code> is a spatially explicit probabilistic model
+aims to quantify the spatial footprint of coral larval re-seeding from
+restoration progjects. The model is based on input from high-resolution
+oceanographic models (<a href="https://connie.csiro.au">CONNIE</a>) that
+tracking individual particles through space and time. By parameterising
+larval behaviour (competency, habitat specific substrate settlement
+preferences, swimming behaviour) individual-based probability of
+settlement can be modelled for 10<sup>5</sup> - 10<sup>7</sup> larvae.
+Individual-based settlement probability an dispersal paths then overlaid
+onto high-resolution habitat maps (<a
+href="https://www.allencoralatlas.org">Allen Coral Atlas</a>) to form a
+spatially-explicit model of settlement following release of coral
+larvae.</p>
+<p><code>coralseed</code> aims to provide insight into key knowledge
+gaps in larval restoration: 1) Where do larvae settle following release?
+2) What is the spatial footprint of larval reseeding projects? 3) what
+are the likely densities of settled corals? 4) What densities of adult
+corals (~10cm size) are produced from reseeding and where are they
+located? By varying initial model parameters (e.g. tidal currents, time
+of release, larval competency, larval densities, location of release
+sites), a simulation modelling approach can be used to quantify the
+likely spatial footprint and expected settlement densities, allowing for
+optimisation and upscaling of larval reseeding programs on the Great
+Barrier Reef and elsewhere.</p>
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<p><code>coralseed</code> can be installed on github via
+<code>remotes</code>:</p>
+<pre class="r"><code>#install.packages(&quot;remotes&quot;)
+install_github(&quot;marine-ecologist/coralseed&quot;)</code></pre>
+</div>
+<div id="example" class="section level2">
+<h2>Example</h2>
+<p><code>coralseed</code> is pre-loaded with five point-source dispersal
+scenarios from Lizard Island (northern Great Barrier Reef) in December
+2022. 1000 simulated particles were released from a 25m square at 3m
+depth 1.5 hours before high tide in each simulation (14:00hrs).</p>
+<table>
+<colgroup>
+<col width="47%" />
+<col width="25%" />
+<col width="27%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>input</strong></th>
+<th><strong>Location</strong></th>
+<th><strong>Release type</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>PalfreyN_PointSource_ForeReefEx_01</code></td>
+<td>Palfrey North</td>
+<td>Forereef</td>
+</tr>
+<tr class="even">
+<td><code>Mermaid_PointSource_Bay_01</code></td>
+<td>Mermaid Bay</td>
+<td>Bay</td>
+</tr>
+<tr class="odd">
+<td><code>ClamGarden_PointSource_OpenLagoon_01</code></td>
+<td>Clam Garden</td>
+<td>Open Lagoon</td>
+</tr>
+<tr class="even">
+<td><code>SpHub_PointSource_SELaggon_01</code></td>
+<td>Spawning hub</td>
+<td>SE Lagoon</td>
+</tr>
+<tr class="odd">
+<td><code>WatsonN_PointSource_ForeReefSh_01</code></td>
+<td>Watsons North</td>
+<td>Sheltered Forereef</td>
+</tr>
+</tbody>
+</table>
+<p>Below is a base paramaterisation of <code>coralseed</code> across a
+6.95hr time period (<code>limit_time</code>) with an exponential
+time-to-settlement model parameterisation
+(<code>competency.function</code>) with a type I mortality curve
+(<code>simulate.mortality</code>) applied to 10% of the population over
+a 24 hr period (<code>simulate.mortality.n</code>) with an additive
+settlement function (<code>probability</code>).</p>
+<pre class="r"><code>library(coralseed)
+library(ggplot2)
+library(tidyverse)
+library(sf)
+
+## 1. simulate settlement probabilities from habitat maps
+# `seascape_probability` takes coral atlas inputs and a data.frame of settlement
+# probability (mean, se) to simulate probability of settlement in habitats surrounding the release area
+
+seascape &lt;- seascape_probability(reefoutline=reef_map, habitat=benthic_map)
+
+## 2. seed particles from dispersal model and simulate competency
+# `seed_particles` outputs summary statistics and a four panel diagnostic plot
+
+particles &lt;- seed_particles(example=&quot;mermaid&quot;, seascape=seascape,
+                            limit_time=6.95, competency.function = &quot;exponential&quot;, probability=&quot;additive&quot;,
+                            simulate.mortality = &quot;typeI&quot;,  simulate.mortality.n = 0.1, 
+                            silent=FALSE, return.plot=TRUE)
+
+## 3. simulate settlement of particles
+# `settle_particles` then applies probability across the seascape to simulate spatially
+# explicit patterns of settlement across the seascape:
+
+settlers &lt;-  settle_particles(particles, probability=&quot;additive&quot;)# %&gt;% with(points)
+
+## 4. Map combined coralseed outputs
+# `map_coralseed` visualises all outputs from the above three models
+
+map_coralseed(seed_particles=particles, settle_particles=settlers, seascape_probability=seascape, restoration.plot=c(100,100))</code></pre>
+</div>
+</div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -358,7 +589,41 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = false;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

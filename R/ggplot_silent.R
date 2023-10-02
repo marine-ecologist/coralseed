@@ -1,9 +1,9 @@
 #' Silence ggplot warnings
 #' 
-#' @description replacement for ggplot() call that mutes warnings
+#' @description replacement for \code{ggplot2()} that mutes warnings
 #'
 #' @param ...  arguments are passed to \code{ggplot2:::print.ggplot()}
-#' @import ggplot2 call
+#' @import ggplot2
 #' @export
 
 ggplot_silent <- function(...) {

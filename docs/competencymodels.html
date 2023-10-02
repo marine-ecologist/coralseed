@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2023-09-27" />
+
+<title>Predicting larval competency using time-to-event models</title>
+
+<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="coralseed.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">coralseed</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="theory.html">Theory</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Instructions
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="instructions.html">1.Run coralseed</a>
+    </li>
+    <li>
+      <a href="visualise.html">2.Visualise coralseed outputs</a>
+    </li>
+    <li>
+      <a href="parallel-multicore.html">3.Parallel/multicore processing</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Outputs
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="spatialfootprint.html">Spatial footprint of restoration</a>
+    </li>
+    <li>
+      <a href="outputs1.html">Larval dispersal</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Diagnostics
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="competencymodels.html">Larval competency</a>
+    </li>
+    <li>
+      <a href="mortalitymodels.html">Larval mortality</a>
+    </li>
+    <li>
+      <a href="mortalitymodels.html">Partitioning model variance</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Lizard Island (2022)</li>
+    <li>
+      <a href="example-mermaid.html">Mermaid Bay</a>
+    </li>
+    <li>
+      <a href="example-watsons.html">Watsons North</a>
+    </li>
+    <li>
+      <a href="example-palfrey.html">Palfrey North</a>
+    </li>
+    <li>
+      <a href="example-spawnhub.html">Spawn Hub</a>
+    </li>
+    <li>
+      <a href="example-clamgarden.html">Clam Garden</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Predicting larval competency using
+time-to-event models</h1>
+<h4 class="date">2023-09-27</h4>
+
+</div>
+
+
+<p><code>coralseed</code> uses time-to-event models to parameterise
+time-to-competency across individual particle tracks. Time-to-event
+models (frequently used in survival analysis) are statistical models
+designed to analyse the time until a particular event in time censored
+data such as settlement experiments. The initial parameterisation of
+<code>coralseed</code> is based on a competency experiment from wild
+coral slicks where settlement was censored at hourly timepoints (see
+instructions.html for experimental details). Models were fit using
+multilevel time-to-event models in <code>brms</code>:</p>
+<pre class="r fold-show"><code>brm(minutes | cens(1 - settled) ~ (1 | w | tile), 
+   family =  exponential(link = &quot;log&quot;), init = 0,  
+   control = list(adapt_delta = 0.99, max_treedepth = 20),
+   cores=8, chains=4, iter = 10000)</code></pre>
+<p>To parameterise time-to-competency, <code>coralseed</code> samples
+from posterior draws from <code>brms</code>:</p>
+<pre class="r fold-show"><code>as_draws_df(event_model_exp) </code></pre>
+<p>To allow for differences in model parameterisation and larval
+competency curves, <code>coralseed</code> is flexible in
+paramaterisation in that it accepts posterior parameter draws from a
+range of distributions (<code>log-normal</code>,
+<code>exponential</code>, <code>weibull</code>, see
+<code>paramater_draws_</code> .rds files below), and can be updated with
+different datasets to give different time-to-competency curves for
+future experimental datasets.</p>
+<p>To incorporate variance in model outputs, <code>coralseed</code>
+samples from <code>brms</code> posterior draws (10,000 simulations in
+the example dataset). <code>coralseed</code> can then be run in smaller
+multiples (e.g. 1000 particle tracks) subsampled from larger dispersal
+models (e.g. 100,000 particle tracks) to incorporate both ecological
+variance (competency, mortality, settlement) and dispersal variance
+(from oceanographic model simulations).</p>
+<div id="time-to-event-model-distributions"
+class="section level3 tabset">
+<h3 class="tabset">1. time-to-event model distributions</h3>
+<p>Click below for details and code for each distribution:</p>
+<div id="exponential-distribution" class="section level4">
+<h4>1. Exponential distribution</h4>
+<p>Competency is modeled follow an exponential distribution and is
+expressed as:</p>
+<ul>
+<li><span class="math display">\[ S(t) = \exp(-\lambda t)\]</span></li>
+</ul>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(\lambda\)</span> (lambda) represents
+time-to-competency (higher values of <span
+class="math inline">\(\lambda\)</span> indicates that the competency
+occurs more rapidly)</li>
+<li>see <code>coralseed::parameter_draws_exp</code> for parameter
+inputs</li>
+</ul>
+<p><code>rexp</code> is used to calculate the time-to-competency from
+<code>brms</code> posterior draws by providing random values from a
+uniform distribution for <code>nsims = 1000.</code></p>
+<p>Predictions of time-to-competency for each individual were estimated
+from parameters draws ( <span class="math inline">\(\lambda\)</span> )
+using the `rexp`` function for each of the 10k posterior draws.</p>
+<pre class="r"><code>nsims &lt;- 1000 # number of simulations
+n_id &lt;- 1000 # number of larvae
+
+  predict_exp &lt;- foreach(i=1:nsims, .combine=&quot;rbind&quot;) %do% {
+      post_sm1_sample_exp &lt;- coralseed::parameter_draws_exp %&gt;% slice_sample(n = 1)
+      individual_times &lt;- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1]))) 
+      data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
+    }
+  
+simulated_settlers_exp &lt;- predict_exp |&gt;
+  filter(sim %in% sample(1:nsims, 1)) |&gt;
+  select(-sim)</code></pre>
+</div>
+<div id="weibull-distribution" class="section level4">
+<h4>2. Weibull distribution</h4>
+<p>Competency is modeled with the weibull distribution and is expressed
+as:</p>
+<ul>
+<li><span class="math display">\[S(t) = \exp(-\lambda
+t^\gamma)\]</span></li>
+</ul>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(\lambda\)</span> (scale parameter)
+represents time-to-competency, where a larger <span
+class="math inline">\(\lambda\)</span> results in a quicker time to
+event</li>
+<li><span class="math inline">\(\gamma\)</span> (shape parameter)
+affects the form of the hazard function (where) (<span
+class="math inline">\(\gamma = 1\)</span>, the model reduces to the
+Exponential model, where <span class="math inline">\(\gamma &gt;
+1\)</span> the hazard increases over time, while where <span
+class="math inline">\(\gamma &lt; 1\)</span> the hazard decreases over
+time).</li>
+<li>see <code>coralseed::parameter_draws_weibull</code> for parameter
+inputs</li>
+</ul>
+<p>Predictions of time-to-competency for each individual were estimated
+from the Weibull parameters (<span
+class="math inline">\(\lambda\)</span>, <span
+class="math inline">\(\gamma\)</span>) using the <code>rweibull\</code>
+function for each of the 10k posterior draws.</p>
+<pre class="r"><code>library(coralseed)
+library(foreach)
+library(tidyverse)
+
+nsims &lt;- 1000 # number of simulations
+n_id &lt;- 1000 # number of larvae
+
+  predict_weibull &lt;- foreach(i=1:nsims, .combine=&quot;rbind&quot;) %do% {
+      post_sm1_sample &lt;- coralseed::parameter_draws_weibull %&gt;% slice_sample(n = 1)
+      individual_times &lt;- rweibull(runif(1000), shape = post_sm1_sample[1,2], scale = post_sm1_sample[1,1]) 
+      data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
+    }
+  
+simulated_settlers_weibull &lt;- predict_weibull |&gt;
+  filter(sim %in% sample(1:nsims, 1)) |&gt;
+  select(-sim)</code></pre>
+</div>
+<div id="log-normal-distribution" class="section level4">
+<h4>3. Log-Normal distribution</h4>
+<p>Competency is modeled in the log scale to follow a normal
+distribution and is expressed as:</p>
+<p><span class="math display">\[
+\log(T) = \beta_0 + \epsilon
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(\beta_0\)</span> (β-Intercept) is <span
+class="math inline">\(\log(T)\)</span>, and gives median
+time-to-competency when <span
+class="math inline">\(\exp(\beta_0)\)</span></li>
+<li><span class="math inline">\(\sigma\)</span> (sigma) is the standard
+deviation of the error term <span
+class="math inline">\(\epsilon\)</span> and quantifies the amount of
+unexplained variability in the log-transformed time-to-competency
+outcome</li>
+<li>see <code>coralseed::parameter_draws_lognormal</code> for parameter
+inputs</li>
+</ul>
+<p>Predictions of time-to-competency for each individual were estimated
+from parameters draws ((<span class="math inline">\(\beta_0\)</span>)
+and (<span class="math inline">\(\sigma\)</span>)) using the
+<code>rlnorm</code> function for each of the 10k posterior draws:</p>
+<pre class="r"><code>nsims &lt;- 1000 # number of simulations
+n_id &lt;- 1000 # number of larvae
+
+  predict_lognormal &lt;- foreach(i=1:nsims, .combine=&quot;rbind&quot;) %do% {
+       post_sm1_sample_lognormal &lt;- coralseed::parameter_draws_log %&gt;% slice_sample(n = 1)
+      individual_times &lt;- rlnorm(runif(n_id), meanlog=post_sm1_sample_lognormal[1,1], sdlog=post_sm1_sample_lognormal[1,2]) 
+      data.frame(settlement_point=sort(round(individual_times)), id=999-seq(0,999,1), sim=(i))
+  }
+  
+simulated_settlers_lognormal &lt;- predict_lognormal |&gt;
+  filter(sim %in% sample(1:nsims, 1)) |&gt;
+  select(-sim)</code></pre>
+</div>
+</div>
+<div id="simulated-time-to-event-competency-curves"
+class="section level3">
+<h3>2. Simulated time-to-event competency curves:</h3>
+<p>The three simulated time-to-competency curves are visualised below.
+For the example dataset, <code>waic</code> indicates a better fit for
+the exponential model (add <code>brms</code> outputs at a later stage).
+Each coloured line represents a single draw per model, and the black
+line is an example random subsample of <code>nsims</code> that
+<code>coralseed</code> extracts for parameterisation.</p>
+<p>Coloured lines are single posterior draws from brms (n=100 draws) of
+time-to-competency for 1000 simulated particles, and the black line
+represents a random draw used for <code>coralseed</code> run.</p>
+<pre class="r"><code>exponential_plot &lt;- ggplot() +
+  theme_bw() +
+  ggtitle(&quot;Exponential&quot;) +
+  xlim(0, 12) +
+  geom_point(data = predict_exp, aes(settlement_point / 60, id, group = sim, color=sim), show.legend=FALSE, size = 0.1, alpha = 0.2) +
+  geom_point(data = simulated_settlers_exp, aes(settlement_point / 60, id), colour = &quot;black&quot;, size = 0.2, alpha = 0.6) +
+  xlab(&quot;Timing of competency (hrs)&quot;) +
+  ylab(&quot;Individual&quot;) +
+  scale_color_viridis_c(option=&quot;viridis&quot;)
+
+weibull_plot &lt;- ggplot() +
+  theme_bw() +
+  ggtitle(&quot;Weibull&quot;) +
+  xlim(0, 12) +
+  geom_point(data = predict_weibull, aes(settlement_point / 60, id, group = sim, color=sim), show.legend=FALSE, size = 0.1, alpha = 0.2) +
+  geom_point(data = simulated_settlers_weibull, aes(settlement_point / 60, id), colour = &quot;black&quot;, size = 0.2, alpha = 0.6) +
+  xlab(&quot;Timing of competency (hrs)&quot;) +
+  ylab(&quot;Individual&quot;) +
+  scale_color_viridis_c(option=&quot;mako&quot;)
+
+lognormal_plot &lt;- ggplot() +
+  theme_bw() +
+  ggtitle(&quot;Lognormal&quot;) +
+  xlim(0, 12) +
+  geom_point(data = predict_lognormal, aes(settlement_point / 60, id, group = sim, color=sim), show.legend=FALSE, size = 0.1, alpha = 0.2) +
+  geom_point(data = simulated_settlers_lognormal, aes(settlement_point / 60, id), colour = &quot;black&quot;, size = 0.2, alpha = 0.6) +
+  xlab(&quot;Timing of competency (hrs)&quot;) +
+  ylab(&quot;Individual&quot;) +
+  scale_color_viridis_c(option=&quot;plasma&quot;)
+
+
+library(ggpubr)
+
+ggarrange(exponential_plot, weibull_plot, lognormal_plot, ncol=3)</code></pre>
+<p><img src="competencymodels_files/figure-html/unnamed-chunk-7-1.png" width="960" /></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = false;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

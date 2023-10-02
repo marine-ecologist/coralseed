@@ -21,7 +21,7 @@
 
 
 seed_futures <- function(
-    input, seascape = NULL, simulate.mortality = "none", simulate.mortality.n = 0.1,
+    input=NULL, example=NULL, seascape = NULL, simulate.mortality = "none", simulate.mortality.n = 0.1,
     competency.function = "exp", limit.time = NA, probability = "additive", tracks = FALSE,
     set.seed = NULL, ...) {
   ##########################################################################################
@@ -31,12 +31,60 @@ seed_futures <- function(
   # so add a zero point at centroid of particle release area and set to t0 for
   # particles that aren't currently t0.
   set.seed=set.seed
-
-  load_particles <- sf::st_read(input, drivers = "GeoJSON", quiet = TRUE) |>
-    sf::st_zm(drop = TRUE, what = "ZM") |>
-    dplyr::select(-decay_value) |>
-    dplyr::mutate(time=time+lubridate::hours(14)) |>
-    sf::st_transform(20353)
+  
+  if (is.null(set.seed) == TRUE) {
+    set.seed(sample(-9999999:9999999, 1))
+  }
+  
+  
+  if (is.null(input) == FALSE) {
+    load_particles <- (input) |>
+      sf::st_zm(drop = TRUE, what = "ZM") |>
+      sf::st_transform(20353) |>
+      dplyr::select(-decay_value)
+    
+  } else {
+  }
+  
+  data_sources <- list(
+    mermaid = coralseed:::Mermaid_PointSource_Bay_01,
+    watson = coralseed:::WatsonN_PointSource_ForeReefSh_01,
+    palfrey = coralseed:::PalfreyN_PointSource_ForeReefEx_01,
+    spawnhub = coralseed:::SpHub_PointSource_SELaggon_01,
+    clamgarden = coralseed:::ClamGarden_PointSource_OpenLagoon_01
+  )
+  
+  data_sources_df <- data.frame(
+    dataset_name = c("mermaid", "watson", "palfrey", "spawnhub", "clamgarden"),
+    linked_file_name = c(
+      "coralseed:::Mermaid_PointSource_Bay_01",
+      "coralseed:::WatsonN_PointSource_ForeReefSh_01",
+      "coralseed:::PalfreyN_PointSource_ForeReefEx_01",
+      "coralseed:::SpHub_PointSource_SELaggon_01",
+      "coralseed:::ClamGarden_PointSource_OpenLagoon_01"
+    ),
+    stringsAsFactors = FALSE
+  )
+  
+  
+  if (is.null(example) == TRUE) {
+    
+  } else if (example %in% names(data_sources)) {
+    load_particles <- data_sources[[example]] %>%
+      sf::st_zm(drop = TRUE, what = "ZM") %>%
+      sf::st_transform(20353) %>%
+      dplyr::mutate(time = time + lubridate::hours(14))
+   
+  } else if (!example %in% names(data_sources)) {
+    cat("\n error: example not found, must be one of mermaid, watson, palfrey, spawnhub, clamgarden. \n\n")
+  }
+  
+  if (is.null(load_particles) == TRUE) {
+    cat("\n\n error: coralseed requires either an input file or an example file\n\n\n\n")
+    stop()
+  } else {
+    
+  }
 
   # get details from input
   t0 <- min(load_particles$time)
@@ -70,6 +118,7 @@ seed_futures <- function(
     dplyr::filter(time > min(t0)) |>
     rbind(load_particles_t0) |>
     dplyr::arrange(id, dispersaltime)
+
 
   ##########################################################################################
   ###  #2 Predict competency
@@ -113,7 +162,8 @@ seed_futures <- function(
   competency_times <- simulated_settlers |>
     with(simulated_settlers) |>
     dplyr::mutate(id = (unique(as.factor(particle_points$id))))
-  data.table::setDT(competency_times) # move elsewhere
+  
+  data.table::setDT(competency_times) # move elsewhere?
 
   # tic()
   # # interpolate between particle points by 1 minute intervals and bind probability outputs
@@ -139,25 +189,29 @@ seed_futures <- function(
     setNames(c("X", "Y"))
 
   # Start by extracting the dataframe from the sp object
-  particle_points_df <- as.data.frame(particle_points)
+  particle_points_df <- as.data.frame(particle_points) |> mutate(id=as.factor(id))
   particle_points_dt <- data.table::setDT(particle_points_df)
   particle_points_dt <- cbind(particle_points_dt, coords)
+  
   #particle_points_dt[, geometry := NULL]
-  particle_points_dt[, id := as.factor(id)]
-
-  all_times <- particle_points_dt[, .(time = seq(min(time), max(time), by = "1 min")), by = id]
+  
+  all_times <- particle_points_dt[, .(time = seq(min(particle_points_dt$time), max(particle_points_dt$time), by = "1 min")), by = id]
   particle_points_dt <- particle_points_dt[all_times, on = c("id", "time")]
   particle_points_dt[, dispersaltime := as.integer(time - min(particle_points_dt$time)) / 60]
+  
   particle_points_dt <- particle_points_dt[, `:=`(
     X = approx(time, X, time)$y,
     Y = approx(time, Y, time)$y
-  ), by = id]
-
+  ), by = id] 
+  
+  
   particle_points_dt[competency_times, settlement_point := settlement_point, on = "id"]
   particle_points_dt[, state := ifelse(dispersaltime <= settlement_point, 0, 1), by = id]
   particle_points_dt[, competency := ifelse(state == 1, "competent", "incompetent")]
-
+  particle_points_dt <- particle_points_dt[!is.na(X)]
+  
   particle_points_expanded <- sf::st_as_sf(particle_points_dt, coords = c("X", "Y"))
+  
   # toc()
 
   n_mortality <- length(levels(unique(as.factor(particle_points_expanded$id)))) * simulate.mortality.n
@@ -200,12 +254,10 @@ seed_futures <- function(
     sf::st_set_crs("EPSG:20353")
 
 
-
-
   ##########################################################################################
   #####  #3 Settle particles by probability
   # bind with benthic substrates
-  particle_points_probability <- sf::st_join(particle_points_expanded_postmortality, seascape) |>
+  particle_points_probability <- sf::st_join(particle_points_expanded_postmortality, seascape |> dplyr::mutate(class=as.factor(class))) |>
     dplyr::mutate(class = forcats::fct_na_value_to_level(class, "Ocean")) |> # replace NA with Ocean
     dplyr::mutate(habitat_id = forcats::fct_na_value_to_level(habitat_id, "Ocean")) |> # replace NA with Ocean
     dplyr::mutate(settlement_probability = tidyr::replace_na(settlement_probability, 0)) |> # make lagoon and ocean 0
@@ -261,7 +313,7 @@ seed_futures <- function(
   if (tracks == TRUE) {
     settled_tracks <- particle_points_probability |>
       dplyr::filter(id %in% unique(select_particles$id)) |>
-      dplyr::left_join(select_particles |> as.data.frame() |> select(id, dispersaltime) |> rename(maxdispersaltime=dispersaltime)) |>
+      dplyr::left_join(select_particles |> as.data.frame() |> select(id, dispersaltime) |> rename(maxdispersaltime=dispersaltime), by="id") |>
       dplyr::filter(dispersaltime < maxdispersaltime) |> # dplyr::select settled particles
       dplyr::arrange(id, time) |>
       dplyr::group_by(id) |>

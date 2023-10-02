@@ -18,7 +18,7 @@
 #' # plot_particles(particles)
 
 
-plot_particles <- function(input = NULL, seascape=NULL, parameter = "all", pch=16, size=0.5, ...) {
+plot_particles <- function(input = NULL, seascape=NULL, parameter = "dispersaltime", pch=16, size=0.5, ...) {
   
   if (parameter %in% "dispersaltime") {
     plot(input[parameter], type="l", lwd=0.1, col="white", graticule = TRUE, axes = TRUE, main="", reset = FALSE)

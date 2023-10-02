@@ -5,7 +5,8 @@
 \title{Seed futures}
 \usage{
 seed_futures(
-  input,
+  input = NULL,
+  example = NULL,
   seascape = NULL,
   simulate.mortality = "none",
   simulate.mortality.n = 0.1,

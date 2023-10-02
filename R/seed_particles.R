@@ -28,7 +28,7 @@ seed_particles <- function(
     set.centre = TRUE, set.seed = NULL,
     silent = FALSE, return.plot = FALSE, ...) {
   ##########################################################################################
-  ### #1 extract_particle_points
+  ### 1. extract_particle_points
   # set up particles for single point / time releases
   # Connie does not allow to disperse larvae at initial time of release < than 1 hour
   # so add a zero point at centroid of particle release area and set to t0 for
@@ -73,11 +73,7 @@ seed_particles <- function(
   } else if (example %in% names(data_sources)) {
     load_particles <- data_sources[[example]] %>%
       sf::st_zm(drop = TRUE, what = "ZM") %>%
-      sf::st_transform(20353) %>%
-      dplyr::mutate(time = time + lubridate::hours(14))
-    # if (is.null(silent) == FALSE) {
-    #   cat(paste0("Example: ", data_sources_df[data_sources_df$dataset_name == example, 2], " \n"))
-    # }
+      sf::st_transform(20353)
   } else if (!example %in% names(data_sources)) {
     cat("\n error: example not found, must be one of mermaid, watson, palfrey, spawnhub, clamgarden. \n\n")
   }
@@ -101,25 +97,6 @@ seed_particles <- function(
   tmax <- max(load_particles$time)
   n_id <- length(unique(load_particles$id))
 
-  # print details while loading
-  if (silent == FALSE) {
-    (cat(paste0("\n")))
-    # (cat(paste0("Filename: ", basename(input), " \n")))
-    (cat(paste0("Importing ", length(levels(as.factor(load_particles$id))), " particle tracks", "\n")))
-    if (is.null(set.seed) == TRUE) {
-      (cat(paste0("[No seed set, random draws used] \n")))
-    } else {
-      (cat(paste0("[seed = ", set.seed, "] \n")))
-    }
-    (cat(paste0("\n")))
-    (cat(paste0("Time start = ", t0, "\n")))
-    (cat(paste0("Time end = ", tmax, "\n")))
-    (cat(paste0("Total dispersaltime (hrs) = ", tmax - t0, "\n")))
-
-    if (!is.na(limit.time)) {
-      (cat(paste0("Particle tracks limited to ", limit.time, " hrs \n")))
-    }
-  }
   # set dispersaltime
   load_particles <- load_particles |>
     dplyr::mutate(dispersaltime = as.numeric(time - min(t0)) / 60)
@@ -129,23 +106,8 @@ seed_particles <- function(
       dplyr::filter(dispersaltime <= limit.time * 60)
   }
 
-
+  
   if (set.centre == TRUE) {
-    # extract centroid for release point
-    # load_particles_t0 <- load_particles |>
-    #   dplyr::filter(time == min(t0)) |>
-    #   dplyr::summarize(geometry = sf::st_union(geometry)) |>
-    #   sf::st_centroid() |>
-    #   tidyr::uncount(n_id) |>
-    #   dplyr::mutate(
-    #     id = dplyr::row_number() - 1,
-    #     time = min(t0),
-    #     dispersaltime = 0
-    #   ) |>
-    #   sf::st_as_sf() |>
-    #   sf::st_transform(20353)
-
-
     load_particles_t0 <- load_particles |>
       dplyr::filter(time == min(t0)) |>
       dplyr::summarize(geometry = sf::st_union(geometry)) |>
@@ -164,6 +126,7 @@ seed_particles <- function(
       dplyr::filter(time > min(t0)) |>
       rbind(load_particles_t0) |>
       dplyr::arrange(id, dispersaltime)
+    
   } else if (set.centre == FALSE) {
     particle_points <- load_particles |>
       dplyr::arrange(id, dispersaltime)
@@ -171,13 +134,12 @@ seed_particles <- function(
 
 
   ##########################################################################################
-  ###  #2 Predict competency
+  ### 2. Predict competency
 
   competency_times_output <- predict_competency(
     n_id = length(levels(as.factor(particle_points$id))), n_sims = 1000,
     competency.function = competency.function, set.seed = set.seed, return.plot = return.plot
   )
-
 
   competency_times <- competency_times_output |>
     with(simulated_settlers) |>
@@ -190,14 +152,7 @@ seed_particles <- function(
   t12 <- (sum(competency_times$settlement_point < 720)) # / n_id) #* 100
   t24 <- (sum(competency_times$settlement_point < 1440)) # / n_id) #* 100
 
-  if (silent == FALSE) {
-    (cat(paste0("  \n")))
-    (cat(paste0("Competency at t6 = ", t6, " / ", n_id, " larvae \n")))
-    (cat(paste0("Competency at t12 = ", t12, " / ", n_id, " larvae \n")))
-    (cat(paste0("Competency at t24 = ", t24, " / ", n_id, " larvae \n")))
-    (cat(paste0("  \n")))
-  }
-  # interpolate between particle points by 1 minute intervals and bind probability outputs
+ # interpolate between particle points by 1 minute intervals and bind probability outputs
   particle_points_expanded <- particle_points |>
     as.data.frame() |>
     dplyr::mutate(geometry = gsub("[^0-9. -]", "", geometry), id = as.factor(id)) |>
@@ -216,20 +171,19 @@ seed_particles <- function(
 
 
   ##########################################################################################
-  ###  #2 Predict mortality
+  ### 2. Predict mortality
 
+  
   particle_points_expanded_postmortality <- simulate_mortality(
     input = particle_points_expanded,
     simulate.mortality = simulate.mortality, simulate.mortality.n = simulate.mortality.n,
-    return.plot = return.plot, set.seed = set.seed, silent = silent
-  )
-
-
-
-
+    return.plot = return.plot, set.seed = set.seed, silent = TRUE)
+  
+  
   ##########################################################################################
-  #####  #4 Settle particles by probability
-  # bind with benthic substrates
+  ### 3. Settle particles by probability
+ 
+  # join with spatial probability maps
   particle_points_probability <- sf::st_join((particle_points_expanded_postmortality |> with(simulated_mortality)), seascape) |>
     dplyr::mutate(class = forcats::fct_na_value_to_level(class, "Ocean")) |> # replace NA with Ocean
     dplyr::mutate(habitat_id = forcats::fct_na_value_to_level(habitat_id, "Ocean")) |> # replace NA with Ocean
@@ -242,7 +196,6 @@ seed_particles <- function(
   # add triple-letter string to ID for unique df (p=0.00006 random draw)
   idstring <- paste0(sample(LETTERS, 1, replace = TRUE), sample(LETTERS, 1, replace = TRUE), sample(LETTERS, 1, replace = TRUE))
   particle_points_probability$id <- paste0(idstring, particle_points_probability$id)
-
 
   if (return.plot == TRUE) {
     suppressWarnings({
@@ -262,7 +215,6 @@ seed_particles <- function(
       if (is.na(limit.time)) {
         p1 <- na.omit(competency_times_output$simulated_settlers_plot) + coralseed_themes
         p2 <- particle_points_expanded_postmortality$simulated_mortality_plot + ggplot2::ggtitle("2. Larval survival post-release") + coralseed_themes
-        
       } else {
         p1 <- na.omit(competency_times_output$simulated_settlers_plot) + coralseed_themes +
           geom_vline(xintercept = as.numeric(limit.time), color = "darkred", alpha = 0.6, linetype = "dotted", linewidth = 0.8)
@@ -316,42 +268,47 @@ seed_particles <- function(
 
       p4 <- p4 + coralseed_themes
 
-
-      #-----5.map ----------@
-      #
-      # inset <- sf::st_bbox(sf::st_buffer(particle_points_probability_settlers,50)) |> as.numeric()
-      #
-      # p5 <- ggplot2::ggplot() +
-      #   ggplot2::theme_bw() +
-      #   ggplot2::geom_sf(data = particle_points_probability_settlers, size = 1.5, shape = 21, fill = "aquamarine3", alpha = 0.6) +
-      #   ggplot2::geom_sf(data = seascape, ggplot2::aes(fill=class), alpha = 0.25) +
-      #   ggplot2::coord_sf(xlim = c(inset[1], inset[3]), ylim = c(inset[2], inset[4])) +
-      #   theme(legend.text = element_text(size = 7),
-      #         legend.title = element_blank()) +
-      #   ggplot2::scale_fill_manual(values = c("Plateau" = "cornsilk2", "Back Reef Slope" = "darkcyan",
-      #                                  "Reef Slope" = "darkseagreen4", "Sheltered Reef Slope" = "darkslategrey",
-      #                                  "Inner Reef Flat" = "darkgoldenrod4", "Outer Reef Flat" = "darkgoldenrod2",
-      #                                  "Reef Crest" = "coral3"))
-      #
-      # p5 <- p5 + ggplot2::ggtitle("5. Spatial pattern settlers (lon/lat)") +
-      #   coralseed_themes
-      #
-      #-----combine ----------@
-
-      #
-      #       multiplot <- gridExtra::grid.arrange(p1,p2,
-      #                                            p3,p4,
-      #                                            p5,
-      #                                            layout_matrix = rbind(c(1,2),
-      #                                                                  c(3,4),
-      #                                                                  c(5,5),
-      #                                                                  c(5,5)))
-      #
       suppressWarnings({
         multiplot <- ggpubr::ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2, align = "hv")
         print(multiplot)
       })
     })
+    
+    ### show text outputs
+    
+    if (silent == FALSE) {
+      (cat(paste0("## coralseed model summary: #### \n")))
+      (cat(paste0("Importing ", length(levels(as.factor(load_particles$id))), " particle tracks", "\n")))
+      if (is.null(set.seed) == TRUE) {
+        (cat(paste0("[No seed set, random draws used] \n")))
+      } else {
+        (cat(paste0("[seed = ", set.seed, "] \n")))
+      }
+      (cat(paste0("\n")))
+      (cat(paste0("Time start = ", t0, "\n")))
+      (cat(paste0("Time end = ", tmax, "\n")))
+      (cat(paste0("Total dispersaltime (hrs) = ", tmax - t0, "\n")))
+      
+      if (!is.na(limit.time)) {
+        (cat(paste0("Particle tracks limited to ", limit.time, " hrs \n")))
+      }
+      
+      (cat(paste0("  \n")))
+      (cat(paste0("Competency at t6 = ", t6, " / ", n_id, " larvae \n")))
+      (cat(paste0("Competency at t12 = ", t12, " / ", n_id, " larvae \n")))
+      (cat(paste0("Competency at t24 = ", t24, " / ", n_id, " larvae \n")))
+      (cat(paste0("  \n")))
+      
+      
+      t6m <- (sum(as.numeric(particle_points_expanded_postmortality$survivorship_output$mortalitytime) < 360)) # / n_id) #* 100
+      t12m <- (sum(as.numeric(particle_points_expanded_postmortality$survivorship_output$mortalitytime) < 720)) # / n_id) #* 100
+      
+      if (silent == FALSE) {
+        (cat(paste0("Survivorship curve ", unique(particle_points_expanded_postmortality$type), " \n")))
+        (cat(paste0("Mortality at t6 = ", t6m, " / ", n_id, " larvae \n")))
+        (cat(paste0("Mortality at t12 = ", t12m, " / ", n_id, " larvae \n")))
+      }
+    }
   }
 
   #
