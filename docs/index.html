@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2023-10-02" />
+<meta name="date" content="2023-10-03" />
 
 <title>coralseed</title>
 
@@ -430,13 +430,11 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">coralseed</h1>
-<h4 class="date">2023-10-02</h4>
+<h4 class="date">2023-10-03</h4>
 
 </div>
 
 
-<div id="coralseed" class="section level1">
-<h1>coralseed</h1>
 <p><code>coralseed</code> is a spatially explicit probabilistic model
 aims to quantify the spatial footprint of coral larval re-seeding from
 restoration progjects. The model is based on input from high-resolution
@@ -465,8 +463,8 @@ Barrier Reef and elsewhere.</p>
 <h2>Installation</h2>
 <p><code>coralseed</code> can be installed on github via
 <code>remotes</code>:</p>
-<pre class="r"><code>#install.packages(&quot;remotes&quot;)
-install_github(&quot;marine-ecologist/coralseed&quot;)</code></pre>
+<pre class="r fold-show"><code>#install.packages(&quot;remotes&quot;)
+remotes::install_github(&quot;marine-ecologist/coralseed&quot;)</code></pre>
 </div>
 <div id="example" class="section level2">
 <h2>Example</h2>
@@ -522,7 +520,7 @@ time-to-settlement model parameterisation
 (<code>simulate.mortality</code>) applied to 10% of the population over
 a 24 hr period (<code>simulate.mortality.n</code>) with an additive
 settlement function (<code>probability</code>).</p>
-<pre class="r"><code>library(coralseed)
+<pre class="r fold-show"><code>library(coralseed)
 library(ggplot2)
 library(tidyverse)
 library(sf)
@@ -551,7 +549,6 @@ settlers &lt;-  settle_particles(particles, probability=&quot;additive&quot;)# %
 # `map_coralseed` visualises all outputs from the above three models
 
 map_coralseed(seed_particles=particles, settle_particles=settlers, seascape_probability=seascape, restoration.plot=c(100,100))</code></pre>
-</div>
 </div>
 
 
