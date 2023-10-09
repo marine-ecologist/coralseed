@@ -138,7 +138,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     tmap::tmap_options(check.and.fix = TRUE, show.messages=FALSE, show.warnings=FALSE)
 
   if (!is.null(scalebar)){
-  tmp <-  tmp + tm_scale_bar(width=scalebar)
+  tmp <-  tmp + tmap::tm_scale_bar(width=scalebar)
         }
 
   tmp |> tmap::tmap_leaflet() |>
@@ -210,7 +210,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     tmap::tmap_options(check.and.fix = TRUE, show.messages=FALSE, show.warnings=FALSE)
 
   if (!is.null(scalebar)){
-    tmp <-  tmp + tm_scale_bar(width=scalebar)
+    tmp <-  tmp + tmap::tm_scale_bar(width=scalebar)
   }
 
   tmp |> tmap::tmap_leaflet() |>
