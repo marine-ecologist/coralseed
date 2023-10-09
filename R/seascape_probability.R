@@ -3,7 +3,7 @@
 #' Function to generate probability distribution from Allen Coral Atlas input files
 #'
 #' @param reefoutline geojson or shp files for Coral Atlas benthic habitat maps for reef outline
-#' @param geomorphic habitat or shp files for Coral Atlas geomorphic maps
+#' @param habitat habitat or shp files for Coral Atlas geomorphic maps
 #' @param probability habitat specific probabilities (mean and SE) defined as in example below. Defaults to NULL parameterisation embedded in function (see example below)
 #' @param ... passes functions
 #' @export
@@ -11,7 +11,7 @@
 
 
 seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability = NULL, ...) {
-  
+
   oldwarning <- getOption("warn")
   options(dplyr.summarise.inform = FALSE, warn = -1)
   if (is.null(probability) == TRUE) {
@@ -26,12 +26,16 @@ seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability
 
   tryCatch({
 
+    data(benthic_map, envir = environment())
+    data(reef_map, envir = environment())
+
     # 1) Coral Atlas shp files (add load later)
      # load(system.file("data/benthic_map.rda", package = "coralseed"))
       benthic_map <- benthic_map |>
         #dplyr::mutate(class = as.factor(class)) |>
         #dplyr::mutate(class = forcats::fct_recode(class, Lagoon = "Shallow Lagoon", Lagoon = "Deep Lagoon")) |>
         sf::st_transform(crs = sf::st_crs("EPSG:20353"))
+
 
       #load(system.file("data/reef_map.rda", package = "coralseed"))
       reef_map <- reef_map |>
@@ -49,14 +53,14 @@ seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability
         sprintf(paste0("%0", ceiling(log10(max(1:length(class)))), "d"), 1:length(class))
       )) |>
       sf::st_make_valid()
-    
+
 
     benthic_probability <- probability
     class_means <- rlang::set_names(benthic_probability$means, benthic_probability$class)
 
     sf::st_agr(allen_map) = "constant"
-  
-    
+
+
     allen_map_probability <- allen_map |>
       dplyr::filter(!class == "Lagoon") |>
       sf::st_make_valid() |>

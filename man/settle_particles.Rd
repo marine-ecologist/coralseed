@@ -4,7 +4,14 @@
 \alias{settle_particles}
 \title{Settle Particles}
 \usage{
-settle_particles(input, probability = "additive", silent = TRUE, ...)
+settle_particles(
+  input,
+  probability = "additive",
+  silent = TRUE,
+  sample.n = NULL,
+  set.seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{input}{input (defaults to particle_points_expanded from seed_particles() function)}
@@ -12,6 +19,10 @@ settle_particles(input, probability = "additive", silent = TRUE, ...)
 \item{probability}{one of "additive", "rapid", "lagged")}
 
 \item{silent}{silence outputs}
+
+\item{sample.n}{subsample to n particles}
+
+\item{set.seed}{seed}
 
 \item{...}{pass arguments}
 }

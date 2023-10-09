@@ -5,13 +5,9 @@
 #' @name extract_parallel
 #' @param input list of %dopar% outputs
 #' @param type either points or paths
-#' @param ... pass arguments
 #' @export
-#'
-#'
-#'
 
-extract_parallel <- function(input, type, ...) {
+extract_parallel <- function(input, type) {
   if (type == "points") {
     tmp <- do.call(rbind, lapply(input, function(x) x[[1]])) |>
       dplyr::mutate(id_full = id) |>

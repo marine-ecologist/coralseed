@@ -8,40 +8,44 @@
 #' https://gis.stackexchange.com/questions/447578/geosexception-illegalargumentexception-point-array-must-contain-0-or-1-elemen
 #'
 #' !!sym(by)
-#' 
+#'
 #' @param input input (defaults to NULL)
-#' 
+#' @param by factor level
+#' @param type "LINESTRING" or "MULTILINESTRING" (default)
+#'
 #' @export
 #'
 #'
 
 particles_to_tracks <- function(input = NULL,  by="id", type="MULTILINESTRING") {
   options(dplyr.summarise.inform = FALSE)
-  
-  
-  tracks <- input %>% 
+
+
+  tracks <- input %>%
     #remove duplicate geometries if particle is static or breaks linestring
     group_by(geometry) %>%
     slice_head(n = 1) %>%
     ungroup() %>%
+    dplyr::mutate(id = as.character(id),
+           competency = as.character(competency)) %>%
     #drop less than 3 points per group
-    group_by(id, competency) |> 
-    filter(n() > 3 ) |> 
-    #mutate(id=as.factor(id)) |> 
-    #mutate(competency=as.factor(competency)) |> 
-    dplyr::arrange(id, dispersaltime) %>% 
+    dplyr::group_by(id, competency) %>%
+    dplyr::filter(dplyr::n() > 3 ) %>%
+    #mutate(id=as.factor(id)) |>
+    #mutate(competency=as.factor(competency)) |>
+    dplyr::arrange(id, dispersaltime) %>%
     dplyr::group_by(!!!syms(by)) %>%
-    dplyr::summarise(do_union = FALSE) %>% 
+    dplyr::summarise(do_union = FALSE) %>%
     sf::st_make_valid() %>%
-    sf::st_cast(type) %>%
+    sf::st_cast(type)
     # dplyr::ungroup() %>%
     # dplyr::mutate(id=as.factor(id)) %>%
     # dplyr::group_by(id) %>%
     # dplyr::sample_n(slicesample) %>%
     # dplyr::mutate(id=as.character(id))
-    
-  
+
+
   #options(dplyr.summarise.inform = TRUE)
-  
+
   return(tracks)
 }

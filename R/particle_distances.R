@@ -11,7 +11,7 @@
 #' @export
 #'
 
-particle_distances <- function(input = NULL, tmax = NULL, type = "df") {
+particle_distances <- function(input = NULL, tmax = NULL, type = "df", ...) {
   # options(dplyr.summarise.inform = FALSE)
   if (type == "sf") {
     lengths <- input |>
@@ -24,7 +24,7 @@ particle_distances <- function(input = NULL, tmax = NULL, type = "df") {
     # options(dplyr.summarise.inform = TRUE)
 
     return(lengths)
-    
+
   } else if (type == "df") {
     lengths <- input |>
       dplyr::filter(dispersaltime < tmax) |>

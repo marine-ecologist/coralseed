@@ -12,6 +12,10 @@ particles_to_tracks_linestring(
 }
 \arguments{
 \item{input}{input (defaults to NULL)}
+
+\item{slicesample}{subset to n particles}
+
+\item{by}{factor level}
 }
 \description{
 Function to convert particles (sf points) to tracks (sf linestrings, or here a multilinestring)

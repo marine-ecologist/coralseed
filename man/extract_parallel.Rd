@@ -5,22 +5,21 @@
 \alias{map_coralseed}
 \title{Settlement statistics}
 \usage{
-extract_parallel(input, type, ...)
+extract_parallel(input, type)
 
 map_coralseed(
   seed_particles = particles,
   settle_particles = settlers,
   seascape_probability = seascape,
   restoration.plot = c(100, 100),
-  show.tracks = TRUE
+  show.tracks = TRUE,
+  scalebar = 200
 )
 }
 \arguments{
 \item{input}{list of \%dopar\% outputs}
 
 \item{type}{either points or paths}
-
-\item{...}{pass arguments}
 
 \item{seed_particles}{input from seed_particles}
 
@@ -31,6 +30,8 @@ map_coralseed(
 \item{restoration.plot}{dimensions of the restoration plot in metres}
 
 \item{show.tracks}{option to show particle tracks (TRUE, will be large files and slower renders) or without tracks (FALSE, smaller files and faster renders)}
+
+\item{scalebar}{set scale to X metres}
 }
 \description{
 Function to extract points and paths from multiple \%dopar\% outputs

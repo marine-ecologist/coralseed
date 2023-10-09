@@ -21,7 +21,7 @@
 #'
 
 
-seed_futures2 <- function(
+seed_multicore <- function(
     input=NULL, example=NULL, seascape = NULL, simulate.mortality = "none", simulate.mortality.n = 0.1,
     competency.function = "exp", limit.time = NA, probability = "additive", tracks = FALSE,
     set.seed = NULL, ...) {
@@ -30,60 +30,16 @@ seed_futures2 <- function(
   # Connie does not allow to disperse larvae at initial time of release < than 1 hour
   # so add a zero point at centroid of particle release area and set to t0 for
   # particles that aren't currently t0.
-  set.seed=set.seed
 
   #load(".../R/sysdata.rda")
+
+  set.seed=set.seed
 
   if (is.null(set.seed) == TRUE) {
     set.seed(sample(-9999999:9999999, 1))
   }
 
-
-  if (is.null(input) == FALSE) {
-    load_particles <- (input)
-
-  } else {
-  }
-
-  data_sources <- list(
-    mermaid = Mermaid_PointSource_Bay_01,
-    watson = WatsonN_PointSource_ForeReefSh_01,
-    palfrey = PalfreyN_PointSource_ForeReefEx_01,
-    spawnhub = SpHub_PointSource_SELaggon_01,
-    clamgarden = ClamGarden_PointSource_OpenLagoon_01
-  )
-
-  data_sources_df <- data.frame(
-    dataset_name = c("mermaid", "watson", "palfrey", "spawnhub", "clamgarden"),
-    linked_file_name = c(
-      "Mermaid_PointSource_Bay_01",
-      "WatsonN_PointSource_ForeReefSh_01",
-      "PalfreyN_PointSource_ForeReefEx_01",
-      "SpHub_PointSource_SELaggon_01",
-      "ClamGarden_PointSource_OpenLagoon_01"
-    ),
-    stringsAsFactors = FALSE
-  )
-
-
-  if (is.null(example) == TRUE) {
-
-  } else if (example %in% names(data_sources)) {
-    load_particles <- data_sources[[example]] %>%
-      sf::st_zm(drop = TRUE, what = "ZM") %>%
-      sf::st_transform(20353) %>%
-      dplyr::mutate(time = time + lubridate::hours(14))
-
-  } else if (!example %in% names(data_sources)) {
-    cat("\n error: example not found, must be one of mermaid, watson, palfrey, spawnhub, clamgarden. \n\n")
-  }
-
-  if (is.null(load_particles) == TRUE) {
-    cat("\n\n error: coralseed requires either an input file or an example file\n\n\n\n")
-    stop()
-  } else {
-
-  }
+  load_particles <- input
 
   # get details from input
   t0 <- min(load_particles$time)
@@ -118,6 +74,10 @@ seed_futures2 <- function(
     rbind(load_particles_t0) |>
     dplyr::arrange(id, dispersaltime)
 
+
+  coords <- sf::st_coordinates(particle_points) |>
+    as.data.frame()
+  particle_points <- bind_cols(particle_points, coords)
 
   ##########################################################################################
   ###  #2 Predict competency
@@ -160,9 +120,12 @@ seed_futures2 <- function(
 
   competency_times <- simulated_settlers |>
     with(simulated_settlers) |>
-    dplyr::mutate(id = (unique(as.factor(particle_points$id))))
+    dplyr::mutate(id = (unique(as.factor(simulated_settlers$id))))
 
+  particle_points_dt <- particle_points
   data.table::setDT(competency_times) # move elsewhere?
+  data.table::setDT(particle_points_dt) # move elsewhere?
+  particle_points_dt[, id := as.factor(id)]
 
   # tic()
   # # interpolate between particle points by 1 minute intervals and bind probability outputs
@@ -183,14 +146,7 @@ seed_futures2 <- function(
   #   sf::st_cast("POINT")
   # toc()
   # tic() # data.table approach is 5-fold quicker than data.frame above
-  coords <- do.call(rbind, sf::st_geometry(particle_points)) |>
-    data.table::as.data.table() |>
-    setNames(c("X", "Y"))
 
-  # Start by extracting the dataframe from the sp object
-  particle_points_df <- as.data.frame(particle_points) |> mutate(id=as.factor(id))
-  particle_points_dt <- data.table::setDT(particle_points_df)
-  particle_points_dt <- cbind(particle_points_dt, coords)
 
   #particle_points_dt[, geometry := NULL]
 
@@ -198,10 +154,18 @@ seed_futures2 <- function(
   particle_points_dt <- particle_points_dt[all_times, on = c("id", "time")]
   particle_points_dt[, dispersaltime := as.integer(time - min(particle_points_dt$time)) / 60]
 
+  particle_points_dt[, non_na_count := sum(!is.na(X)), by = id] # Calculate the count of non-NA 'X' values for each 'id'
+  particle_points_dt <- particle_points_dt[non_na_count > 2] # Filter out 'id' levels with 2 or fewer non-NA 'X' values
+  particle_points_dt[, non_na_count := NULL]   # Remove the 'non_na_count' column
+
+  #length(unique(particle_points_dt$id))
+
   particle_points_dt <- particle_points_dt[, `:=`(
     X = approx(time, X, time)$y,
     Y = approx(time, Y, time)$y
   ), by = id]
+
+  #length(unique(particle_points_dt$id))
 
 
   particle_points_dt[competency_times, settlement_point := settlement_point, on = "id"]

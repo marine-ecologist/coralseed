@@ -4,7 +4,7 @@
 \alias{plot_settlers}
 \title{Plot output from settle_particles}
 \usage{
-plot_settlers(input = NULL, seascape = NULL, pch = 16, size = 0.5, ...)
+plot_settlers(input = NULL, pch = 16, size = 0.5, ...)
 }
 \arguments{
 \item{input}{input}
@@ -14,12 +14,6 @@ plot_settlers(input = NULL, seascape = NULL, pch = 16, size = 0.5, ...)
 \item{size}{size}
 
 \item{...}{passes functions}
-
-\item{parameter}{parameter (column from coralseed)}
-
-\item{habitatmap}{basemap from seascape_probability}
-
-\item{palette}{one of rainbow(n), heat.colors(n), terrain.colors(n), topo.colors(n), cm.colors(n)}
 }
 \description{
 Function to plot output of seed_particles in base R for quick cheks

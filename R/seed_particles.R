@@ -6,6 +6,8 @@
 #'
 #'
 #' @param input input
+#' @param example example
+#' @param subsample subsample to n samples
 #' @param seascape shp file inputs from seascape_probability()
 #' @param simulate.mortality set mortality type via simulate_mortality() one of "typeI","typeII", "typeIII" (defaults to "none")
 #' @param simulate.mortality.n set proportion of corals to kill over a 24hr period, where 0 is none, 1 is 100 (defaults to 0.1 or 10%)
@@ -34,6 +36,16 @@ seed_particles <- function(
   # so add a zero point at centroid of particle release area and set to t0 for
   # particles that aren't currently t0.
 
+  #load(".../R/sysdata.rda")
+
+  data(WatsonN_PointSource_ForeReefSh_01, envir = environment())
+  data(Mermaid_PointSource_Bay_01, envir = environment())
+  data(PalfreyN_PointSource_ForeReefEx_01, envir = environment())
+  data(SpHub_PointSource_SELaggon_01, envir = environment())
+  data(ClamGarden_PointSource_OpenLagoon_01, envir = environment())
+
+
+
   if (is.null(set.seed) == TRUE) {
     set.seed(sample(-9999999:9999999, 1))
   }
@@ -48,21 +60,21 @@ seed_particles <- function(
   }
 
   data_sources <- list(
-    mermaid = coralseed:::Mermaid_PointSource_Bay_01,
-    watson = coralseed:::WatsonN_PointSource_ForeReefSh_01,
-    palfrey = coralseed:::PalfreyN_PointSource_ForeReefEx_01,
-    spawnhub = coralseed:::SpHub_PointSource_SELaggon_01,
-    clamgarden = coralseed:::ClamGarden_PointSource_OpenLagoon_01
+    mermaid = Mermaid_PointSource_Bay_01,
+    watson = WatsonN_PointSource_ForeReefSh_01,
+    palfrey = PalfreyN_PointSource_ForeReefEx_01,
+    spawnhub = SpHub_PointSource_SELaggon_01,
+    clamgarden = ClamGarden_PointSource_OpenLagoon_01
   )
 
   data_sources_df <- data.frame(
     dataset_name = c("mermaid", "watson", "palfrey", "spawnhub", "clamgarden"),
     linked_file_name = c(
-      "coralseed:::Mermaid_PointSource_Bay_01",
-      "coralseed:::WatsonN_PointSource_ForeReefSh_01",
-      "coralseed:::PalfreyN_PointSource_ForeReefEx_01",
-      "coralseed:::SpHub_PointSource_SELaggon_01",
-      "coralseed:::ClamGarden_PointSource_OpenLagoon_01"
+      "Mermaid_PointSource_Bay_01",
+      "WatsonN_PointSource_ForeReefSh_01",
+      "PalfreyN_PointSource_ForeReefEx_01",
+      "SpHub_PointSource_SELaggon_01",
+      "ClamGarden_PointSource_OpenLagoon_01"
     ),
     stringsAsFactors = FALSE
   )
@@ -106,7 +118,7 @@ seed_particles <- function(
       dplyr::filter(dispersaltime <= limit.time * 60)
   }
 
-  
+
   if (set.centre == TRUE) {
     load_particles_t0 <- load_particles |>
       dplyr::filter(time == min(t0)) |>
@@ -126,7 +138,7 @@ seed_particles <- function(
       dplyr::filter(time > min(t0)) |>
       rbind(load_particles_t0) |>
       dplyr::arrange(id, dispersaltime)
-    
+
   } else if (set.centre == FALSE) {
     particle_points <- load_particles |>
       dplyr::arrange(id, dispersaltime)
@@ -173,16 +185,16 @@ seed_particles <- function(
   ##########################################################################################
   ### 2. Predict mortality
 
-  
+
   particle_points_expanded_postmortality <- simulate_mortality(
     input = particle_points_expanded,
     simulate.mortality = simulate.mortality, simulate.mortality.n = simulate.mortality.n,
     return.plot = return.plot, set.seed = set.seed, silent = TRUE)
-  
-  
+
+
   ##########################################################################################
   ### 3. Settle particles by probability
- 
+
   # join with spatial probability maps
   particle_points_probability <- sf::st_join((particle_points_expanded_postmortality |> with(simulated_mortality)), seascape) |>
     dplyr::mutate(class = forcats::fct_na_value_to_level(class, "Ocean")) |> # replace NA with Ocean
@@ -205,10 +217,12 @@ seed_particles <- function(
         dplyr::slice(1)
 
 
-      coralseed_themes <- theme(
-        plot.title = element_text(size = 9, face = "bold"), axis.title.x = element_text(size = 9),
-        axis.title.y = element_text(size = 9), axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 7)
+      coralseed_themes <- ggplot2::theme(
+        plot.title = ggplot2::element_text(size = 9, face = "bold"),
+        axis.title.x = ggplot2::element_text(size = 9),
+        axis.title.y = ggplot2::element_text(size = 9),
+        axis.text.x = ggplot2::element_text(size = 7),
+        axis.text.y = ggplot2::element_text(size = 7)
       )
 
 
@@ -273,9 +287,9 @@ seed_particles <- function(
         print(multiplot)
       })
     })
-    
+
     ### show text outputs
-    
+
     if (silent == FALSE) {
       (cat(paste0("## coralseed model summary: #### \n")))
       (cat(paste0("Importing ", length(levels(as.factor(load_particles$id))), " particle tracks", "\n")))
@@ -288,21 +302,21 @@ seed_particles <- function(
       (cat(paste0("Time start = ", t0, "\n")))
       (cat(paste0("Time end = ", tmax, "\n")))
       (cat(paste0("Total dispersaltime (hrs) = ", tmax - t0, "\n")))
-      
+
       if (!is.na(limit.time)) {
         (cat(paste0("Particle tracks limited to ", limit.time, " hrs \n")))
       }
-      
+
       (cat(paste0("  \n")))
       (cat(paste0("Competency at t6 = ", t6, " / ", n_id, " larvae \n")))
       (cat(paste0("Competency at t12 = ", t12, " / ", n_id, " larvae \n")))
       (cat(paste0("Competency at t24 = ", t24, " / ", n_id, " larvae \n")))
       (cat(paste0("  \n")))
-      
-      
+
+
       t6m <- (sum(as.numeric(particle_points_expanded_postmortality$survivorship_output$mortalitytime) < 360)) # / n_id) #* 100
       t12m <- (sum(as.numeric(particle_points_expanded_postmortality$survivorship_output$mortalitytime) < 720)) # / n_id) #* 100
-      
+
       if (silent == FALSE) {
         (cat(paste0("Survivorship curve ", unique(particle_points_expanded_postmortality$type), " \n")))
         (cat(paste0("Mortality at t6 = ", t6m, " / ", n_id, " larvae \n")))

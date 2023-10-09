@@ -4,19 +4,12 @@
 \name{coralseed-package}
 \alias{coralseed}
 \alias{coralseed-package}
-\title{coralseed: Spatially explicit probabilistic modelling of coral settlement}
+\title{coralseed: What the Package Does (One Line, Title Case)}
 \description{
-coralseed: a spatially explicit reef-scale model of coral settlement following larval reseeding
-}
-\seealso{
-Useful links:
-\itemize{
-  \item \url{https://marine-ecologist.github.io/coralseed/}
-}
-
+a spatially explicit individual-based probabilistic model for predicting coral settlement following larval dispersal on coral reefs
 }
 \author{
-\strong{Maintainer}: George Roff \email{george.roff@csiro.au}
+\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
 
 }
 \keyword{internal}

@@ -8,6 +8,10 @@ particles_to_tracks2(input = NULL, slicesample = 100, by = "competency")
 }
 \arguments{
 \item{input}{input (defaults to NULL)}
+
+\item{slicesample}{number of particles to subset by}
+
+\item{by}{factor level}
 }
 \description{
 Function to convert particles (sf points) to tracks (sf linestrings, or here a multilinestring)

@@ -10,20 +10,20 @@
 #'
 
 
-set_restoration_plot_futures <- function(input = NULL, width = NULL, length = NULL, center = NULL, futures=TRUE) {
+set_restoration_plot_futures <- function(input = NULL, width = NULL, length = NULL, center = NULL) {
   if (is.null(center) & ("dispersaltime" %in% colnames(input))) {
     tmp_min_centroid <- input %>%
       dplyr::summarize(geometry = sf::st_union(geometry))
-    
+
   } else if (is.null(center) & !("dispersaltime" %in% colnames(input))) {
     tmp_min_centroid <- input %>%
       dplyr::filter(dispersaltime == 0) %>%
       dplyr::summarize(geometry = sf::st_union(geometry))
-    
+
   } else {
     print("Add option to set centroid later")
   }
-  
+
   # Calculate the coordinates of the rectangular polygon
   x <- sf::st_coordinates(tmp_min_centroid)[1, 1]
   y <- sf::st_coordinates(tmp_min_centroid)[1, 2]

@@ -8,30 +8,32 @@
 #' https://gis.stackexchange.com/questions/447578/geosexception-illegalargumentexception-point-array-must-contain-0-or-1-elemen
 #'
 #' !!sym(by)
-#' 
+#'
 #' @param input input (defaults to NULL)
-#' 
+#' @param by factor level
+#' @param slicesample number of particles to subset by
+
 #' @export
 #'
 #'
 
 particles_to_tracks2 <- function(input = NULL, slicesample=100, by="competency") {
   options(dplyr.summarise.inform = FALSE)
-  
+
   idstring <- sample(unique(input$id), slicesample)
-  
-  tracks <- input %>% 
-    dplyr::arrange(id, dispersaltime) %>% 
+
+  tracks <- input %>%
+    dplyr::arrange(id, dispersaltime) %>%
     dplyr:: group_by(id, competency) %>%
-    dplyr::summarise(do_union = FALSE) %>% 
+    dplyr::summarise(do_union = FALSE) %>%
     sf::st_make_valid() %>%
-    sf::st_cast("MULTILINESTRING") 
-  
+    sf::st_cast("MULTILINESTRING")
+
   tracks_filtered <- tracks[sapply(st_geometry(tracks), st_is_valid), ]
-  
+
   tracks_filtered <- tracks_filtered %>% filter(id %in% idstring)
 
   options(dplyr.summarise.inform = TRUE)
-  
+
   return(tracks_filtered)
 }

@@ -7,7 +7,7 @@
 plot_particles(
   input = NULL,
   seascape = NULL,
-  parameter = "all",
+  parameter = "dispersaltime",
   pch = 16,
   size = 0.5,
   ...
@@ -16,6 +16,8 @@ plot_particles(
 \arguments{
 \item{input}{input}
 
+\item{seascape}{seascape habitat input}
+
 \item{parameter}{parameter (column from coralseed)}
 
 \item{pch}{pch}
@@ -23,10 +25,6 @@ plot_particles(
 \item{size}{size}
 
 \item{...}{passes functions}
-
-\item{habitatmap}{basemap from seascape_probability}
-
-\item{palette}{one of rainbow(n), heat.colors(n), terrain.colors(n), topo.colors(n), cm.colors(n)}
 }
 \description{
 Function to plot output of seed_particles in base R for quick cheks

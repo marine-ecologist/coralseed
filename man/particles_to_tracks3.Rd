@@ -8,6 +8,10 @@ particles_to_tracks3(input = NULL, by = "competency", multilinestring = TRUE)
 }
 \arguments{
 \item{input}{input (defaults to NULL)}
+
+\item{by}{factor level}
+
+\item{multilinestring}{"LINESTRING" (FALSE) or "MULTILINESTRING" (TRUE)}
 }
 \description{
 Function to convert particles (sf points) to tracks (sf linestrings, or here a multilinestring)

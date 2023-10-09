@@ -1,8 +1,6 @@
+docs/
+vignettes/
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^_pkgdown\.yml$
-^docs$
-^pkgdown$
-^\.github$
-^docs/_pkgdown\.yml$
-^vignettes/
+inst/
+^LICENSE\.md$

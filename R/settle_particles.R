@@ -9,6 +9,7 @@
 #'
 #' @param input input (defaults to particle_points_expanded from seed_particles() function)
 #' @param probability one of "additive", "rapid", "lagged")
+#' @param sample.n subsample to n particles
 #' @param silent silence outputs
 #' @param set.seed seed
 #' @param ... pass arguments
@@ -22,7 +23,7 @@ settle_particles <- function(input, probability = "additive", silent = TRUE, sam
   }
 
 
-    
+
   if (probability == "additive") {
     select_particles <- input |>
       dplyr::filter(outcome == "1") |> # dplyr::select settled particles
@@ -64,12 +65,12 @@ settle_particles <- function(input, probability = "additive", silent = TRUE, sam
   if (!is.null(sample.n)) {
      select_particles_isolate <- select_particles %>%
       ungroup() %>%
-      distinct(id) %>% 
-      slice_sample(n = sample.n) 
-     
+      distinct(id) %>%
+      slice_sample(n = sample.n)
+
      select_particles <- select_particles |> filter(id %in% select_particles_isolate$id)
   }
-  
+
   ### for counter
   settled_particles_dispersaltime_df <- select_particles |>
     as.data.frame() |>

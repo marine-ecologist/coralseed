@@ -14,11 +14,11 @@ seascape_probability(
 \arguments{
 \item{reefoutline}{geojson or shp files for Coral Atlas benthic habitat maps for reef outline}
 
+\item{habitat}{habitat or shp files for Coral Atlas geomorphic maps}
+
 \item{probability}{habitat specific probabilities (mean and SE) defined as in example below. Defaults to NULL parameterisation embedded in function (see example below)}
 
 \item{...}{passes functions}
-
-\item{geomorphic}{habitat or shp files for Coral Atlas geomorphic maps}
 }
 \description{
 Function to generate probability distribution from Allen Coral Atlas input files

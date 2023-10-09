@@ -16,7 +16,7 @@ predict_competency2 <- function(n_id, competency.function = "exponential", sort 
 
   if (competency.function == "exponential") {
     set.seed(NULL)
-    posterior_draws <- coralseed::parameter_draws_exp
+    posterior_draws <- parameter_draws_exp
     draw_individuals <- function(row) {
       rexp(1, rate = 1 / exp(row["b_Intercept"]))
     }
@@ -24,10 +24,10 @@ predict_competency2 <- function(n_id, competency.function = "exponential", sort 
     all_samples <- apply(random_draws, 1, draw_individuals)
     simulated_settlers <- data.frame(settlement_point = ceiling(all_samples)) |>
       dplyr::mutate(id = as.factor(rev(seq(0, n_id - 1, 1))))
-    
+
   } else if (competency.function == "logarithmic") {
     set.seed(set.seed)
-    posterior_draws <- coralseed::parameter_draws_log
+    posterior_draws <- parameter_draws_log
     draw_individuals <- function(row) {
       rlnorm(1, row["b_Intercept"])
     }
@@ -35,7 +35,7 @@ predict_competency2 <- function(n_id, competency.function = "exponential", sort 
     all_samples <- apply(random_draws, 1, draw_individuals)
     simulated_settlers <- data.frame(settlement_point = ceiling(all_samples)) |>
       dplyr::mutate(id = as.factor(rev(seq(0, n_id - 1, 1))))
-    
+
   } else if (competency.function == "weibull") {
     set.seed(set.seed)
     posterior_draws <- parameter_draws_weibull

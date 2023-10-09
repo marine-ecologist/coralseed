@@ -23,7 +23,11 @@ seed_particles(
 \arguments{
 \item{input}{input}
 
+\item{example}{example}
+
 \item{seascape}{shp file inputs from seascape_probability()}
+
+\item{subsample}{subsample to n samples}
 
 \item{simulate.mortality}{set mortality type via simulate_mortality() one of "typeI","typeII", "typeIII" (defaults to "none")}
 

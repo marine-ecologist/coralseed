@@ -4,11 +4,13 @@
 \alias{ggplot_silent}
 \title{Silence ggplot warnings}
 \usage{
-ggplot_silent(...)
+ggplot_silent(plot_obj, ...)
 }
 \arguments{
-\item{...}{arguments are passed to \code{ggplot2:::print.ggplot()}}
+\item{plot_obj}{input}
+
+\item{...}{Arguments are passed to \code{print.ggplot()}}
 }
 \description{
-replacement for \code{ggplot2()} that mutes warnings
+Replacement for \code{print.ggplot()} that mutes warnings.
 }

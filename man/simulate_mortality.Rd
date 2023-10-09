@@ -5,7 +5,7 @@
 \title{Simulate Mortality}
 \usage{
 simulate_mortality(
-  input,
+  input = NULL,
   simulate.mortality = NULL,
   simulate.mortality.n = 0.1,
   return.plot = TRUE,

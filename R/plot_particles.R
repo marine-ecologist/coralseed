@@ -5,11 +5,10 @@
 #'
 #'
 #' @param input input
+#' @param seascape seascape habitat input
 #' @param parameter parameter (column from coralseed)
-#' @param habitatmap basemap from seascape_probability
 #' @param size size
 #' @param pch pch
-#' @param palette one of rainbow(n), heat.colors(n), terrain.colors(n), topo.colors(n), cm.colors(n)
 #' @param ... passes functions
 #' @export
 #' @examples
@@ -19,13 +18,13 @@
 
 
 plot_particles <- function(input = NULL, seascape=NULL, parameter = "dispersaltime", pch=16, size=0.5, ...) {
-  
+
   if (parameter %in% "dispersaltime") {
     plot(input[parameter], type="l", lwd=0.1, col="white", graticule = TRUE, axes = TRUE, main="", reset = FALSE)
     plot(seascape["class"], lwd=0.1, col = sf.colors(categorical=TRUE, alpha = 0.25), add=TRUE)
     plot(input["id"], type="l", lwd=0.1, col="grey", main="", add=TRUE)
     plot(input[(parameter)], type="p", cex=0.5, pch=16, main="", add=TRUE, key.pos = 1)
-    
+
   } else {
     print("One of: 'dispersaltime'")
   }

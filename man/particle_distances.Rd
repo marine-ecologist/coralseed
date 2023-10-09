@@ -4,7 +4,7 @@
 \alias{particle_distances}
 \title{Particle distances}
 \usage{
-particle_distances(input = NULL, tmax = NULL, type = "df")
+particle_distances(input = NULL, tmax = NULL, type = "df", ...)
 }
 \arguments{
 \item{input}{input (defaults to NULL)}

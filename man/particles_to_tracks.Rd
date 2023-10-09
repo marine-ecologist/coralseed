@@ -8,6 +8,10 @@ particles_to_tracks(input = NULL, by = "id", type = "MULTILINESTRING")
 }
 \arguments{
 \item{input}{input (defaults to NULL)}
+
+\item{by}{factor level}
+
+\item{type}{"LINESTRING" or "MULTILINESTRING" (default)}
 }
 \description{
 Function to convert particles (sf points) to tracks (sf linestrings, or here a multilinestring)

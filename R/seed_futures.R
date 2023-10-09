@@ -6,6 +6,7 @@
 #'
 #'
 #' @param input input
+#' @param example example input
 #' @param seascape shp file inputs from seascape_probability()
 #' @param simulate.mortality set mortality type via simulate_mortality() one of "typeI","typeII", "typeIII" (defaults to "none")
 #' @param simulate.mortality.n set proportion of corals to kill over a 24hr period, where 0 is none, 1 is 100 (defaults to 0.1 or 10%)
@@ -30,62 +31,58 @@ seed_futures <- function(
   # Connie does not allow to disperse larvae at initial time of release < than 1 hour
   # so add a zero point at centroid of particle release area and set to t0 for
   # particles that aren't currently t0.
-  set.seed=set.seed
-  
+
+
   if (is.null(set.seed) == TRUE) {
     set.seed(sample(-9999999:9999999, 1))
   }
-  
-  
+
+
   if (is.null(input) == FALSE) {
-    load_particles <- (input) |>
-      sf::st_zm(drop = TRUE, what = "ZM") |>
-      sf::st_transform(20353) |>
-      dplyr::select(-decay_value)
-    
+    load_particles <- (input)
+
   } else {
   }
-  
+
   data_sources <- list(
-    mermaid = coralseed:::Mermaid_PointSource_Bay_01,
-    watson = coralseed:::WatsonN_PointSource_ForeReefSh_01,
-    palfrey = coralseed:::PalfreyN_PointSource_ForeReefEx_01,
-    spawnhub = coralseed:::SpHub_PointSource_SELaggon_01,
-    clamgarden = coralseed:::ClamGarden_PointSource_OpenLagoon_01
+    mermaid = Mermaid_PointSource_Bay_01,
+    watson = WatsonN_PointSource_ForeReefSh_01,
+    palfrey = PalfreyN_PointSource_ForeReefEx_01,
+    spawnhub = SpHub_PointSource_SELaggon_01,
+    clamgarden = ClamGarden_PointSource_OpenLagoon_01
   )
-  
+
   data_sources_df <- data.frame(
     dataset_name = c("mermaid", "watson", "palfrey", "spawnhub", "clamgarden"),
     linked_file_name = c(
-      "coralseed:::Mermaid_PointSource_Bay_01",
-      "coralseed:::WatsonN_PointSource_ForeReefSh_01",
-      "coralseed:::PalfreyN_PointSource_ForeReefEx_01",
-      "coralseed:::SpHub_PointSource_SELaggon_01",
-      "coralseed:::ClamGarden_PointSource_OpenLagoon_01"
+      "Mermaid_PointSource_Bay_01",
+      "WatsonN_PointSource_ForeReefSh_01",
+      "PalfreyN_PointSource_ForeReefEx_01",
+      "SpHub_PointSource_SELaggon_01",
+      "ClamGarden_PointSource_OpenLagoon_01"
     ),
     stringsAsFactors = FALSE
   )
-  
-  
+
+
   if (is.null(example) == TRUE) {
-    
+
   } else if (example %in% names(data_sources)) {
     load_particles <- data_sources[[example]] %>%
       sf::st_zm(drop = TRUE, what = "ZM") %>%
       sf::st_transform(20353) %>%
       dplyr::mutate(time = time + lubridate::hours(14))
-   
+
   } else if (!example %in% names(data_sources)) {
     cat("\n error: example not found, must be one of mermaid, watson, palfrey, spawnhub, clamgarden. \n\n")
   }
-  
+
   if (is.null(load_particles) == TRUE) {
     cat("\n\n error: coralseed requires either an input file or an example file\n\n\n\n")
     stop()
   } else {
-    
-  }
 
+  }
   # get details from input
   t0 <- min(load_particles$time)
   tmax <- max(load_particles$time)
@@ -162,7 +159,7 @@ seed_futures <- function(
   competency_times <- simulated_settlers |>
     with(simulated_settlers) |>
     dplyr::mutate(id = (unique(as.factor(particle_points$id))))
-  
+
   data.table::setDT(competency_times) # move elsewhere?
 
   # tic()
@@ -192,26 +189,26 @@ seed_futures <- function(
   particle_points_df <- as.data.frame(particle_points) |> mutate(id=as.factor(id))
   particle_points_dt <- data.table::setDT(particle_points_df)
   particle_points_dt <- cbind(particle_points_dt, coords)
-  
+
   #particle_points_dt[, geometry := NULL]
-  
+
   all_times <- particle_points_dt[, .(time = seq(min(particle_points_dt$time), max(particle_points_dt$time), by = "1 min")), by = id]
   particle_points_dt <- particle_points_dt[all_times, on = c("id", "time")]
   particle_points_dt[, dispersaltime := as.integer(time - min(particle_points_dt$time)) / 60]
-  
+
   particle_points_dt <- particle_points_dt[, `:=`(
     X = approx(time, X, time)$y,
     Y = approx(time, Y, time)$y
-  ), by = id] 
-  
-  
+  ), by = id]
+
+
   particle_points_dt[competency_times, settlement_point := settlement_point, on = "id"]
   particle_points_dt[, state := ifelse(dispersaltime <= settlement_point, 0, 1), by = id]
   particle_points_dt[, competency := ifelse(state == 1, "competent", "incompetent")]
   particle_points_dt <- particle_points_dt[!is.na(X)]
-  
+
   particle_points_expanded <- sf::st_as_sf(particle_points_dt, coords = c("X", "Y"))
-  
+
   # toc()
 
   n_mortality <- length(levels(unique(as.factor(particle_points_expanded$id)))) * simulate.mortality.n
