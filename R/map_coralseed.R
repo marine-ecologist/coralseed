@@ -72,7 +72,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
       line = sf::st_sfc(purrr::map2(
         .x = geometry,
         .y = geometry_lagged,
-        .f = ~{st_union(c(.x, .y)) %>% st_cast("LINESTRING")}
+        .f = ~{sf::st_union(c(.x, .y)) %>% sf::st_cast("LINESTRING")}
       ))) %>%
     dplyr::select(id, line, dispersalbin)
 
@@ -181,7 +181,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
 
     #---------- particle points -----------------@
     tmap::tm_shape(particle_points, is.master=TRUE, id="dispersaltime", name = "<b> [Settlers]</b> post-settlement location") +
-    tmap::tm_dots(col = "aquamarine3") +
+    tmap::tm_dots("dispersaltime", palette="-Spectral", title="Dispersal time") +
 
     #---------- post-settlement area -----------------@
     tmap::tm_shape(settler_density$area, id="area", name = "<b> [Settlers]</b> post-settlement area") +

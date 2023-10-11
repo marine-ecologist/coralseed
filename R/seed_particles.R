@@ -38,12 +38,6 @@ seed_particles <- function(
 
   #load(".../R/sysdata.rda")
 
-  data(WatsonN_PointSource_ForeReefSh_01, envir = environment())
-  data(Mermaid_PointSource_Bay_01, envir = environment())
-  data(PalfreyN_PointSource_ForeReefEx_01, envir = environment())
-  data(SpHub_PointSource_SELaggon_01, envir = environment())
-  data(ClamGarden_PointSource_OpenLagoon_01, envir = environment())
-
 
 
   if (is.null(set.seed) == TRUE) {
