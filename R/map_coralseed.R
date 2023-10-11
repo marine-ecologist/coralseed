@@ -33,8 +33,8 @@
 map_coralseed <- function(seed_particles = particles, settle_particles = settlers, seascape_probability = seascape, restoration.plot = c(100, 100), show.tracks=TRUE, scalebar=200) {
 
 
-  particletracks <- seed_particles |>
-    dplyr::filter(dispersaltime %in% seq(0,1800,5)) |> # take 5 minute time slices or paths become very long and complex
+  particletracks <- particles |>
+    dplyr::filter(dispersaltime %in% seq(0,10000,5)) |> # take 5 minute time slices or paths become very long and complex
     particles_to_tracks(by=c("id", "competency")) |> select(-id)
   settler_density <- settle_particles |> settlement_density()
   restoration_plot <- particles |> set_restoration_plot(100, 100)
