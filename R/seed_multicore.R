@@ -85,9 +85,7 @@ seed_multicore <- function(
   n_id <- length(levels(as.factor(particle_points$id)))
 
   if (competency.function == "exponential") {
-    posterior_draws <- {
-      parameter_draws_exp
-    }
+    posterior_draws <- parameter_draws_exp
     draw_individuals <- function(row) {
       rexp(1, rate = 1 / exp(row["b_Intercept"]))
     }

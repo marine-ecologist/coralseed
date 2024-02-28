@@ -13,6 +13,7 @@ map_coralseed(
   seascape_probability = seascape,
   restoration.plot = c(100, 100),
   show.tracks = TRUE,
+  subsample = NULL,
   scalebar = 200
 )
 }

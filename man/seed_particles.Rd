@@ -11,10 +11,11 @@ seed_particles(
   subsample = NULL,
   simulate.mortality = "none",
   simulate.mortality.n = 0.1,
-  competency.function = "exp",
+  competency.function = "exponential",
+  b_Intercept = NULL,
   limit.time = NA,
   set.centre = TRUE,
-  set.seed = NULL,
+  seed.value = NULL,
   silent = FALSE,
   return.plot = FALSE,
   ...
@@ -39,7 +40,7 @@ seed_particles(
 
 \item{set.centre}{reset CONNIE input to have a central t0 point (defaults to TRUE)}
 
-\item{set.seed}{set seed for consistent results (defaults to NULL)}
+\item{seed.value}{set seed for consistent results (defaults to NULL)}
 
 \item{silent}{silence printing results while running (defaults to FALSE)}
 

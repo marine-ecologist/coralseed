@@ -1,6 +1,6 @@
 Package: coralseed
 Title: What the Package Does (One Line, Title Case)
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))

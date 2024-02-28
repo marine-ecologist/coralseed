@@ -11,39 +11,38 @@
 #' @param simulate.mortality.n proportion of the population to kill (0 = none, 1 = 100% mortality)
 #' @param return.plot show plot of the results (defaults to FALSE)
 #' @param silent silence printing results while running (defaults to FALSE)
-#' @param set.seed set seed for consistent results (defaults to NULL)
+#' @param seed.value set seed for consistent results (defaults to NULL)
 #' @param ... pass arguments
 #' @export
 #'
 
 simulate_mortality <- function(
     input=NULL, simulate.mortality = NULL, simulate.mortality.n = 0.1, # change to %?
-    return.plot = TRUE, silent = FALSE, set.seed = NULL, ...) {
-  
-  
-  if (is.null(input)) {
-   
-    input <- data.frame(id = as.factor(seq(0,999,1)))
-  
-  }
-  
+    return.plot = TRUE, silent = FALSE, seed.value = NULL, ...) {
+
+
+  ### set seed
+
+  set.seed(seed.value)
+  #print(paste0("! is.null seed = ", get(".Random.seed", envir = globalenv())[10]))
+
   if (simulate.mortality == "none") {
-  
-    plot0 <- ggplot2::ggplot() +  
+
+    plot0 <- ggplot2::ggplot() +
       ggplot2::geom_text(ggplot2::aes(x=0.5, y=0.5, label="no data \n(mortality set to zero)"), size=4, color="darkred", inherit.aes = FALSE) +
-      ggplot2::xlim(0, 1) + ggplot2::ylim(0, 1) + 
+      ggplot2::xlim(0, 1) + ggplot2::ylim(0, 1) +
       ggplot2::theme_bw() +
       ggplot2::ggtitle("no mortality selected")
 
     df.bypass <- input
-    
+
     return_list <- list(plot0, df.bypass)
-    
+
     names(return_list) <- c("simulated_mortality_plot", "simulated_mortality")
     return(return_list)
-  
+
   } else {
-    set.seed(set.seed)
+    #set.seed(set.seed)
     n_mortality <- length(levels(unique(as.factor(input$id)))) * simulate.mortality.n
 
     dead_id_levels <- sample(levels(input$id), n_mortality)
@@ -56,7 +55,7 @@ simulate_mortality <- function(
       dplyr::filter(!(id %in% dead_id_levels)) |>
       tidyr::drop_na(id) # keep live particles
 
-    
+
     survivorship_type <- function(n, shape, scale) {
       dispersaltime <- seq(1, 1440, 1)
       probabilities <- dweibull(dispersaltime, shape, scale)
@@ -64,7 +63,7 @@ simulate_mortality <- function(
     }
 
     # Fit the types to the individuals and sample the time of death
-    set.seed(set.seed)
+    #set.seed(set.seed)
     typeI_time <- survivorship_type(n_mortality, 2.5, 1440)
     typeII_time <- survivorship_type(n_mortality, 1.5, 1440)
     typeIII_time <- survivorship_type(n_mortality, 0.5, 1440)
@@ -128,9 +127,9 @@ simulate_mortality <- function(
       ggplot2::scale_color_manual(values = viridis::viridis(n = 4)[-4]) +
       ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(alpha = 1.0, size = 2))) +
       ggplot2::geom_point(data = survivorship_output_plot, ggplot2::aes(mortalitytime/60, as.numeric(id)), size = 2, shape = 21, show.legend = FALSE, fill = NA, color = "black") +
-      ggplot2::theme(legend.position = c(0.86,0.3), legend.title = element_blank(), legend.background = element_blank(), 
-                     legend.key = element_blank(), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8)) 
-      
+      ggplot2::theme(legend.position = c(0.86,0.3), legend.title = element_blank(), legend.background = element_blank(),
+                     legend.key = element_blank(), axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8))
+
 
     return_list <- list(plot1, df_joined, survivorship_output)
     names(return_list) <- c("simulated_mortality_plot", "simulated_mortality", "survivorship_output")
@@ -140,6 +139,6 @@ simulate_mortality <- function(
     return_list <- list(df_joined)
     names(return_list) <- c("simulated_mortality")
     return(return_list)
- 
+
   }
 }

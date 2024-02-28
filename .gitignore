@@ -11,3 +11,5 @@ vignettes/
 inst/doc
 inst/*
 !inst/doc/
+code/
+outputs/

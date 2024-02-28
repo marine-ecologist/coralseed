@@ -4,6 +4,7 @@
 #' Uses sp::over instead of sf for speed
 #'
 #' @param input input (defaults to NULL)
+#' @param calculate_hull true/false calculate concave hull (can be time intensive on large datasets, defaults to true)
 #' @param combined test to allow multiple coralseed file inputs in list (defaults to FALSE)
 #' @param cellsize dimensions of grid to count settlers (defaults to 20m)
 #' @param concavity concavity value passed to concaveman (defaults to 2
@@ -12,12 +13,12 @@
 #' @export
 #'
 
-settlement_density <- function(input = NULL, combined=FALSE, cellsize = 20, concavity = 1.2, length_threshold = 10, ...) {
+settlement_density <- function(input = NULL, calculate_hull=TRUE, combined=FALSE, cellsize = 20, concavity = 1.2, length_threshold = 10, ...) {
   ##### function to calculate density
   if (combined==TRUE){
-    input |> dplyr::ungroup()
+    input #|> dplyr::ungroup()
   }else if (combined==FALSE){
-  input <- input |> with(points)  |> dplyr::ungroup()
+    input <- input |> with(points) # |> dplyr::ungroup()
   }
   # make a spatial grid across the settled particles, set cell size (metres)
   settled_particles_grid <- input |>
@@ -33,10 +34,19 @@ settlement_density <- function(input = NULL, combined=FALSE, cellsize = 20, conc
   settled_particles_density <- settled_particles_count |>
       dplyr::mutate(density = count / (cellsize * cellsize))
 
-  settled_particles_concavehull <- concaveman::concaveman(input, concavity = concavity, length_threshold = length_threshold)
-  settled_particles_concavehull$area <- round(sf::st_area(settled_particles_concavehull))
+  if (calculate_hull==TRUE){
+    settled_particles_concavehull <- concaveman::concaveman(input, concavity = concavity, length_threshold = length_threshold)
+    settled_particles_concavehull$area <- round(sf::st_area(settled_particles_concavehull))
 
-  set_out <- list(settled_particles_count, settled_particles_density, settled_particles_concavehull)
-  names(set_out) <- c("count", "density", "area")
+    set_out <- list(settled_particles_count, settled_particles_density, settled_particles_concavehull)
+    names(set_out) <- c("count", "density", "area")
+
+  } else {
+
+    set_out <- list(settled_particles_count, settled_particles_density)
+    names(set_out) <- c("count", "density")
+
+  }
+
   return(set_out)
 }

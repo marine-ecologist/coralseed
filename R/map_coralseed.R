@@ -30,17 +30,30 @@
   #   filter(st_is_valid(geometry))
 
 
-map_coralseed <- function(seed_particles = particles, settle_particles = settlers, seascape_probability = seascape, restoration.plot = c(100, 100), show.tracks=TRUE, scalebar=200) {
+map_coralseed <- function(seed_particles = particles, settle_particles = settlers,
+                          seascape_probability = seascape, restoration.plot = c(100, 100),
+                          show.tracks=TRUE, subsample=NULL, scalebar=200) {
 
+
+  if (!is.null(subsample)) {
+    particles <- particles |>
+      dplyr::filter(id %in% sample(unique(particles$id), size = as.numeric(subsample)))
+
+    settle_particles$paths <- settle_particles$paths |> dplyr::filter(id %in% unique(particles$id))
+    settle_particles$points <- settle_particles$points |> dplyr::filter(id %in% unique(particles$id))
+  }
 
   particletracks <- particles |>
     dplyr::filter(dispersaltime %in% seq(0,10000,5)) |> # take 5 minute time slices or paths become very long and complex
-    particles_to_tracks(by=c("id", "competency")) |> select(-id)
+    particles_to_tracks(by=c("id", "competency")) |>
+    select(-id)
+
   settler_density <- settle_particles |> settlement_density()
   restoration_plot <- particles |> set_restoration_plot(100, 100)
 
   particle_paths <- rbind(settle_particles$paths, settle_particles$paths[1:117,]) # why 1:117?
-  particle_points <- settle_particles$points
+  particle_points <- settle_particles$points |> mutate(dispersaltime2 = cut(dispersaltime, seq(1,max(particles$dispersaltime), 60), labels = FALSE))
+
 
 
   # particle_rainbow <- seed_particles |>
@@ -108,8 +121,8 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     tmap::tm_lines(lwd = 0.8, col = "darkgrey", title.col="Settled larval tracks") +
 
     # particle points
-    tmap::tm_shape(particle_points, is.master=TRUE, id="dispersaltime", name = "<b> [Settlers]</b> post-settlement location") +
-    tmap::tm_dots("dispersaltime", palette="-Spectral", title="Dispersal time") +
+    tmap::tm_shape(particle_points, is.master=TRUE, id="dispersaltime2", name = "<b> [Settlers]</b> post-settlement location") +
+    tmap::tm_dots("dispersaltime2", style="pretty", n=12, palette="-Spectral", title="Dispersal time \n(hours)") +
 
     # post-settlement area
     tmap::tm_shape(settler_density$area, id="area", name = "<b> [Settlers]</b> post-settlement area") +
@@ -180,8 +193,8 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
     tmap::tm_lines(lwd = 0.8, col = "darkgrey") +
 
     #---------- particle points -----------------@
-    tmap::tm_shape(particle_points, is.master=TRUE, id="dispersaltime", name = "<b> [Settlers]</b> post-settlement location") +
-    tmap::tm_dots("dispersaltime", palette="-Spectral", title="Dispersal time") +
+    tmap::tm_shape(particle_points, is.master=TRUE, id="dispersaltime2", name = "<b> [Settlers]</b> post-settlement location") +
+    tmap::tm_dots("dispersaltime2", style="pretty", n=12, palette="-Spectral", title="Dispersal time \n(hours)") +
 
     #---------- post-settlement area -----------------@
     tmap::tm_shape(settler_density$area, id="area", name = "<b> [Settlers]</b> post-settlement area") +

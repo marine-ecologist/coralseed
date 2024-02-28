@@ -14,7 +14,7 @@
 particle_distances <- function(input = NULL, tmax = NULL, type = "df", ...) {
   # options(dplyr.summarise.inform = FALSE)
   if (type == "sf") {
-    lengths <- input |>
+    lengths <- output |>
       dplyr::filter(dispersaltime < tmax) |>
       dplyr::group_by(id) |>
       dplyr::summarise(do_union = FALSE) |>

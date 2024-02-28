@@ -4,3 +4,5 @@ vignettes/
 ^\.Rproj\.user$
 inst/
 ^LICENSE\.md$
+^code$
+^docs$

@@ -9,7 +9,7 @@ settle_particles(
   probability = "additive",
   silent = TRUE,
   sample.n = NULL,
-  set.seed = NULL,
+  seed.value = NULL,
   ...
 )
 }
@@ -22,9 +22,9 @@ settle_particles(
 
 \item{sample.n}{subsample to n particles}
 
-\item{set.seed}{seed}
-
 \item{...}{pass arguments}
+
+\item{set.seed}{seed}
 }
 \description{
 Function to determine probability of settlement if particles pass suitable substrate

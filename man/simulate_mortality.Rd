@@ -10,7 +10,7 @@ simulate_mortality(
   simulate.mortality.n = 0.1,
   return.plot = TRUE,
   silent = FALSE,
-  set.seed = NULL,
+  seed.value = NULL,
   ...
 )
 }
@@ -25,7 +25,7 @@ simulate_mortality(
 
 \item{silent}{silence printing results while running (defaults to FALSE)}
 
-\item{set.seed}{set seed for consistent results (defaults to NULL)}
+\item{seed.value}{set seed for consistent results (defaults to NULL)}
 
 \item{...}{pass arguments}
 }

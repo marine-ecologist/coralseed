@@ -15,7 +15,7 @@
 #' @param limit.time limit the time series, for example 720 will limit the settlement results between 0-12hrs (defaults to "NA")
 #' @param set.centre  reset CONNIE input to have a central t0 point (defaults to TRUE)
 #' @param silent silence printing results while running (defaults to FALSE)
-#' @param set.seed set seed for consistent results (defaults to NULL)
+#' @param seed.value set seed for consistent results (defaults to NULL)
 #' @param return.plot return outputs for seed_particles (defaults to "FALSE")
 #' @param ... passes functions
 #' @export
@@ -26,9 +26,9 @@
 seed_particles <- function(
     input = NULL, example = NULL, seascape = NULL, subsample = NULL,
     simulate.mortality = "none", simulate.mortality.n = 0.1,
-    competency.function = "exp", limit.time = NA,
-    set.centre = TRUE, set.seed = NULL,
-    silent = FALSE, return.plot = FALSE, ...) {
+    competency.function = "exponential", b_Intercept=NULL, limit.time = NA,
+    set.centre = TRUE, seed.value = NULL,
+    silent = FALSE, return.plot = FALSE, ...){
   ##########################################################################################
   ### 1. extract_particle_points
   # set up particles for single point / time releases
@@ -38,21 +38,35 @@ seed_particles <- function(
 
   #load(".../R/sysdata.rda")
 
+  # get(".Random.seed", envir = globalenv())
+  # rm(.Random.seed, envir = globalenv())
 
 
-  if (is.null(set.seed) == TRUE) {
-    set.seed(sample(-9999999:9999999, 1))
-  }
 
 
+  ### set seed
+
+  set.seed(seed.value)
+  #print(paste0("! is.null seed = ", get(".Random.seed", envir = globalenv())[10]))
+
+  ### set input
   if (is.null(input) == FALSE) {
-    load_particles <- input |>
-      sf::st_zm(drop = TRUE, what = "ZM") |>
-      sf::st_transform(20353) |>
-      dplyr::select(-decay_value)
-  } else {
+
+    if ("decay_value" %in% names(input)) {
+      load_particles <- input |>
+        sf::st_zm(drop = TRUE, what = "ZM") |>
+        sf::st_transform(20353) |>
+        dplyr::select(-decay_value)
+    } else {
+      load_particles <- input |>
+        sf::st_zm(drop = TRUE, what = "ZM") |>
+        sf::st_transform(20353)
+    }
+
+
   }
 
+  ### set example
   data_sources <- list(
     mermaid = Mermaid_PointSource_Bay_01,
     watson = WatsonN_PointSource_ForeReefSh_01,
@@ -73,31 +87,31 @@ seed_particles <- function(
     stringsAsFactors = FALSE
   )
 
-
   if (is.null(example) == TRUE) {
-
+    load_particles <- load_particles
   } else if (example %in% names(data_sources)) {
     load_particles <- data_sources[[example]] %>%
       sf::st_zm(drop = TRUE, what = "ZM") %>%
       sf::st_transform(20353)
-  } else if (!example %in% names(data_sources)) {
-    cat("\n error: example not found, must be one of mermaid, watson, palfrey, spawnhub, clamgarden. \n\n")
   }
 
+  ### check file is loaded
   if (is.null(load_particles) == TRUE) {
-    cat("\n\n error: coralseed requires either an input file or an example file\n\n\n\n")
+    cat("\n\n error: coralseed requires either an input file or an example file (one of mermaid, watson,
+        palfrey, spawnhub, clamgarden) \n\n\n\n")
     stop()
-  } else {
-
   }
 
+  ### subsample
   if (is.null(subsample) == FALSE) {
     load_particles <- load_particles |>
       dplyr::mutate(id = as.factor(id)) |>
       dplyr::filter(id %in% sample(x = as.numeric(unique(load_particles$id)), size = as.numeric(subsample))) |>
       dplyr::mutate(id = as.integer(id))
-  } else { }
 
+  }
+
+  ### initiate
   # get details from input
   t0 <- min(load_particles$time)
   tmax <- max(load_particles$time)
@@ -127,8 +141,10 @@ seed_particles <- function(
       sf::st_as_sf() |>
       sf::st_transform(20353)
 
+
     # bind original particles with new t0
     particle_points <- load_particles |>
+      #dplyr::select(-decay_value) |>
       dplyr::filter(time > min(t0)) |>
       rbind(load_particles_t0) |>
       dplyr::arrange(id, dispersaltime)
@@ -141,11 +157,13 @@ seed_particles <- function(
 
   ##########################################################################################
   ### 2. Predict competency
-
+  #print(seed.value)
   competency_times_output <- predict_competency(
-    n_id = length(levels(as.factor(particle_points$id))), n_sims = 1000,
-    competency.function = competency.function, set.seed = set.seed, return.plot = return.plot
+    n_id = length(unique(particle_points$id)), n_sims = 1000, b_Intercept = b_Intercept,
+    competency.function = competency.function, seed.value = seed.value, return.plot = return.plot
   )
+  # check:
+  # hist(competency_times_output$simulated_settlers$settlement_point)
 
   competency_times <- competency_times_output |>
     with(simulated_settlers) |>
@@ -179,12 +197,15 @@ seed_particles <- function(
   ##########################################################################################
   ### 2. Predict mortality
 
+  #print(seed.value)
 
   particle_points_expanded_postmortality <- simulate_mortality(
     input = particle_points_expanded,
     simulate.mortality = simulate.mortality, simulate.mortality.n = simulate.mortality.n,
-    return.plot = return.plot, set.seed = set.seed, silent = TRUE)
+    return.plot = return.plot, seed.value = seed.value, silent = TRUE)
 
+  # check output when simulate.mortality.n > 0
+  # hist(particle_points_expanded_postmortality$simulated_mortality$settlement_point)
 
   ##########################################################################################
   ### 3. Settle particles by probability
@@ -202,6 +223,8 @@ seed_particles <- function(
   # add triple-letter string to ID for unique df (p=0.00006 random draw)
   idstring <- paste0(sample(LETTERS, 1, replace = TRUE), sample(LETTERS, 1, replace = TRUE), sample(LETTERS, 1, replace = TRUE))
   particle_points_probability$id <- paste0(idstring, particle_points_probability$id)
+
+  #hist(particle_points_probability$dispersaltime)
 
   if (return.plot == TRUE) {
     suppressWarnings({
@@ -287,10 +310,10 @@ seed_particles <- function(
     if (silent == FALSE) {
       (cat(paste0("## coralseed model summary: #### \n")))
       (cat(paste0("Importing ", length(levels(as.factor(load_particles$id))), " particle tracks", "\n")))
-      if (is.null(set.seed) == TRUE) {
+      if (is.null(seed.value) == TRUE) {
         (cat(paste0("[No seed set, random draws used] \n")))
       } else {
-        (cat(paste0("[seed = ", set.seed, "] \n")))
+        (cat(paste0("[seed = ", seed.value, "] \n")))
       }
       (cat(paste0("\n")))
       (cat(paste0("Time start = ", t0, "\n")))
@@ -326,5 +349,6 @@ seed_particles <- function(
   #
   #
 
+set.seed(NULL)
   return(particle_points_probability)
 }

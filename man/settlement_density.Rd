@@ -6,6 +6,7 @@
 \usage{
 settlement_density(
   input = NULL,
+  calculate_hull = TRUE,
   combined = FALSE,
   cellsize = 20,
   concavity = 1.2,
@@ -15,6 +16,8 @@ settlement_density(
 }
 \arguments{
 \item{input}{input (defaults to NULL)}
+
+\item{calculate_hull}{true/false calculate concave hull (can be time intensive on large datasets, defaults to true)}
 
 \item{combined}{test to allow multiple coralseed file inputs in list (defaults to FALSE)}
 

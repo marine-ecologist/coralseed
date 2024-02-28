@@ -7,53 +7,46 @@
 #' @param n_sims number of sims for randomised datasets (see plot for traces)
 #' @param competency.function distribution, one of "weibull", "exponential", "lognormal"
 #' @param sort sort output by ID, otherwise if FALSE randomly distribute
-#' @param set.seed set seed value, defaults to NULL
+#' @param seed.value set seed value, defaults to NULL
 #' @param return.plot return output
 #' @param ... passes functions
 #' @export
 
 #'
 #'
-predict_competency <- function(n_id, n_sims=1000, competency.function = "exponential", sort = TRUE, set.seed = NULL, return.plot = TRUE, ...) {
+predict_competency <- function(n_id, n_sims=1000, competency.function = "exponential", b_Intercept=b_Intercept, sort = TRUE, seed.value = NULL, return.plot = TRUE, ...) {
+
+  set.seed(seed.value)
   # for each individual random draw from function
-
-
   data(parameter_draws_log, envir = environment())
   data(parameter_draws_exp, envir = environment())
   data(parameter_draws_weibull, envir = environment())
 
-  set.seed(set.seed)
-
-
   if (competency.function == "exponential") {
-    dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
-      post_sm1_sample_exp <- parameter_draws_exp %>% dplyr::slice_sample(n = n_sims)
-      individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1])))
-      data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
+
+    if (!is.null(b_Intercept)){
+      b_Intercept_variance <- sd(coralseed::parameter_draws_exp$b_Intercept)
+      sim_exp <- data.frame(b_Intercept = rnorm(1000, b_Intercept, b_Intercept_variance))
+
+      dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
+        post_sm1_sample_exp <- sim_exp %>% dplyr::slice_sample(n = n_sims)
+        individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1])))
+        data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
+      }
+
+      simulated_settlers <- dataset_quartiles |> dplyr::filter(sim %in% sample(1:n_sims,1)) |> dplyr::select(-sim) |> arrange(id)
+
+    } else {
+        dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
+          post_sm1_sample_exp <- parameter_draws_exp %>% dplyr::slice_sample(n = n_sims)
+          individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1])))
+          data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
+        }
+
+        simulated_settlers <- dataset_quartiles |> dplyr::filter(sim %in% sample(1:n_sims,1)) |> dplyr::select(-sim) |> arrange(id)
     }
 
-    # dataset_quartiles <- list()
-    # for(i in 1:n_sims) {
-    #   post_sm1_sample_exp <- parameter_draws_exp %>% dplyr::slice_sample(n = n_sims)
-    #   individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1])))
-    #   dataset_quartiles[[i]] <- data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
-    # }
-    # dataset_quartiles <- dplyr::bind_rows(dataset_quartiles)
-    #
-    #
-    # # dataset_quartiles <- purrr::map_dfr(1:n_sims, ~{
-    #   post_sm1_sample_exp <- parameter_draws_exp %>%
-    #     dplyr::slice_sample(n = n_sims)
-    #   individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1, 1])))
-    #   data.frame(
-    #     settlement_point = sort(round(individual_times)),
-    #     id = (n_id) - seq(0, n_id - 1, 1),
-    #     sim = .x
-    #   )
-    # })
-    #
-    simulated_settlers <- dataset_quartiles |> dplyr::filter(sim %in% sample(1:n_sims,1)) |> dplyr::select(-sim) |> arrange(id)
-   # dataset_quartiles <- dataset_quartiles |> dplyr::mutate(sim=as.factor(sim))
+
 
   } else if (competency.function == "lognormal") {
     dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
@@ -63,30 +56,7 @@ predict_competency <- function(n_id, n_sims=1000, competency.function = "exponen
     }
 
 
-    # dataset_quartiles <- list()
-    # for(i in 1:n_sims) {
-    #   post_sm1_sample_lognormal <- parameter_draws_lognormal %>% dplyr::slice_sample(n = n_sims)
-    #   individual_times <- rlnorm(runif(n_id), meanlog=post_sm1_sample_lognormal[1,1], sdlog=post_sm1_sample_lognormal[1,2])
-    #   dataset_quartiles[[i]] <- data.frame(settlement_point=sort(round(individual_times)), id=n_id-seq(0,n_id-1,1), sim=(i))
-    # }
-    # dataset_quartiles <- dplyr::bind_rows(dataset_quartiles)
-    #
-    # #
-    # dataset_quartiles <- purrr::map_dfr(1:n_sims, ~{
-    #   post_sm1_sample <- parameter_draws_log %>%
-    #     dplyr::slice_sample(n = n_sims)
-    #   individual_times <- rlnorm(runif(n_id),
-    #                              meanlog = post_sm1_sample[1, 1],
-    #                              sdlog = post_sm1_sample[1, 2])
-    #   data.frame(
-    #     settlement_point = sort(round(individual_times)),
-    #     id = n_id - seq(0, n_id - 1, 1),
-    #     sim = .x
-    #   )
-    # })
-    #
      simulated_settlers <- dataset_quartiles |> dplyr::filter(sim %in% sample(1:n_sims,1)) |> dplyr::select(-sim) |> arrange(id)
-    # dataset_quartiles <- dataset_quartiles |> dplyr::mutate(sim=as.factor(sim))
 
   } else if (competency.function == "weibull") {
     dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
@@ -95,37 +65,12 @@ predict_competency <- function(n_id, n_sims=1000, competency.function = "exponen
       data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
     }
 
-
-    # dataset_quartiles <- list()
-    # for(i in 1:n_sims) {
-    #   post_sm1_sample <- parameter_draws_weibull %>% dplyr::slice_sample(n = n_sims)
-    #   individual_times <- rweibull(runif(1000), shape = post_sm1_sample[1,2], scale = post_sm1_sample[1,1])
-    #   dataset_quartiles[[i]] <- data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
-    # }
-    # dataset_quartiles <- dplyr::bind_rows(dataset_quartiles)
-    #
-    # dataset_quartiles <- purrr::map_dfr(1:n_sims, ~{
-    #   post_sm1_sample <- parameter_draws_weibull %>%
-    #     dplyr::slice_sample(n = n_sims)
-    #   individual_times <- rweibull(runif(1000),
-    #                                shape = post_sm1_sample[1, 2],
-    #                                scale = post_sm1_sample[1, 1])
-    #   data.frame(
-    #     settlement_point = sort(round(individual_times)),
-    #     id = n_id - seq(0, n_id - 1, 1),
-    #     sim = .x
-    #   )
-    # })
-    #
      simulated_settlers <- dataset_quartiles |> dplyr::filter(sim %in% sample(1:n_sims,1)) |> dplyr::select(-sim) |> arrange(id)
      dataset_quartiles <- dataset_quartiles |> dplyr::mutate(sim=as.factor(sim))
 
   } else {
-    # cat("competency.function must be one of logarithmic, exponential, weibull")
+     cat("competency.function must be one of logarithmic, exponential, weibull")
   }
-
-  # random_draws <- posterior_draws |> dplyr::slice_sample(n = n_id) # randomly sample posterior draws to meet n
-  # all_samples <- apply(random_draws, 1, draw_individuals) # apply the draw_individuals function across rows of random_draws
 
   if (sort == TRUE) {
     # re-sort by time and add new sequential IDs

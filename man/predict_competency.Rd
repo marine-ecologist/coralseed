@@ -8,8 +8,9 @@ predict_competency(
   n_id,
   n_sims = 1000,
   competency.function = "exponential",
+  b_Intercept = b_Intercept,
   sort = TRUE,
-  set.seed = NULL,
+  seed.value = NULL,
   return.plot = TRUE,
   ...
 )
@@ -23,7 +24,7 @@ predict_competency(
 
 \item{sort}{sort output by ID, otherwise if FALSE randomly distribute}
 
-\item{set.seed}{set seed value, defaults to NULL}
+\item{seed.value}{set seed value, defaults to NULL}
 
 \item{return.plot}{return output}
 
