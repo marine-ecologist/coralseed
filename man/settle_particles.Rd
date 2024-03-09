@@ -8,7 +8,8 @@ settle_particles(
   input,
   probability = "additive",
   silent = TRUE,
-  sample.n = NULL,
+  return.plot = TRUE,
+  subsample = NULL,
   seed.value = NULL,
   ...
 )
@@ -20,9 +21,11 @@ settle_particles(
 
 \item{silent}{silence outputs}
 
-\item{sample.n}{subsample to n particles}
+\item{subsample}{subsample to n particles}
 
 \item{...}{pass arguments}
+
+\item{plot}{Plot time-to-settlement?}
 
 \item{set.seed}{seed}
 }
