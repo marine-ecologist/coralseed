@@ -4,8 +4,7 @@
 #'
 #' @param input input particle tracks (e.g. coralseed:::Mermaid_PointSource_Bay_01)
 #' @param subset n particles to subset
-#' @export
-#' @examples:
+#'
 #' stat_particles_liz22_del_14_33 <- stationary_particles(liz22_del_14_33)
 #'
 #' stat_liz22_del_14_33_map <- stationary_particles_map(liz22_del_14_33 |> filter(id %in% seq(0:1000)))

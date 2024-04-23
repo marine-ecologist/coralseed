@@ -13,6 +13,7 @@
 #' @param simulate.mortality.n set proportion of corals to kill over a 24hr period, where 0 is none, 1 is 100 (defaults to 0.1 or 10%)
 #' @param competency.function set distribution to define competency from time-to-settlement model, one of "weibull", "exp", "log" (defaults to "exp")
 #' @param limit.time limit the time series, for example 720 will limit the settlement results between 0-12hrs (defaults to "NA")
+#' @param set_b_Intercept set b Intercept manually, dev argument
 #' @param set.centre  reset CONNIE input to have a central t0 point (defaults to TRUE)
 #' @param silent silence printing results while running (defaults to FALSE)
 #' @param seed.value set seed for consistent results (defaults to NULL)
@@ -26,7 +27,7 @@
 seed_particles <- function(
     input = NULL, example = NULL, seascape = NULL, subsample = NULL,
     simulate.mortality = "none", simulate.mortality.n = 0.1,
-    competency.function = "exponential", b_Intercept=NULL, limit.time = NA,
+    brmsfit, set_b_Intercept=NULL, limit.time = NA,
     set.centre = TRUE, seed.value = NULL,
     silent = FALSE, return.plot = FALSE, ...){
   ##########################################################################################
@@ -58,7 +59,7 @@ seed_particles <- function(
         sf::st_transform(20353) |>
         dplyr::select(-decay_value)
     } else {
-      load_particles <- input |>
+      load_particles <- oceanparcels_moore_reef |>
         sf::st_zm(drop = TRUE, what = "ZM") |>
         sf::st_transform(20353)
     }
@@ -159,11 +160,10 @@ seed_particles <- function(
   ### 2. Predict competency
   #print(seed.value)
   competency_times_output <- predict_competency(
-    n_id = length(unique(particle_points$id)), n_sims = 1000, b_Intercept = b_Intercept,
-    competency.function = competency.function, seed.value = seed.value, return.plot = return.plot
+    input=brmsfit, n_particles = length(unique(particle_points$id)),
+    seed.value = seed.value, return.plot = return.plot
   )
-  # check:
-  # hist(competency_times_output$simulated_settlers$settlement_point)
+
 
   competency_times <- competency_times_output |>
     with(simulated_settlers) |>

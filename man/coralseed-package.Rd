@@ -4,12 +4,12 @@
 \name{coralseed-package}
 \alias{coralseed}
 \alias{coralseed-package}
-\title{coralseed: What the Package Does (One Line, Title Case)}
+\title{coralseed: coralseed: a spatially explicit reef-scale model of larval reseeding}
 \description{
 a spatially explicit individual-based probabilistic model for predicting coral settlement following larval dispersal on coral reefs
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: George Roff \email{george.roff@csiro.ai} (\href{https://orcid.org/0000-0002-2823-0575}{ORCID})
 
 }
 \keyword{internal}

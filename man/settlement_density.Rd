@@ -6,6 +6,7 @@
 \usage{
 settlement_density(
   input = NULL,
+  messages = FALSE,
   calculate_hull = TRUE,
   combined = FALSE,
   cellsize = 20,

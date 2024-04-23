@@ -1,14 +1,14 @@
 Package: coralseed
-Title: What the Package Does (One Line, Title Case)
+Title: coralseed: a spatially explicit reef-scale model of larval reseeding
 Version: 0.2.1
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("George", "Roff", , "george.roff@csiro.ai", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-2823-0575"))
 Description: a spatially explicit individual-based probabilistic model for predicting coral settlement following larval dispersal on coral reefs
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Depends:
     R (>= 3.5.0)
 Imports: 
@@ -34,3 +34,4 @@ Imports:
     tmap,
     utils,
     viridis
+LazyData: false

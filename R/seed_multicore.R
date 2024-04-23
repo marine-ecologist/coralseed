@@ -125,7 +125,7 @@ seed_multicore <- function(
   data.table::setDT(particle_points_dt) # move elsewhere?
   particle_points_dt[, id := as.factor(id)]
 
-  # tic()
+
   # # interpolate between particle points by 1 minute intervals and bind probability outputs
   # particle_points_expanded <- particle_points |>
   #   as.data.frame() |>
@@ -142,8 +142,8 @@ seed_multicore <- function(
   #   dplyr::arrange(id) |>
   #   sf::st_as_sf(coords = c("X", "Y"), crs = 20353) |>
   #   sf::st_cast("POINT")
-  # toc()
-  # tic() # data.table approach is 5-fold quicker than data.frame above
+
+   # data.table approach is 5-fold quicker than data.frame above
 
 
   #particle_points_dt[, geometry := NULL]
@@ -173,7 +173,6 @@ seed_multicore <- function(
 
   particle_points_expanded <- sf::st_as_sf(particle_points_dt, coords = c("X", "Y"))
 
-  # toc()
 
   n_mortality <- length(levels(unique(as.factor(particle_points_expanded$id)))) * simulate.mortality.n
   dead_id_levels <- sample(levels(particle_points_expanded$id), n_mortality)

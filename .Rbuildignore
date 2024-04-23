@@ -6,3 +6,10 @@ inst/
 ^LICENSE\.md$
 ^code$
 ^docs$
+^outputs$
+code/
+outputs/
+vignettes/
+.nojekyll.txt
+.github
+^data-raw$

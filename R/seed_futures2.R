@@ -164,7 +164,7 @@ seed_futures2 <- function(
 
   data.table::setDT(competency_times) # move elsewhere?
 
-  # tic()
+
   # # interpolate between particle points by 1 minute intervals and bind probability outputs
   # particle_points_expanded <- particle_points |>
   #   as.data.frame() |>
@@ -181,8 +181,8 @@ seed_futures2 <- function(
   #   dplyr::arrange(id) |>
   #   sf::st_as_sf(coords = c("X", "Y"), crs = 20353) |>
   #   sf::st_cast("POINT")
-  # toc()
-  # tic() # data.table approach is 5-fold quicker than data.frame above
+
+  # data.table approach is 5-fold quicker than data.frame above
   coords <- do.call(rbind, sf::st_geometry(particle_points)) |>
     data.table::as.data.table() |>
     setNames(c("X", "Y"))
@@ -211,7 +211,6 @@ seed_futures2 <- function(
 
   particle_points_expanded <- sf::st_as_sf(particle_points_dt, coords = c("X", "Y"))
 
-  # toc()
 
   n_mortality <- length(levels(unique(as.factor(particle_points_expanded$id)))) * simulate.mortality.n
   dead_id_levels <- sample(levels(particle_points_expanded$id), n_mortality)

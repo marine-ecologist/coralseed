@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "coral-bleaching-2024-map",
+  "private_key_id": "c8a4169a4f17cac02b5c1cf793b41dd617ee634e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDA4ssttWv+/bkW\nOv7TgICqhDgPRigq7mfomt/jHSsv4i6U8WhfqmhQv/lWJSrFnK4SkY2igcKTqAIa\njx0VvksmvOM5wWNP7ztqMfAGbxVP0Wq3x0MYO+DIEtE23vp/TFm/TqEF2mdsp+zL\neDN8JsalY59fVDyOP/I3WZL3XHijJZ19shprw1IdVZMzaxWkUk3X+JELUM0Vh+8F\nksZNOA+IhxgO8DgmThrRIUkdviLjZ/03g800+nqdtC53E6j+kR/rQRHF9o4WNz5z\nttAja/Gm3F2ZUw/XkxVkS5P8rbyx+jtkfSQYE3ACWXKlemJk9OIAvVug8shgX6Wx\nn/QsqpczAgMBAAECggEAQv7DCXZJM4EXB3SoS/gHOLLB8fQxQXAbITyh5PWdqX0L\nJuqOkSPUJa/4P4abS5X3FDYAFuCxH64sRONOe93jpmnXFploEDyMy37a2rE8msOn\nKHwKfuFVWsjGaCOcqBhx17PM1AafA6tz4Nw4LbgeKRXoJilQ+yuUysrO9CHnOOre\nUdbDEtXx92emWUkWjBqJF7WjkL1OXh6mFCLc5/R+oUsUNZ+3D7zQS/8q3QCg0V93\n5E4yollQW9ygnMvC8Mh875o277ZeoAcyND7GVXO/N3KEK9eoR48z41bfKzPcIa76\n30tAd0p9E0+AB7b9W2saf9Dq5tsEewfZ4KIZRWTuKQKBgQDkvLqb/AZCoOXfzqqT\nGwopWgv+D2aHpVAdRRxFXzYmf55dpU4F5fZGKoIdoFEu2EK9CRHIkwFmXH7cOLZv\nKMnGpju9Lc0RoXISvhaseO5251NmYGKcd9o7GsUpKNBIE/YwIlq5s7/GfsUND1fv\nxXRCD14vvhTODdGSDJTv5pO+5wKBgQDX4CnEFAZJmmad0uegYcADzqz7/3hsbK+/\ndNrDnHeV0H1U1tYRX42Tkg7qNuIV84ClhkoVRWezgwtd/cLW4kHeiZlkuPEPP/iB\n8Pj9b+scwq/e+4lJbDYZEb77Bu8tDQElvYcViEVDQ8L2yQkB/I+BLIAPEH6Mi+4T\njJ3FYPoX1QKBgF/NcDdO2mxjqYQQsj7Ez3+8WFODrcTYh3KK9KlVlH+Ragn8523v\nADQpL7Aq6nW9XE6CkvE4KRjvWq7wDfEG22QZUeINYduli/qvpR191Rr2DmdNrV+t\njzi8IKH5lyrpOW61pNwsngEMLYonyAQD5oqYlzFV4q7e+My7+lF0eKM3AoGBAJ9R\niaFzIdzKPbd2gomD+sEUk+f69/YVFHOZGybIYB1J3GVzlFMIESV64tUKIjsPFb+T\nZzNhoJIEQaxhbp1GKFTDeliygP2/OXk0zZ3FLmBwcnl/bCeq3BYOWcNLr9KwyUsA\nICTNCEkHRmj5n1M/AO3VWMFFbA/v6Ym1+m5EDu7tAoGAXTeY+9iWkiXWO3/i08YC\nw3ZK1vu+vPVZqWmyzwN+gJFitkoClUwsbtnvJRC0WXmrduGwMTzCxee6yEUvPaUW\niuHiAHpiKDk+MdUKRRWaY2XYwrN/YqHQ3yRxzcQQ4DQ0JcRE62ShyMSt3gVAB3NH\nGKTAQQB0fo0qlKxVjPpRDG8=\n-----END PRIVATE KEY-----\n",
+  "client_email": "cloudstylo@coral-bleaching-2024-map.iam.gserviceaccount.com",
+  "client_id": "102904240098652633300",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/cloudstylo%40coral-bleaching-2024-map.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

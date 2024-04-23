@@ -13,13 +13,13 @@
 #' @export
 #'
 
-settlement_density <- function(input = NULL, calculate_hull=TRUE, combined=FALSE, cellsize = 20, concavity = 1.2, length_threshold = 10, ...) {
+settlement_density <- function(input = NULL, messages=FALSE, calculate_hull=TRUE, combined=FALSE, cellsize = 20, concavity = 1.2, length_threshold = 10, ...) {
   ##### function to calculate density
-  if (combined==TRUE){
-    input #|> dplyr::ungroup()
-  }else if (combined==FALSE){
-    input <- input |> with(points) # |> dplyr::ungroup()
-  }
+  # if (combined==TRUE){
+  #   input #|> dplyr::ungroup()
+  # }else if (combined==FALSE){
+  #  input <- input |> with(points) # |> dplyr::ungroup()
+  # }
   # make a spatial grid across the settled particles, set cell size (metres)
   settled_particles_grid <- input |>
     dplyr::select(-id, -class, -time, -cat) |>
@@ -28,6 +28,7 @@ settlement_density <- function(input = NULL, calculate_hull=TRUE, combined=FALSE
   # calculate the density of larvae within each grid-cell, convert to sf
   grid_count <- sp::over(sf::as_Spatial(settled_particles_grid), sf::as_Spatial(dplyr::select(input, id, class)), fn = length)
 
+  # calculate the density of larvae within each grid-cell, convert to sf
   settled_particles_count <- sf::st_as_sf(settled_particles_grid) |>
     dplyr::mutate(count = as.numeric(tidyr::replace_na(grid_count$id, NA)))
 
@@ -35,7 +36,7 @@ settlement_density <- function(input = NULL, calculate_hull=TRUE, combined=FALSE
       dplyr::mutate(density = count / (cellsize * cellsize))
 
   if (calculate_hull==TRUE){
-    settled_particles_concavehull <- concaveman::concaveman(input, concavity = concavity, length_threshold = length_threshold)
+    settled_particles_concavehull <- concaveman::concaveman(st_as_sf(st_geometry(input)), concavity = concavity, length_threshold = length_threshold)
     settled_particles_concavehull$area <- round(sf::st_area(settled_particles_concavehull))
 
     set_out <- list(settled_particles_count, settled_particles_density, settled_particles_concavehull)

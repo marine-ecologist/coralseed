@@ -8,8 +8,6 @@
 #' @param ... passes functions
 #' @export
 
-
-
 seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability = NULL, ...) {
 
   oldwarning <- getOption("warn")
@@ -25,59 +23,62 @@ seascape_probability <- function(reefoutline = NULL, habitat = NULL, probability
   }
 
   tryCatch({
+    suppressMessages({
+      suppressWarnings({
+        data(benthic_map, envir = environment())
+        data(reef_map, envir = environment())
 
-    data(benthic_map, envir = environment())
-    data(reef_map, envir = environment())
+        # 1) Coral Atlas shp files (add load later)
+        # load(system.file("data/benthic_map.rda", package = "coralseed"))
+        benthic_map <- benthic_map |>
+          # dplyr::mutate(class = as.factor(class)) |>
+          # dplyr::mutate(class = forcats::fct_recode(class, Lagoon = "Shallow Lagoon", Lagoon = "Deep Lagoon")) |>
+          sf::st_transform(crs = sf::st_crs("EPSG:20353"))
 
-    # 1) Coral Atlas shp files (add load later)
-     # load(system.file("data/benthic_map.rda", package = "coralseed"))
-      benthic_map <- benthic_map |>
-        #dplyr::mutate(class = as.factor(class)) |>
-        #dplyr::mutate(class = forcats::fct_recode(class, Lagoon = "Shallow Lagoon", Lagoon = "Deep Lagoon")) |>
-        sf::st_transform(crs = sf::st_crs("EPSG:20353"))
+        # load(system.file("data/reef_map.rda", package = "coralseed"))
+        reef_map <- reef_map |>
+          # dplyr::mutate(class = as.factor(class)) |>
+          # dplyr::filter(!class %in% c("Microalgal Mats", "Seagrass", "Sand")) |>
+          # sf::st_union() |>
+          sf::st_transform(crs = sf::st_crs("EPSG:20353"))
 
+        allen_map <- sf::st_intersection(benthic_map, reef_map) |>
+          sf::st_collection_extract("POLYGON") |>
+          dplyr::group_by(class) |>
+          dplyr::summarise() |>
+          sf::st_cast("POLYGON") |>
+          dplyr::mutate(habitat_id = paste0(
+            gsub(" ", "_", class), "_",
+            sprintf(paste0("%0", ceiling(log10(max(1:length(class)))), "d"), 1:length(class))
+          )) |>
+          sf::st_make_valid()
 
-      #load(system.file("data/reef_map.rda", package = "coralseed"))
-      reef_map <- reef_map |>
-        #dplyr::mutate(class = as.factor(class)) |>
-        #dplyr::filter(!class %in% c("Microalgal Mats", "Seagrass", "Sand")) |>
-        #sf::st_union() |>
-        sf::st_transform(crs = sf::st_crs("EPSG:20353"))
+        benthic_probability <- probability
+        class_means <- rlang::set_names(benthic_probability$means, benthic_probability$class)
 
+        sf::st_agr(allen_map) <- "constant"
 
-    allen_map <- sf::st_intersection(benthic_map, reef_map) |>
-      sf::st_collection_extract("POLYGON") |>
-      dplyr::group_by(class) |>
-      dplyr::mutate(habitat_id = paste0(
-        gsub(" ", "_", class), "_",
-        sprintf(paste0("%0", ceiling(log10(max(1:length(class)))), "d"), 1:length(class))
-      )) |>
-      sf::st_make_valid()
-
-
-    benthic_probability <- probability
-    class_means <- rlang::set_names(benthic_probability$means, benthic_probability$class)
-
-    sf::st_agr(allen_map) = "constant"
-
-
-    allen_map_probability <- allen_map |>
-      dplyr::filter(!class == "Lagoon") |>
-      sf::st_make_valid() |>
-      dplyr::mutate(settlement_probability = dplyr::recode(class, !!!class_means)) |>
-      sf::st_make_valid() |>
-      dplyr::left_join(benthic_probability, by = "class") |>
-      dplyr::group_by(class) |>
-      dplyr::mutate(settlement_probability = round(rnorm(length(class), means, se), 2)) |>
-      dplyr::mutate(settlement_probability = ifelse(settlement_probability > 1,
-        round(settlement_probability), settlement_probability
-      )) |>
-      dplyr::mutate(settlement_probability = ifelse(settlement_probability < 0,
-        0, settlement_probability
-      )) |>
-      dplyr::select(-means, -se) |>
-      sf::st_make_valid()
+        allen_map_probability <- allen_map |>
+          dplyr::filter(!class == "Lagoon") |>
+          sf::st_make_valid() |>
+          dplyr::mutate(settlement_probability = dplyr::recode(class, !!!class_means)) |>
+          sf::st_make_valid() |>
+          dplyr::left_join(benthic_probability, by = "class") |>
+          dplyr::group_by(class) |>
+          dplyr::mutate(settlement_probability = round(rnorm(length(class), means, se), 2)) |>
+          dplyr::mutate(settlement_probability = ifelse(settlement_probability > 1,
+                                                        round(settlement_probability), settlement_probability
+          )) |>
+          dplyr::mutate(settlement_probability = ifelse(settlement_probability < 0,
+                                                        0, settlement_probability
+          )) |>
+          dplyr::select(-means, -se) |>
+          sf::st_make_valid()
+      })
+    })
+  }, error = function(e) {
+    message("An error occurred: ", e)
   })
-  options(dplyr.summarise.inform = TRUE, warn=oldwarning)
+  options(dplyr.summarise.inform = TRUE, warn = oldwarning)
   return(allen_map_probability)
 }

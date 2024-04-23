@@ -13,3 +13,4 @@ inst/*
 !inst/doc/
 code/
 outputs/
+vignettes archive/

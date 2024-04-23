@@ -33,7 +33,7 @@ seed_futures <- function(
 
   #load(".../R/sysdata.rda")
 
-  tic()
+
   set.seed=set.seed
 
   if (is.null(set.seed) == TRUE) {

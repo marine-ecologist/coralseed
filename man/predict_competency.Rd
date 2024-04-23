@@ -5,24 +5,16 @@
 \title{Predict_competency}
 \usage{
 predict_competency(
-  n_id,
-  n_sims = 1000,
-  competency.function = "exponential",
-  b_Intercept = b_Intercept,
-  sort = TRUE,
+  input,
+  n_particles = 100,
   seed.value = NULL,
-  return.plot = TRUE,
-  ...
+  return.plot = FALSE
 )
 }
 \arguments{
-\item{n_id}{input n_id (number of particles)}
+\item{input}{brmsfit of either 'lognormal', 'exponential', 'weibull' functions}
 
-\item{n_sims}{number of sims for randomised datasets (see plot for traces)}
-
-\item{competency.function}{distribution, one of "weibull", "exponential", "lognormal"}
-
-\item{sort}{sort output by ID, otherwise if FALSE randomly distribute}
+\item{n_particles}{number of sims for randomised datasets (see plot for traces)}
 
 \item{seed.value}{set seed value, defaults to NULL}
 
@@ -32,5 +24,9 @@ predict_competency(
 }
 \description{
 Function to generate probability distribution from Allen Coral Atlas input files
-predict_competency(n_id=100, nsims=1000, competency.function="exponential")
+}
+\details{
+predict_competency_time(infamis_tiles_exp, n_particles=100)
+predict_competency_time(infamis_tiles_log, n_particles=100)
+predict_competency(infamis_tiles_weibull, n_particles=100)
 }

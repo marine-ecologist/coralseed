@@ -17,7 +17,7 @@
 #' @export
 #'
 
-settle_particles <- function(input, probability = "additive", silent = TRUE, return.plot=TRUE, subsample=NULL, seed.value=NULL,...) {
+settle_particles <- function(input, probability = "additive", silent = TRUE, return.plot=FALSE, subsample=NULL, seed.value=NULL,...) {
 
 
     set.seed(seed.value)

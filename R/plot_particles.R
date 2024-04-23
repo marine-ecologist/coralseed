@@ -11,10 +11,6 @@
 #' @param pch pch
 #' @param ... passes functions
 #' @export
-#' @examples
-#' # example code
-#' # particles <- seed_particles("mermaid", seascape=seascape, limit_time=720, competency.function = "exponential", simulate.mortality = "typeI", simulate.mortality.n = 0.1, probability="additive",return.plot=FALSE, silent=TRUE)
-#' # plot_particles(particles)
 
 
 plot_particles <- function(input = NULL, seascape=NULL, parameter = "dispersaltime", pch=16, size=0.5, ...) {

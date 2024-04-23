@@ -1,102 +1,140 @@
 #' Predict_competency
 #'
 #' Function to generate probability distribution from Allen Coral Atlas input files
-#'  predict_competency(n_id=100, nsims=1000, competency.function="exponential")
+#'
+#'
+#' predict_competency_time(infamis_tiles_exp, n_particles=100)
+#' predict_competency_time(infamis_tiles_log, n_particles=100)
+#' predict_competency(infamis_tiles_weibull, n_particles=100)
+#'
 #' @export
-#' @param n_id input n_id (number of particles)
-#' @param n_sims number of sims for randomised datasets (see plot for traces)
-#' @param competency.function distribution, one of "weibull", "exponential", "lognormal"
-#' @param sort sort output by ID, otherwise if FALSE randomly distribute
+#' @param input brmsfit of either 'lognormal', 'exponential', 'weibull' functions
+#' @param n_particles number of sims for randomised datasets (see plot for traces)
 #' @param seed.value set seed value, defaults to NULL
 #' @param return.plot return output
 #' @param ... passes functions
 #' @export
 
-#'
-#'
-predict_competency <- function(n_id, n_sims=1000, competency.function = "exponential", b_Intercept=b_Intercept, sort = TRUE, seed.value = NULL, return.plot = TRUE, ...) {
+
+predict_competency<- function(input, n_particles=100, seed.value=NULL, return.plot=FALSE){
 
   set.seed(seed.value)
-  # for each individual random draw from function
-  data(parameter_draws_log, envir = environment())
-  data(parameter_draws_exp, envir = environment())
-  data(parameter_draws_weibull, envir = environment())
+  brms_family <- input$family$family
+  model_draws <- brms::as_draws_df(input)
 
-  if (competency.function == "exponential") {
 
-    if (!is.null(b_Intercept)){
-      b_Intercept_variance <- sd(coralseed::parameter_draws_exp$b_Intercept)
-      sim_exp <- data.frame(b_Intercept = rnorm(1000, b_Intercept, b_Intercept_variance))
+  if(brms_family == "exponential") {
 
-      dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
-        post_sm1_sample_exp <- sim_exp %>% dplyr::slice_sample(n = n_sims)
-        individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1])))
-        data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
+    simulate_curves <- purrr::map_dfr(1:n_particles, function(i) {
+      draw <- model_draws |> dplyr::slice_sample(n = 1)
+
+      b_Intercept <- draw$b_Intercept
+      lambda <- exp(-b_Intercept)  # Exponential rate parameter (lambda)
+      minutes <- rexp(1, rate = lambda)  # Time to competency
+      competency_probability <- 1 - pexp(minutes, rate = lambda)  # Competency probability
+
+      data.frame(
+        id = i - 1,
+        minutes = floor(minutes),
+        lambda = lambda,
+        b_Intercept = b_Intercept,
+        competency_probability = competency_probability
+      )
+    })
+
+  } else if (brms_family == "weibull") {
+
+    simulate_curves <- purrr::map_dfr(1:n_particles, function(i) {
+      draw <- model_draws |> dplyr::slice_sample(n = 1)
+
+      shape <- draw$shape  # Shape parameter
+      scale <- exp(draw$b_Intercept)  # Scale parameter
+      minutes <- scale * (-log(1 - runif(1)))^(1 / shape)  # Time to competency
+      competency_probability <- 1 - pweibull(minutes, shape, scale)  # Competency probability
+
+      data.frame(
+        id = i - 1,
+        minutes = floor(minutes),
+        shape = shape,
+        scale = scale,
+        competency_probability = competency_probability
+      )
+    })
+
+  } else if (brms_family == "lognormal") {
+
+    simulate_curves <- purrr::map_dfr(1:n_particles, function(i) {
+      draw <- model_draws |> dplyr::slice_sample(n = 1)
+
+    meanlog <- draw$b_Intercept
+    sdlog <- draw$sigma
+
+    minutes <- rlnorm(1, meanlog, sdlog)  # Time to competency
+    competency_probability <- 1 - plnorm(minutes, meanlog, sdlog)  # Competency probability
+
+      data.frame(
+        id = i - 1,
+        minutes = floor(minutes),
+        meanlog = meanlog,
+        sdlog = sdlog,
+        competency_probability = competency_probability
+      )
+    })
+
+  } else {
+    cat("Input must be a brms model fit from either exponential, weibull, or lognormal family")
+  }
+
+  # Time range for the survival curve
+  minutes <- seq(1, max(simulate_curves$minutes), 1)
+
+  # Calculate survival probabilities distribution (curves) for each id
+  predicted_curves <- simulate_curves %>%
+    dplyr::group_by(id) %>%
+    dplyr::do({
+      minutes <- seq(1, max(simulate_curves$minutes), 1)
+
+      if (brms_family == "exponential") {
+        competency_probability <- 1 - pexp(minutes, rate = .$lambda)
+      } else if (brms_family == "weibull") {
+        competency_probability <- 1 - pweibull(minutes, .$shape, .$scale)
+      } else if (brms_family == "lognormal") {
+        competency_probability <- 1 - plnorm(minutes, meanlog = .$meanlog, sdlog = .$sdlog)
+      } else {
+        stop("Unknown family")
       }
 
-      simulated_settlers <- dataset_quartiles |> dplyr::filter(sim %in% sample(1:n_sims,1)) |> dplyr::select(-sim) |> arrange(id)
+      data.frame(minutes = minutes, competency_probability = competency_probability)
+    })
 
-    } else {
-        dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
-          post_sm1_sample_exp <- parameter_draws_exp %>% dplyr::slice_sample(n = n_sims)
-          individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1])))
-          data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
-        }
+  predicted_median <- predicted_curves %>%
+    dplyr::group_by(minutes) %>%
+    dplyr::summarise(competency_probability = median(competency_probability))
 
-        simulated_settlers <- dataset_quartiles |> dplyr::filter(sim %in% sample(1:n_sims,1)) |> dplyr::select(-sim) |> arrange(id)
-    }
+  predicted_point <- simulate_curves %>%
+    dplyr::filter(minutes <= max(minutes)) %>%
+    dplyr::mutate(id = id - 1)
 
-
-
-  } else if (competency.function == "lognormal") {
-    dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
-      post_sm1_sample <- parameter_draws_log %>% dplyr::slice_sample(n = n_sims)
-      individual_times <-  rlnorm(runif(n_id), meanlog=post_sm1_sample[1,1], sdlog=post_sm1_sample[1,2])
-      data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
-    }
+  simulated_settlers <- simulate_curves %>%
+    dplyr::select(minutes, id) %>%
+    dplyr::rename(settlement_point = minutes)
 
 
-     simulated_settlers <- dataset_quartiles |> dplyr::filter(sim %in% sample(1:n_sims,1)) |> dplyr::select(-sim) |> arrange(id)
-
-  } else if (competency.function == "weibull") {
-    dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
-      post_sm1_sample <- parameter_draws_weibull %>% dplyr::slice_sample(n = n_sims)
-      individual_times <- rweibull(runif(1000), shape = post_sm1_sample[1,2], scale = post_sm1_sample[1,1])
-      data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
-    }
-
-     simulated_settlers <- dataset_quartiles |> dplyr::filter(sim %in% sample(1:n_sims,1)) |> dplyr::select(-sim) |> arrange(id)
-     dataset_quartiles <- dataset_quartiles |> dplyr::mutate(sim=as.factor(sim))
-
-  } else {
-     cat("competency.function must be one of logarithmic, exponential, weibull")
-  }
-
-  if (sort == TRUE) {
-    # re-sort by time and add new sequential IDs
-    simulated_settlers <- simulated_settlers |>
-      dplyr::arrange(settlement_point) |>
-      dplyr::mutate(id = as.factor(rev(seq(0, n_id - 1, 1))))
-  } else {
-    simulated_settlers <- simulated_settlers |>
-      dplyr::arrange(settlement_point) |>
-      dplyr::mutate(id = as.factor(sample(seq(0, n_id - 1, 1))))
-  }
 
   if (return.plot == TRUE) {
 
-   plot <- ggplot() +
-      ggplot2::theme_bw() +
-      ggplot2::ggtitle(paste0("1. Predicted competency (",competency.function, " n=", length(unique(simulated_settlers$id)),")")) +
-      ggplot2::xlim(0, 720/60) +
-      ggplot2::geom_point(data = dataset_quartiles, ggplot2::aes(settlement_point/60, as.numeric(id), group=sim), color="lightblue", size=0.1, alpha=0.6) +
-      ggplot2::geom_point(data = simulated_settlers, ggplot2::aes(settlement_point/60, as.numeric(id)), colour="black", size=1, alpha=0.8) +
-      ggplot2::xlab("Time till competent following release (hrs)") +
-      ggplot2::ylab("Number of individuals")
+    # Predicted survival curves and points
+    plot <- ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::xlim(0,48) +
+      ggplot2::geom_line(data = predicted_curves, ggplot2::aes(x = minutes/60, y = competency_probability, group = id), color = "turquoise4", alpha = 0.1) +
+      ggplot2::geom_line(data = predicted_median, ggplot2::aes(x = minutes/60, y = competency_probability), color = "black", alpha = 1.5) +
+      ggplot2::geom_vline(xintercept = 12, alpha = 0.5) +
+      ggplot2::geom_point(data = simulate_curves, ggplot2::aes(x = minutes/60, y = competency_probability), color = "black", fill = "coral", shape = 21, stroke = 0.3, size = 2, alpha = 1) +
+      ggplot2::labs(title = paste0("Predicted ", toupper(brms_family), " Survival Curves"),
+           x = "Time to Competency (hours)",
+           y = "Probability")
 
 
-
-     return_list <- list(plot, simulated_settlers)
+    return_list <- list(plot, simulated_settlers)
 
     names(return_list) <- c("simulated_settlers_plot", "simulated_settlers")
     return(return_list)
@@ -107,3 +145,4 @@ predict_competency <- function(n_id, n_sims=1000, competency.function = "exponen
     return(return_list)
   }
 }
+

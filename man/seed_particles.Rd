@@ -12,7 +12,7 @@ seed_particles(
   simulate.mortality = "none",
   simulate.mortality.n = 0.1,
   competency.function = "exponential",
-  b_Intercept = NULL,
+  set_b_Intercept = NULL,
   limit.time = NA,
   set.centre = TRUE,
   seed.value = NULL,
@@ -35,6 +35,8 @@ seed_particles(
 \item{simulate.mortality.n}{set proportion of corals to kill over a 24hr period, where 0 is none, 1 is 100 (defaults to 0.1 or 10\%)}
 
 \item{competency.function}{set distribution to define competency from time-to-settlement model, one of "weibull", "exp", "log" (defaults to "exp")}
+
+\item{set_b_Intercept}{set b Intercept manually, dev argument}
 
 \item{limit.time}{limit the time series, for example 720 will limit the settlement results between 0-12hrs (defaults to "NA")}
 

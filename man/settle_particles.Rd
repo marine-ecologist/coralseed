@@ -8,7 +8,7 @@ settle_particles(
   input,
   probability = "additive",
   silent = TRUE,
-  return.plot = TRUE,
+  return.plot = FALSE,
   subsample = NULL,
   seed.value = NULL,
   ...
