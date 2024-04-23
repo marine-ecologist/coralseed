@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2024-01-29" />
+
+<title>Enhancing larval competence to intensify reseeding outcomes</title>
+
+<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/spacelab.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="coralseed.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">coralseed</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="theory.html">
+    <span class="fa fa-cube"></span>
+     
+    Theory
+  </a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    Parameterisation
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="competency-models.html">a) Larval competency</a>
+    </li>
+    <li>
+      <a href="mortality-models.html">b) Larval mortality</a>
+    </li>
+    <li>
+      <a href="settlement-models.html">c) Larval settlement</a>
+    </li>
+    <li>
+      <a href="dispersal-models.html">d) Larval dispersal</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-layer-group"></span>
+     
+    Instructions
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="instructions.html">1. Run coralseed</a>
+    </li>
+    <li>
+      <a href="visualise-coralseed.html">2. Visualise coralseed outputs</a>
+    </li>
+    <li>
+      <a href="parallel-multicore.html">3. Parallel/multicore processing</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-file"></span>
+     
+    Outputs
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="restoration-footprint.html">Spatial footprint of restoration</a>
+    </li>
+    <li>
+      <a href="variance-partitioning.html">Partitioning model variance</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-sitemap"></span>
+     
+    Examples
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Lizard Island (2022)</li>
+    <li>
+      <a href="example-mermaid.html">- Mermaid Bay</a>
+    </li>
+    <li>
+      <a href="example-watsons.html">- Watsons North</a>
+    </li>
+    <li>
+      <a href="example-palfrey.html">- Palfrey North</a>
+    </li>
+    <li>
+      <a href="example-spawnhub.html">- Spawn Hub</a>
+    </li>
+    <li>
+      <a href="example-clamgarden.html">- Clam Garden</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-crosshairs"></span>
+     
+    Interventions
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="interventions-overview.html">Overview of interventions</a>
+    </li>
+    <li>
+      <a href="interventions-optimisal-release.html">i) optimising larval releases</a>
+    </li>
+    <li>
+      <a href="interventions-enhanced-competency.html">ii) enhanced larval competency</a>
+    </li>
+    <li>
+      <a href="interventions-larval-retention.html">iii) constrained larval dispersal</a>
+    </li>
+    <li>
+      <a href="interventions-seedbomb-dispersal.html">iv) time-delayed larval dispersal</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="https://github.com/marine-ecologist/">
+    <span class="fa fa-github"></span>
+     
+    GitHub
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Enhancing larval competence to intensify
+reseeding outcomes</h1>
+<h4 class="date">2024-01-29</h4>
+
+</div>
+
+
+<div id="basic-langrangian-model" class="section level3">
+<h3>Basic langrangian model</h3>
+<p>parameterisation:</p>
+<pre class="r"><code>library(tidyverse)
+library(sf)
+
+# Assuming data is loaded and has time, x_movement, y_movement for each timestep
+data &lt;- read.csv(&quot;/Users/rof011/1611115.csv&quot;) |&gt;
+  rename(time=1, speed=2, heading=3, velocity_N=4, velocity_E=5) |&gt;
+  mutate(time=ymd_hms(time))
+
+filtered_data &lt;- data %&gt;%
+  dplyr::filter(time &gt; ymd_hms(&quot;2021-11-29 06:00:00&quot;)) |&gt;
+  dplyr::filter(time &lt; ymd_hms(&quot;2021-11-29 18:00:00&quot;))
+
+
+filtered_data2 &lt;- filtered_data |&gt;
+  mutate(time_group = floor_date(time, &quot;10 minutes&quot;)) %&gt;%
+  group_by(time_group) %&gt;%
+  summarise(speed=mean(speed), heading=mean(heading), velocity_N=mean(velocity_N), velocity_E=mean(velocity_E)) %&gt;%
+  mutate(time_group = as.POSIXct(time_group)) %&gt;%
+  mutate(distance=speed*60, distance_N=velocity_N*60, distance_E=velocity_E*60)
+
+timewindow &lt;- data.frame(xmin = min(filtered_data2[13:64,]$time_group),
+                         xmax = max(filtered_data2[13:64,]$time_group),
+                         ymin = min(filtered_data2[13:64,]$speed),
+                         ymax = max(filtered_data2[13:64,]$speed))
+
+logger_a &lt;- ggplot() + theme_bw() +
+  geom_rect(data = timewindow, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), color = &quot;black&quot;, lwd=0.2, fill=&quot;lightgrey&quot;, alpha=0.1) +
+  geom_line(data=filtered_data2, aes(time_group, speed, color=heading), linewidth=0.7, show.legend = FALSE) +
+  scale_color_gradientn(colors = darken(rev(brewer.pal(11, &quot;RdBu&quot;)), 0.1), limits = c(0, 360)) +
+  ggtitle(&quot;1611115_LI_16112021_ ten minute average 12hr window&quot;)
+
+
+logger_b &lt;- ggplot() + theme_bw() +
+  geom_line(data=filtered_data2[13:64,], aes(time_group, heading, color=heading)) +
+  scale_color_gradientn(colors = darken(rev(brewer.pal(11, &quot;RdBu&quot;)), 0.1), limits = c(0, 360)) +
+  ggtitle(&quot;1611115_LI_16112021_ inset release window&quot;)
+
+logger_plot &lt;- logger_a | logger_b
+
+#ggsave(&quot;outputs/logger_plot.png&quot;, logger_plot, width=4000, height=1400, units=&quot;px&quot;)
+
+### # get a weibull draw
+
+nsims &lt;- 1000 # number of simulations
+n_id &lt;- 1000 # number of larvae
+
+shape_params &lt;- 1
+scale_params &lt;- 1000
+
+shape_values &lt;- rnorm(nsims, shape_params, shape_params*0.05)
+scale_values &lt;- rnorm(nsims, scale_params, scale_params*0.1)
+
+###
+
+predict_weibull &lt;- foreach(i=1:nsims, .combine=&quot;rbind&quot;) %do% {
+  individual_times &lt;- rweibull(runif(1000), shape = shape_values[i], scale = scale_values[i])
+  data.frame(settlement_point=sort(round(individual_times)),
+             id=(n_id)-seq(0,n_id-1),
+             sim=(i))
+}
+
+simulated_settlers_weibull &lt;- predict_weibull |&gt;
+  dplyr::filter(sim %in% sample(1:nsims, 1))
+
+simulated_settlers_weibull_mean &lt;- predict_weibull |&gt; group_by(id) |&gt; summarise(mean=mean(settlement_point)/60)
+
+prop_1hr &lt;- simulated_settlers_weibull_mean |&gt; dplyr::filter(mean &lt; 1) |&gt; nrow()
+prop_12hr &lt;- simulated_settlers_weibull_mean |&gt; dplyr::filter(mean &lt; 12) |&gt; nrow()
+paste0(&quot;proportion settled in 1hr = &quot;, prop_1hr)</code></pre>
+<pre><code>## [1] &quot;proportion settled in 1hr = 58&quot;</code></pre>
+<pre class="r"><code>paste0(&quot;proportion settled in 12hr = &quot;, prop_12hr)</code></pre>
+<pre><code>## [1] &quot;proportion settled in 12hr = 513&quot;</code></pre>
+<pre class="r"><code>weib &lt;- ggplot() +
+  theme_bw() +
+  ggtitle(&quot;Weibull&quot;) +
+  xlim(0, 12) +
+  geom_point(data = predict_weibull, aes(settlement_point / 60, id, group = sim, color=sim), show.legend=FALSE, size = 0.1, alpha = 0.2) +
+  geom_point(data = simulated_settlers_weibull, aes(settlement_point / 60, id), colour = &quot;black&quot;, size = 0.2, alpha = 0.6) +
+  xlab(&quot;Timing of competency (hrs)&quot;) +
+  ylab(&quot;Individual&quot;) +
+  scale_color_viridis_c(option=&quot;mako&quot;)
+
+#ggsave(&quot;outputs/weib.png&quot;, weib, width=2000, height=1300, units=&quot;px&quot;)</code></pre>
+<p>dispersal model:</p>
+<pre class="r"><code># Starting positions and standard deviation for uncertainty
+x0 &lt;- 1631154
+y0 &lt;- 8354197
+uncertainty_sd &lt;- 0.5
+n_particles &lt;- 1000
+
+# Initialize particles
+particles &lt;- tibble(
+  particle_id = 1:n_particles,
+  x = rep(x0, n_particles),
+  y = rep(y0, n_particles)
+)
+
+# List to store particle states at each timestep
+particle_states &lt;- list()
+
+data &lt;- filtered_data2[13:64,]
+range(data$time_group)</code></pre>
+<pre><code>## [1] &quot;2021-11-29 08:00:00 UTC&quot; &quot;2021-11-29 16:30:00 UTC&quot;</code></pre>
+<pre class="r"><code># Simulate movement
+particle_states &lt;- NULL
+for (i in 1:nrow(data)) {
+  particles &lt;- particles %&gt;%
+    mutate(
+      x = x + (data$velocity_E[i]/100)*600 + rnorm(n_particles, mean = 0, sd = abs((data$velocity_E[i]/100)*600)*uncertainty_sd),
+      y = y + (data$velocity_N[i]/100)*600 + rnorm(n_particles, mean = 0, sd = abs((data$velocity_N[i]/100)*600)*uncertainty_sd)
+    )
+  current_state &lt;- particles %&gt;%
+    mutate(time = data$time_group[i])
+  particle_states[[i]] &lt;- current_state
+}
+
+# Combine all timesteps into one dataframe
+all_timesteps &lt;- bind_rows(particle_states, .id = &quot;timestep&quot;)
+
+# Print a sample of the resulting data
+print(head(all_timesteps))</code></pre>
+<pre><code>## # A tibble: 6 × 5
+##   timestep particle_id        x        y time               
+##   &lt;chr&gt;          &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dttm&gt;             
+## 1 1                  1 1631136. 8354204. 2021-11-29 08:00:00
+## 2 1                  2 1631137. 8354203. 2021-11-29 08:00:00
+## 3 1                  3 1631138. 8354201. 2021-11-29 08:00:00
+## 4 1                  4 1631148. 8354197. 2021-11-29 08:00:00
+## 5 1                  5 1631143. 8354203. 2021-11-29 08:00:00
+## 6 1                  6 1631129. 8354200. 2021-11-29 08:00:00</code></pre>
+<pre class="r"><code># Convert to sf object
+all_timesteps_sf &lt;- all_timesteps %&gt;%
+  st_as_sf(coords = c(&quot;x&quot;, &quot;y&quot;), crs = 20353)
+
+# Print a sample of the resulting sf object
+print(head(all_timesteps_sf))</code></pre>
+<pre><code>## Simple feature collection with 6 features and 3 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: 1631129 ymin: 8354197 xmax: 1631148 ymax: 8354204
+## Projected CRS: AGD84 / AMG zone 53
+## # A tibble: 6 × 4
+##   timestep particle_id time                         geometry
+##   &lt;chr&gt;          &lt;int&gt; &lt;dttm&gt;                    &lt;POINT [m]&gt;
+## 1 1                  1 2021-11-29 08:00:00 (1631136 8354204)
+## 2 1                  2 2021-11-29 08:00:00 (1631137 8354203)
+## 3 1                  3 2021-11-29 08:00:00 (1631138 8354201)
+## 4 1                  4 2021-11-29 08:00:00 (1631148 8354197)
+## 5 1                  5 2021-11-29 08:00:00 (1631143 8354203)
+## 6 1                  6 2021-11-29 08:00:00 (1631129 8354200)</code></pre>
+<pre class="r"><code>langrangian &lt;- ggplot() + theme_bw() +
+  ggtitle(&quot;Simulated langrangian dispersal model&quot;) +
+  geom_sf(data=st_crop(seascape, st_buffer(all_timesteps_sf, 100)), alpha=1, fill=lighten(&quot;burlywood3&quot;,0.95), linewidth=0.1) +
+  geom_sf(data=all_timesteps_sf, aes(fill=as.POSIXct(time)), size=2, shape=21,  alpha=0.4) +
+  geom_sf(data=st_crop(lizard_osm_map, st_buffer(all_timesteps_sf, 100)), alpha=1, fill=lighten(&quot;darkolivegreen3&quot;, 0.95), linewidth=0.1) +
+#  labs(fill=&quot;Settlers \nper hectare&quot;) +
+  scale_fill_gradientn(colors = brewer.pal(11, &quot;RdBu&quot;), name=&quot;Settlement \ntime&quot;, trans = &quot;time&quot;)
+
+#ggsave(&quot;/Users/rof011/coralseed/outputs/langrangian.png&quot;, langrangian, width=3000, height=2000, units=&quot;px&quot;)
+
+langrangian</code></pre>
+<p><img src="interventions-seedbomb-dispersal_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>From the coralseed model:</p>
+<pre class="r"><code># The brms::inv_logit_scaled function is intended for transforming linear predictors to probabilities (on the (0,1) scale), which is useful in logistic regression models but not directly applicable to the exponential survival models in the way it&#39;s being used here.
+# The key issue is the attempt to multiply 1 - inv_logit_scaled(-parameter_draws_sample$b_Intercept) * minutes to derive settlement_probability. This formula does not correspond to any standard survival model formulation. In an exponential survival model, the survival probability over time
+# S(t)=exp(−λt), where
+# λ is the rate parameter. The b_Intercept from a survival model would typically influence the rate parameter
+# λ rather than being used directly as a multiplier against minutes in a probability calculation.
+
+#Given this, if your goal is to incorporate a transformation of the b_Intercept to model survival probability, you should directly compute lambda as part of the survival probability calculation without mixing it with logistic regression concepts unless there&#39;s a specific modeling reason for doing so.
+
+
+dataset &lt;- map(1:10000, function(i) {
+  parameter_draws_sample &lt;- coralseed::parameter_draws_exp %&gt;% slice_sample(n = 1)
+  lambda &lt;- exp(-parameter_draws_sample$b_Intercept) # Simple exponential transformation to ensure lambda &gt; 0
+  newdat &lt;- data.frame(minutes = seq(1, 620, 1)) %&gt;%
+    mutate(settlement_probability = exp(-lambda * minutes)) %&gt;% # Correct survival model formulation
+    mutate(id = i)
+
+  return(newdat)
+})
+
+dataset_grouped &lt;- do.call(rbind, dataset) %&gt;%
+  mutate(outcome = rbinom(nrow(.), 1, settlement_probability))
+
+dataset_grouped_subset &lt;- dataset_grouped %&gt;% group_by(id) %&gt;% slice_sample(n=100)
+dataset_grouped_median &lt;- dataset_grouped %&gt;% group_by(minutes) %&gt;% summarise(settlement_probability=median(settlement_probability))
+
+
+target_probability &lt;- 0.8
+t50 &lt;- dataset_grouped_median %&gt;%
+  mutate(difference = abs(settlement_probability - target_probability)) %&gt;%
+  arrange(difference) %&gt;%
+  slice(1) |&gt; pull(minutes)
+
+# Plot
+exp_draws &lt;- ggplot() + theme_bw() + ggtitle(&quot;Time-to-settlement posterior draws&quot;) +
+  xlab(&quot;Hours after release&quot;) + ylab(&quot;Settlement Probability&quot;) + ylim(0,1) +
+  geom_line(data=dataset_grouped_subset, 
+            aes(x=minutes/60, y=settlement_probability, group=id), linewidth=0.05, color=&quot;slategrey&quot;) +
+  geom_line(data=dataset_grouped_median, aes(x=minutes/60, y=settlement_probability), linewidth=1, color=&quot;black&quot;) +
+  geom_vline(xintercept =t50/60) +
+  geom_text(aes(x=t50/60 + 1.5, y=0.95, label=paste0(&quot;t20= &quot;, t50, &quot; minutes&quot;)), size=3)
+
+exp_df &lt;- coralseed::parameter_draws_exp |&gt; mutate(x=&quot;Exponential&quot;)
+
+b_inter &lt;- ggplot() + theme_bw() + ggtitle(&quot;b_Intercept posterior draws           &quot;) +
+  geom_violin(data=exp_df, aes(b_Intercept, x), fill=&quot;aquamarine3&quot;, alpha=0.4, linewidth=0.1) + ylab(&quot;&quot;)
+
+
+exp_draws &lt;- exp_draws | b_inter
+
+exp_draws</code></pre>
+<p><img src="interventions-seedbomb-dispersal_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>#ggsave(&quot;outputs/exp_draws.png&quot;, exp_draws, width=3200, height=1000, units=&quot;px&quot;)</code></pre>
+<pre class="r"><code>generate_bintercepts &lt;- function(b_intercept_level) {
+  b_intercept_variance &lt;- sd(coralseed::parameter_draws_exp$b_Intercept)
+
+  sim_exp &lt;- data.frame(b_Intercept = rnorm(1000, b_intercept_level, b_intercept_variance))
+
+  dataset &lt;- map(1:10000, function(i) {
+    parameter_draws_exp &lt;- sim_exp %&gt;% slice_sample(n = 1)
+    lambda &lt;- exp(-parameter_draws_exp$b_Intercept) # Simple exponential transformation to ensure lambda &gt; 0
+    newdat &lt;- data.frame(minutes = seq(1, 620, 1)) %&gt;%
+      mutate(settlement_probability = exp(-lambda * minutes)) %&gt;% # Correct survival model formulation
+      mutate(id = i) |&gt; 
+      mutate(level = as.character(b_intercept_level))
+
+    return(newdat)
+  })
+
+  dataset_grouped &lt;- do.call(rbind, dataset) %&gt;%
+    mutate(outcome = rbinom(nrow(.), 1, settlement_probability)) 
+
+  dataset_grouped_subset &lt;- dataset_grouped %&gt;% group_by(id, level) %&gt;% slice_sample(n=100)
+  dataset_grouped_median &lt;- dataset_grouped %&gt;% group_by(minutes, level) %&gt;%      
+                              summarise(settlement_probability=median(settlement_probability))
+
+  target_probability &lt;- 0.8
+  
+  t80 &lt;- dataset_grouped_median %&gt;%
+    dplyr::ungroup() %&gt;%
+    dplyr::mutate(difference = abs(settlement_probability - target_probability)) %&gt;%
+    dplyr::arrange(difference) %&gt;%
+    dplyr::slice_head(n=1) 
+  
+  time_to_settlement = data.frame(time = t80$minutes, level=as.character(b_intercept_level))
+
+  output &lt;- list(dataset_grouped, dataset_grouped_subset, dataset_grouped_median, time_to_settlement)
+  names(output) &lt;- c(&quot;all&quot;, &quot;subset&quot;, &quot;median&quot;, &quot;time_to_20_percent&quot;)
+  return(output)
+  
+}
+
+
+
+
+b_5 &lt;- generate_bintercepts(b_intercept_level=5)
+b_5.5 &lt;- generate_bintercepts(b_intercept_level=5.5)
+b_6 &lt;- generate_bintercepts(b_intercept_level=6)
+b_6.5 &lt;- generate_bintercepts(b_intercept_level=6.5)
+b_7 &lt;- generate_bintercepts(b_intercept_level=7)
+b_7.5 &lt;- generate_bintercepts(b_intercept_level=7.5)
+
+
+
+output_b_median &lt;- rbind(b_5$median, b_5.5$median, b_6$median, b_6.5$median, b_7$median, b_7.5$median) |&gt; 
+    mutate(level=as.factor(level)) |&gt; 
+    mutate(level=fct_relevel(level, (c(&quot;7.5&quot;, &quot;7&quot;, &quot;6.5&quot;, &quot;6&quot;, &quot;5.5&quot;, &quot;5&quot;))))
+  
+output_b_subset &lt;- rbind(b_5$subset, b_5.5$subset, b_6$subset, b_6.5$subset, b_7$subset, b_7.5$subset) |&gt; 
+    mutate(level=as.factor(level)) |&gt; 
+    mutate(level=fct_relevel(level, (c(&quot;7.5&quot;, &quot;7&quot;, &quot;6.5&quot;, &quot;6&quot;, &quot;5.5&quot;, &quot;5&quot;))))
+  
+output_threshold &lt;- rbind(b_5$time_to_20_percent, b_5.5$time_to_20_percent, b_6$time_to_20_percent, b_6.5$time_to_20_percent, b_7$time_to_20_percent, b_7.5$time_to_20_percent) |&gt; 
+    mutate(level=as.factor(level)) |&gt; 
+    mutate(level=fct_relevel(level, (c(&quot;7.5&quot;, &quot;7&quot;, &quot;6.5&quot;, &quot;6&quot;, &quot;5.5&quot;, &quot;5&quot;))))
+
+output_time_to &lt;- rbind(b_5$time_to_20_percent, b_5.5$time_to_20_percent, b_6$time_to_20_percent, b_6.5$time_to_20_percent, b_7$time_to_20_percent, b_7.5$time_to_20_percent) |&gt; 
+    mutate(level=as.factor(level)) |&gt; 
+    mutate(level=fct_relevel(level, (c(&quot;7.5&quot;, &quot;7&quot;, &quot;6.5&quot;, &quot;6&quot;, &quot;5.5&quot;, &quot;5&quot;))))
+  
+
+
+# Plot
+b_intercepts &lt;- ggplot() + theme_bw() + facet_wrap( ~ level, ncol=3) +
+  xlab(&quot;Hours after release&quot;) + ylab(&quot;Settlement Probability&quot;) + ylim(0,1) +
+  geom_line(data=output_b_subset, 
+            aes(x=minutes/60, y=settlement_probability, group=id, color=level), show.legend=FALSE,  linewidth=0.05) +
+  geom_line(data=output_b_median, aes(x=minutes/60, y=settlement_probability), show.legend=FALSE, linewidth=1, color=&quot;black&quot;) + 
+  geom_vline(data=output_time_to, aes(xintercept =time/60, color=level), alpha=0.2, linewidth=3, color=&quot;black&quot;) +
+  geom_text(data=output_time_to, aes(x = time/60 + 2, y = 0.9, label = paste0(&quot;t20 &quot;, time, &quot;\nmins&quot;), color=level), color=&quot;black&quot;, size=4) +
+  scale_color_brewer(palette=&quot;RdBu&quot;, direction=-1 )
+
+#ggsave(&quot;outputs/b_intercepts.png&quot;, b_intercepts, width=4800, height=2400, units=&quot;px&quot;)
+
+b_intercepts</code></pre>
+<p><img src="interventions-seedbomb-dispersal_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre class="r"><code>output_time_to$rate &lt;- 465/output_time_to$time
+output_b_median |&gt; group_by(level) |&gt; dplyr::filter(minutes &lt; 620) |&gt; slice_tail(n=1) |&gt; mutate(setprob=1-settlement_probability)</code></pre>
+<pre><code>## # A tibble: 6 × 4
+## # Groups:   level [6]
+##   minutes level settlement_probability setprob
+##     &lt;dbl&gt; &lt;fct&gt;                  &lt;dbl&gt;   &lt;dbl&gt;
+## 1     619 7.5                   0.711    0.289
+## 2     619 7                     0.569    0.431
+## 3     619 6.5                   0.395    0.605
+## 4     619 6                     0.214    0.786
+## 5     619 5.5                   0.0801   0.920
+## 6     619 5                     0.0160   0.984</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = false;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

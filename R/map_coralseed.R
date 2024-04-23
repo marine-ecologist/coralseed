@@ -156,7 +156,7 @@ map_coralseed <- function(seed_particles = particles, settle_particles = settler
 
   tmp |> tmap::tmap_leaflet() |>
     leaflet::addProviderTiles('Esri.WorldImagery', group = "<b> [Seascape]</b> satellite map", options=leaflet::providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
-    leaflet::addProviderTiles('Esri.WorldTopoMap',  group = "<b> [Seascape]</b> base map", options=leaflet::providerTileOptions(maxNativeZoom=19,maxZoom=100)) |>
+    leaflet::addProviderTiles('Esri.WorldTopoMap',  group = "<b> [Seascape]</b> base map", options=leaflet::providerTileOptions(maxNativeZoom=18,maxZoom=100)) |>
     leaflet::addLayersControl(position="topleft", overlayGroups=c("<b> [Seascape]</b> base map", "<b> [Seascape]</b> satellite map",
                                                                   "<b> [Seascape]</b> habitats", "<b> [Seascape]</b> probability",
                                                                   "<b> [Particles]</b> dispersaltime", "<b> [Particles]</b> competency",

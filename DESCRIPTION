@@ -34,3 +34,4 @@ Imports:
     tmap,
     utils,
     viridis
+LazyData: true

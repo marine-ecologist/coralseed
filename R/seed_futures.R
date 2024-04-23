@@ -20,9 +20,8 @@
 #'
 #'
 
-
 seed_futures <- function(
-    input=NULL, example=NULL, seascape = NULL, simulate.mortality = "none", simulate.mortality.n = 0.1,
+    input = NULL, example = NULL, seascape = NULL, simulate.mortality = "none", simulate.mortality.n = 0.1,
     competency.function = "exp", limit.time = NA, probability = "additive", tracks = FALSE,
     set.seed = NULL, ...) {
   ##########################################################################################
@@ -40,16 +39,15 @@ seed_futures <- function(
 
   if (is.null(input) == FALSE) {
     load_particles <- (input)
-
   } else {
   }
 
   data_sources <- list(
-    mermaid = Mermaid_PointSource_Bay_01,
-    watson = WatsonN_PointSource_ForeReefSh_01,
-    palfrey = PalfreyN_PointSource_ForeReefEx_01,
-    spawnhub = SpHub_PointSource_SELaggon_01,
-    clamgarden = ClamGarden_PointSource_OpenLagoon_01
+    mermaid = coralseed:::Mermaid_PointSource_Bay_01,
+    watson = coralseed:::WatsonN_PointSource_ForeReefSh_01,
+    palfrey = coralseed:::PalfreyN_PointSource_ForeReefEx_01,
+    spawnhub = coralseed:::SpHub_PointSource_SELaggon_01,
+    clamgarden = coralseed:::ClamGarden_PointSource_OpenLagoon_01
   )
 
   data_sources_df <- data.frame(
@@ -72,7 +70,6 @@ seed_futures <- function(
       sf::st_zm(drop = TRUE, what = "ZM") %>%
       sf::st_transform(20353) %>%
       dplyr::mutate(time = time + lubridate::hours(14))
-
   } else if (!example %in% names(data_sources)) {
     cat("\n error: example not found, must be one of mermaid, watson, palfrey, spawnhub, clamgarden. \n\n")
   }
@@ -124,18 +121,19 @@ seed_futures <- function(
 
   if (competency.function == "exponential") {
     posterior_draws <- {
-      parameter_draws_exp
+      coralseed::parameter_draws_exp
     }
     draw_individuals <- function(row) {
       rexp(1, rate = 1 / exp(row["b_Intercept"]))
     }
-    random_draws <- posterior_draws |> dplyr::slice_sample(n = n_id)
+    random_draws <- posterior_draws |>
+      dplyr::slice_sample(n = n_id)
     all_samples <- apply(random_draws, 1, draw_individuals)
     simulated_settlers <- data.frame(settlement_point = ceiling(all_samples)) |>
       dplyr::mutate(id = as.factor(rev(seq(0, n_id - 1, 1))))
   } else if (competency.function == "logarithmic") {
     set.seed(set.seed)
-    posterior_draws <- parameter_draws_log
+    posterior_draws <- coralseed::parameter_draws_log
     draw_individuals <- function(row) {
       rlnorm(1, row["b_Intercept"])
     }
@@ -145,7 +143,7 @@ seed_futures <- function(
       dplyr::mutate(id = as.factor(rev(seq(0, n_id - 1, 1))))
   } else if (competency.function == "weibull") {
     set.seed(set.seed)
-    posterior_draws <- parameter_draws_weibull
+    posterior_draws <- coralseed::parameter_draws_weibull
     draw_individuals <- function(row) {
       rweibull(1, shape = row["shape"], scale = row["scale"])
     }
@@ -162,7 +160,7 @@ seed_futures <- function(
 
   data.table::setDT(competency_times) # move elsewhere?
 
-  # tic()
+
   # # interpolate between particle points by 1 minute intervals and bind probability outputs
   # particle_points_expanded <- particle_points |>
   #   as.data.frame() |>
@@ -179,18 +177,17 @@ seed_futures <- function(
   #   dplyr::arrange(id) |>
   #   sf::st_as_sf(coords = c("X", "Y"), crs = 20353) |>
   #   sf::st_cast("POINT")
-  # toc()
-  # tic() # data.table approach is 5-fold quicker than data.frame above
+
   coords <- do.call(rbind, sf::st_geometry(particle_points)) |>
     data.table::as.data.table() |>
     setNames(c("X", "Y"))
 
   # Start by extracting the dataframe from the sp object
-  particle_points_df <- as.data.frame(particle_points) |> mutate(id=as.factor(id))
+  particle_points_df <- as.data.frame(particle_points) |> mutate(id = as.factor(id))
   particle_points_dt <- data.table::setDT(particle_points_df)
   particle_points_dt <- cbind(particle_points_dt, coords)
 
-  #particle_points_dt[, geometry := NULL]
+  # particle_points_dt[, geometry := NULL]
 
   all_times <- particle_points_dt[, .(time = seq(min(particle_points_dt$time), max(particle_points_dt$time), by = "1 min")), by = id]
   particle_points_dt <- particle_points_dt[all_times, on = c("id", "time")]
@@ -209,7 +206,7 @@ seed_futures <- function(
 
   particle_points_expanded <- sf::st_as_sf(particle_points_dt, coords = c("X", "Y"))
 
-  # toc()
+
 
   n_mortality <- length(levels(unique(as.factor(particle_points_expanded$id)))) * simulate.mortality.n
   dead_id_levels <- sample(levels(particle_points_expanded$id), n_mortality)
@@ -254,7 +251,7 @@ seed_futures <- function(
   ##########################################################################################
   #####  #3 Settle particles by probability
   # bind with benthic substrates
-  particle_points_probability <- sf::st_join(particle_points_expanded_postmortality, seascape |> dplyr::mutate(class=as.factor(class))) |>
+  particle_points_probability <- sf::st_join(particle_points_expanded_postmortality, seascape |> dplyr::mutate(class = as.factor(class))) |>
     dplyr::mutate(class = forcats::fct_na_value_to_level(class, "Ocean")) |> # replace NA with Ocean
     dplyr::mutate(habitat_id = forcats::fct_na_value_to_level(habitat_id, "Ocean")) |> # replace NA with Ocean
     dplyr::mutate(settlement_probability = tidyr::replace_na(settlement_probability, 0)) |> # make lagoon and ocean 0
@@ -310,12 +307,12 @@ seed_futures <- function(
   if (tracks == TRUE) {
     settled_tracks <- particle_points_probability |>
       dplyr::filter(id %in% unique(select_particles$id)) |>
-      dplyr::left_join(select_particles |> as.data.frame() |> select(id, dispersaltime) |> rename(maxdispersaltime=dispersaltime), by="id") |>
+      dplyr::left_join(select_particles |> as.data.frame() |> select(id, dispersaltime) |> rename(maxdispersaltime = dispersaltime), by = "id") |>
       dplyr::filter(dispersaltime < maxdispersaltime) |> # dplyr::select settled particles
       dplyr::arrange(id, time) |>
       dplyr::group_by(id) |>
-      dplyr::filter(dplyr::n() >= 3) |> #from particles_to_tracks
-      dplyr::group_by(id) |> #from particles_to_tracks
+      dplyr::filter(dplyr::n() >= 3) |> # from particles_to_tracks
+      dplyr::group_by(id) |> # from particles_to_tracks
       dplyr::summarise(do_union = FALSE) |>
       sf::st_cast("MULTILINESTRING")
 

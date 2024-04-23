@@ -10,14 +10,14 @@
 
 
 
-<meta name="date" content="2023-10-02" />
+<meta name="date" content="2024-04-17" />
 
-<title>Scaling up coralseed: parallel / multicore processing of large datasets</title>
+<title>Variance partitioning</title>
 
 <script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/spacelab.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -35,8 +35,10 @@
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
-<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -331,28 +333,39 @@ div.tocify {
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="theory.html">Theory</a>
+  <a href="theory.html">
+    <span class="fa fa-cube"></span>
+     
+    Theory
+  </a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
     Parameterisation
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="competency-models.html">Larval competency</a>
+      <a href="competency-models.html">a) Larval competency</a>
     </li>
     <li>
-      <a href="mortality-models.html">Larval mortality</a>
+      <a href="mortality-models.html">b) Larval mortality</a>
     </li>
     <li>
-      <a href="settlement-models.html">Larval settlement</a>
+      <a href="settlement-models.html">c) Larval settlement</a>
+    </li>
+    <li>
+      <a href="dispersal-models.html">d) Larval dispersal</a>
     </li>
   </ul>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-layer-group"></span>
+     
     Instructions
      
     <span class="caret"></span>
@@ -371,6 +384,8 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-file"></span>
+     
     Outputs
      
     <span class="caret"></span>
@@ -386,6 +401,8 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-sitemap"></span>
+     
     Examples
      
     <span class="caret"></span>
@@ -393,21 +410,54 @@ div.tocify {
   <ul class="dropdown-menu" role="menu">
     <li class="dropdown-header">Lizard Island (2022)</li>
     <li>
-      <a href="example-mermaid.html">Mermaid Bay</a>
+      <a href="example-mermaid.html">- Mermaid Bay</a>
     </li>
     <li>
-      <a href="example-watsons.html">Watsons North</a>
+      <a href="example-watsons.html">- Watsons North</a>
     </li>
     <li>
-      <a href="example-palfrey.html">Palfrey North</a>
+      <a href="example-palfrey.html">- Palfrey North</a>
     </li>
     <li>
-      <a href="example-spawnhub.html">Spawn Hub</a>
+      <a href="example-spawnhub.html">- Spawn Hub</a>
     </li>
     <li>
-      <a href="example-clamgarden.html">Clam Garden</a>
+      <a href="example-clamgarden.html">- Clam Garden</a>
     </li>
   </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="fa fa-crosshairs"></span>
+     
+    Interventions
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="interventions-overview.html">Overview of interventions</a>
+    </li>
+    <li>
+      <a href="interventions-optimisal-release.html">i) optimising larval releases</a>
+    </li>
+    <li>
+      <a href="interventions-enhanced-competency.html">ii) enhanced larval competency</a>
+    </li>
+    <li>
+      <a href="interventions-larval-retention.html">iii) constrained larval dispersal</a>
+    </li>
+    <li>
+      <a href="interventions-seedbomb-dispersal.html">iv) time-delayed larval dispersal</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="https://github.com/marine-ecologist/">
+    <span class="fa fa-github"></span>
+     
+    GitHub
+  </a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -429,15 +479,30 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Scaling up coralseed: parallel / multicore
-processing of large datasets</h1>
-<h4 class="date">2023-10-02</h4>
+<h1 class="title toc-ignore">Variance partitioning</h1>
+<h4 class="date">2024-04-17</h4>
 
 </div>
 
 
-<p>First read in the seascape and the 100k files for Mermaid Bay</p>
-<p>Note: simulate.mortality=“none” needs fixing</p>
+<p><code>coralseed</code> is parameterised to simulate the behaviour of
+<em>n</em> larvae across <em>x</em> simulated particle tracks. The
+overall variance in final settlement of larvae is dependent on the
+variance generated by i) the underlying dispersal model (<em>x</em>
+particle tracks), and ii) from internal variance from the
+<code>coralseed</code> model (i.e. <a
+href="https://marine-ecologist.github.io/coralseed/competency-models.html">competency</a>,
+<a
+href="https://marine-ecologist.github.io/coralseed/mortality-models.html">mortality</a>,
+<a
+href="https://marine-ecologist.github.io/coralseed/settlement-models.html">settlement</a>,
+<a
+href="https://marine-ecologist.github.io/coralseed/settlement-models.html">seascape
+configuration</a>). To better understand the variance partitioning
+between disperal and <code>coralseed</code> models, the following code
+reads in 100,000 simulated particle tracks from a dispersal simulation
+from Mermaid Bay (Lizard Island) and simulates 1000 larvae from
+<code>coralseed</code> across each track:</p>
 <pre class="r"><code>library(coralseed)
 library(tidyverse)
 library(doParallel)
@@ -445,147 +510,172 @@ library(foreach)
 library(sf)
 library(units)
 library(tictoc)
+library(ggplot2)
+library(beeswarm)
 
-seascape &lt;- coralseed::seascape_probability(reefoutline=reef_map, habitat=benthic_map)
+# set spatial mosaic of habitat preference via coralseed
+sim1_100k &lt;- st_read(&quot;/Users/rof011/coralseed/code/run_day_12036_lizard_del_14_1512_sim1_100K_10.json&quot;, quiet=TRUE)
 
-sim1_100k &lt;- st_read(&quot;/Users/rof011/Library/CloudStorage/OneDrive-CSIRO/Data - SeaSims/conniemodels/run_day_12036_lizard_del_14_1512_sim1_100K_10.json&quot;)
-
-sim_random &lt;- sim1_100k |&gt; filter(id %in% sample(0:99999, 1000))</code></pre>
-<div id="connie-variance" class="section level3">
-<h3>1) CONNIE variance</h3>
-<p>Randomly subsample the 100k particles into 1k blocks and calculate
-the settlement positions, iterate 100 times</p>
-<pre class="r"><code>library(tidyverse)
-library(doParallel)
-library(foreach)
-library(sf)
-library(coralseed)
-library(tictoc)
-
-# first set spatial mosaic of habitat preference via coralseed
-seascape &lt;- coralseed::seascape_probability(reefoutline = reef_map, habitat=benthic_map)
-
-nsims_footprint &lt;- 1
+# set spatial mosaic of habitat preference via coralseed
+seascape &lt;- coralseed::seascape_probability(reefoutline = reef_map, habitat=benthic_map)</code></pre>
+<p>The three following scenarios are considered: 1) dispersal model
+variance, fixed <code>coralseed</code> parameter draws 2) fixed
+dispersal model tracks, variable <code>coralseed</code> parameter draws
+3) variable dispersal model &amp; variable coralseed parameter draws</p>
+<div id="dispersal-model-variance" class="section level3">
+<h3>1. Dispersal model variance:</h3>
+<p>To understand how different particle paths from the dispersal model
+can influence model outcomes, we took 100,000 possible particle tracks
+and randomly subset the particles into 1,000 paths. Each subset was run
+through the coralseed model with all parameters fixed, allowing an
+estimate of variance only from the dispersal model.</p>
+<p><em>*warning</em> running %dopar% below on 100 iterations takes 259.9
+seconds on an M2 Max Macbook, 2694.4 sec elapsed for 1000
+simulations.</p>
+<pre class="r fold-show"><code>tic()
+nsims =1000 #1000
 ncores &lt;- detectCores()
-cl &lt;- makeCluster(ncores-1, port=12345)
+cl &lt;- snow::makeCluster(ncores-1)
 registerDoParallel(cl)
 
-tic()
-output_footprint &lt;- foreach(i = 1:nsims_footprint, .packages = &quot;coralseed&quot;) %dopar% seed_futures(
-  example=NULL, input=sim_random,  seascape = seascape, tracks = TRUE, set.seed=NULL, silent = TRUE, 
-  competency.function = &quot;exponential&quot;, limit.time = 6.95, probability = &quot;additive&quot;,
-  simulate.mortality = &quot;typeI&quot;, simulate.mortality.n = 0.1)
-toc()
 
-#saveRDS(output_footprint, &quot;output_footprint.rds&quot;)
-
-stopCluster(cl)
-
-
-
-
-nsims=4
-ncores &lt;- detectCores()
-cl &lt;- makeCluster(ncores-1)
-registerDoParallel(cl)
-
-devtools::install(&quot;/Users/rof011/coralseed&quot;)
-
-test_output &lt;- foreach(i=1:nsims, .combine=&#39;rbind&#39;, .export=c(&quot;sim1_100k&quot;, &quot;seascape&quot;), .packages=c(&quot;tidyr&quot;, &quot;forcats&quot;, &quot;coralseed&quot;)) %dopar% {
-
-
-sim_random &lt;- sim1_100k |&gt; filter(id %in% sample(0:99999, 1000))
-
-
-output_single &lt;- seed_particles(input = sim_random, seascape = seascape, set.centre = TRUE, silent = TRUE, competency.function = &quot;exponential&quot;,  set.seed=123, simulate.mortality = &quot;typeI&quot;, simulate.mortality.n = 0)
-
-t1 &lt;- particle_distances(output_single, 60, type=&quot;sf&quot;) |&gt; as.data.frame() |&gt; select(-geometry) |&gt; mutate(dispersaltime=&quot;T1&quot;)
-t2 &lt;- particle_distances(output_single, 120, type=&quot;sf&quot;) |&gt; as.data.frame() |&gt; select(-geometry) |&gt; mutate(dispersaltime=&quot;T2&quot;)
-t4 &lt;- particle_distances(output_single, 240, type=&quot;sf&quot;) |&gt; as.data.frame() |&gt; select(-geometry) |&gt; mutate(dispersaltime=&quot;T4&quot;)
-t6 &lt;- particle_distances(output_single, 360, type=&quot;sf&quot;) |&gt; as.data.frame() |&gt; select(-geometry) |&gt; mutate(dispersaltime=&quot;T6&quot;)
-t8 &lt;- particle_distances(output_single, 480, type=&quot;sf&quot;) |&gt; as.data.frame() |&gt; select(-geometry) |&gt; mutate(dispersaltime=&quot;T8&quot;)
-t10 &lt;- particle_distances(output_single, 600, type=&quot;sf&quot;) |&gt; as.data.frame() |&gt; select(-geometry) |&gt; mutate(dispersaltime=&quot;T10&quot;)
-
-main_output &lt;- rbind(t2, t4, t6, t8, t10) #|&gt; mutate(sim=as.factor(i))
-
-main_output
+VariancePartitioning1 &lt;- foreach(i=1:nsims, .combine=&#39;rbind&#39;, .export = &#39;sim1_100k&#39;,
+                       .packages=c(&quot;tidyr&quot;, &quot;dplyr&quot;, &quot;forcats&quot;, &quot;sf&quot;, &quot;coralseed&quot;)) %dopar% {
+       
+            # subset the main results
+                         
+          sim_random &lt;- sim1_100k |&gt; dplyr::filter(id %in% sample(0:99999, 1000)) 
+  
+          output &lt;- seed_particles(input = sim_random, seascape = seascape,  seed.value=1,
+                           competency.function = &quot;exponential&quot;,  simulate.mortality = &quot;typeII&quot;, 
+                           simulate.mortality.n = 0.1) 
+          
+          output2 &lt;- settle_particles(output, probability=&quot;additive&quot;, seed.value=1, silent=TRUE)  
+          
+          output3 &lt;- output2$paths |&gt; as.data.frame() |&gt; mutate(iter=i)
+          
+          return(output3)
 
 }
 
-stopCluster(cl)
-
-# ggplot() + theme_bw() + facet_wrap(~dispersaltime, scales=&quot;free&quot;) + ggtitle(&quot;high retention - mermaid bay&quot;) +
-#   geom_violin(data=test_output, aes(sim, distance, fill=sim), alpha=0.6) 
-
-library(ggridges)
-ggplot() + theme_bw() +  facet_wrap(~dispersaltime, scales=&quot;free_x&quot;) + ggtitle(&quot;1000 particle tracks, fixed model simulations&quot;) +
-  geom_density_ridges(data=test_output |&gt; mutate(sim=as.factor(sim)), aes(x=distance, y=ggplot2::after_stat(density), panel_scaling=FALSE, fill=as.factor(sim), color=sim), alpha=0.6, show.legend=FALSE) +
-  scale_color_brewer(palette=&quot;Accent&quot;) +  scale_fill_brewer(palette=&quot;Accent&quot;)</code></pre>
+saveRDS(VariancePartitioning1, &quot;/Users/rof011/coralseed/variancepartitioning1.rds&quot;)
+  
+snow::stopCluster(cl)
+toc()</code></pre>
 </div>
 <div id="coralseed-variance" class="section level3">
-<h3>2) coralseed variance</h3>
-<p>We can then map individual particle positions for each simulation for
-a given timepoint. Try this for later in the dispersal model
-(e.g. 360mins), as it may be expected that particle tracks will become
-increasingly different between simulations the later particles diverge
-from the initial release point.</p>
-<pre class="r"><code>tic()
-nsims=100
+<h3>2. coralseed variance:</h3>
+<p>To understand how the variance in coralseed (larval competency,
+larval settlement, larval mortality) influences settlement, we subset 1k
+from 100k possible particles and run coralseed 1000 times allowing all
+parameters to vary in each model run.</p>
+<pre class="r fold-show"><code>tic()
+nsims =1000
 ncores &lt;- detectCores()
-cl &lt;- makeCluster(ncores-1)
+cl &lt;- snow::makeCluster(ncores-1)
 registerDoParallel(cl)
 
 
- fixed_id &lt;- sample(0:99999, 1000)
+sim_initial_1k &lt;- sim1_100k |&gt; dplyr::filter(id %in% seq(0:999)) 
 
- model_variance &lt;- foreach(i=1:nsims, .combine=&#39;rbind&#39;, .packages=c(&quot;tidyr&quot;, &quot;coralseed&quot;, &quot;forcats&quot;)) %dopar% {
-
- set.seed=sample(-9999999:9999999, 1)
- output_single &lt;- seed_particles(input = sim1_100k |&gt; filter(id %in% fixed_id), seascape = seascape, 
-                                set.centre = TRUE, format = &quot;json&quot;, silent = TRUE, 
-                                competency.function = &quot;exponential&quot;,  set.seed=NULL,
-                                simulate.mortality = &quot;typeI&quot;, simulate.mortality.n = 0)
-
-t2 &lt;- particle_distances(output_single, 120)
-t4 &lt;- particle_distances(output_single, 240)
-t6 &lt;- particle_distances(output_single, 360)
-t8 &lt;- particle_distances(output_single, 480)
-t10 &lt;- particle_distances(output_single, 600)
-
-main_output &lt;- left_join(t2, t4, by=&quot;id&quot;) %&gt;%
-  left_join(., t6, by=&quot;id&quot;) %&gt;%
-  left_join(., t8, by=&quot;id&quot;) %&gt;%
-  left_join(., t10, by=&quot;id&quot;)  |&gt; 
-  pivot_longer(-id, values_to = &quot;distance&quot;, names_to = &quot;dispersaltime&quot;) |&gt; 
-  arrange(id, dispersaltime) |&gt; 
-  mutate(dispersaltime=as.factor(dispersaltime)) |&gt; 
-  mutate(dispersaltime=fct_relevel(dispersaltime, &quot;t120&quot;)) |&gt; 
-  mutate(sim=as.factor(i))
-
-main_output
+  
+VariancePartitioning2 &lt;- foreach(i=1:nsims, .combine=&#39;rbind&#39;, .export = &#39;sim1_100k&#39;,
+                       .packages=c(&quot;tidyr&quot;, &quot;dplyr&quot;, &quot;forcats&quot;, &quot;sf&quot;, &quot;coralseed&quot;)) %do% {
+  
+  # subset the main results
+                              
+         
+  
+          output &lt;- seed_particles(input = sim_initial_1k, seascape = seascape,  seed.value=NULL,
+                           competency.function = &quot;exponential&quot;,  simulate.mortality = &quot;typeII&quot;, 
+                           simulate.mortality.n = 0.1) 
+          
+          output2 &lt;- settle_particles(output, probability=&quot;additive&quot;, seed.value=NULL, silent=TRUE)  
+          
+          output3 &lt;- output2$paths |&gt; as.data.frame() |&gt; mutate(iter=i)
+          
+          return(output3)
 
 }
 
-stopCluster(cl)
+  
+snow::stopCluster(cl)
 toc()
-
-
-tmp1 &lt;- model_variance |&gt; filter(sim==1)
-tmp2 &lt;- model_variance |&gt; filter(sim==2)
-sum(tmp1$distance)
-sum(tmp2$distance)
-
-# ggplot() + theme_bw() + facet_wrap(~dispersaltime, scales=&quot;free&quot;) + ggtitle(&quot;high retention - mermaid bay&quot;) +
-#   geom_violin(data=test_output, aes(sim, distance, fill=sim), alpha=0.6) 
-
-library(ggridges)
-ggplot() + theme_bw() +  facet_wrap(~dispersaltime, scales=&quot;free_x&quot;) + ggtitle(&quot;fixed particle track, 1000 model simulations&quot;) +
-  geom_density_ridges(data=model_variance |&gt; mutate(sim=as.factor(sim)), aes(x=distance, y=ggplot2::after_stat(density), panel_scaling=FALSE, fill=as.factor(sim), color=sim), alpha=0.6, show.legend=FALSE) +
-  scale_color_brewer(palette=&quot;Accent&quot;) +  scale_fill_brewer(palette=&quot;Accent&quot;)</code></pre>
+saveRDS(VariancePartitioning2, &quot;/Users/rof011/coralseed/variancepartitioning2.rds&quot;)</code></pre>
 </div>
-<div id="combined-connie-coralseed-variance" class="section level3">
-<h3>3) Combined CONNIE &amp; coralseed variance</h3>
-<p>TO BE FINISHED</p>
+<div id="combined-dispersal-and-coralseed-variance"
+class="section level3">
+<h3>3 Combined dispersal and coralseed variance</h3>
+<p>Finally, we combined the variance from 1) and 2) by randomly
+subsetting 1k particles from the possible 100k and running the coralseed
+model with varying parameters:</p>
+<pre class="r fold-show"><code>tic()
+nsims =100 #1000
+ncores &lt;- detectCores()
+cl &lt;- snow::makeCluster(ncores-1)
+registerDoParallel(cl)
+
+
+VariancePartitioning3 &lt;- foreach(i=1:nsims, .combine=&#39;rbind&#39;, .export = &#39;sim1_100k&#39;,
+                       .packages=c(&quot;tidyr&quot;, &quot;dplyr&quot;, &quot;forcats&quot;, &quot;sf&quot;, &quot;coralseed&quot;)) %do% {
+  
+  # subset the main results
+                              
+          sim_random &lt;- sim1_100k |&gt; dplyr::filter(id %in% sample(0:99999, 1000)) 
+  
+          output &lt;- seed_particles(input = sim_random, seascape = seascape,  seed.value=NULL,
+                           competency.function = &quot;exponential&quot;,  simulate.mortality = &quot;typeII&quot;, 
+                           simulate.mortality.n = 0.1) 
+          
+          output2 &lt;- settle_particles(output, probability=&quot;additive&quot;, seed.value=NULL, silent=TRUE)  
+          
+          output3 &lt;- output2$paths |&gt; as.data.frame() |&gt; mutate(iter=i)
+          
+          return(output3)
+
+}
+
+  
+snow::stopCluster(cl)
+toc()
+saveRDS(VariancePartitioning3, &quot;/Users/rof011/coralseed/variancepartitioning3.rds&quot;)</code></pre>
+<p>For each of the scenarios, the mean distance from source along each
+particle track was calculated at 6hrs. To standardise across runs, the
+combined dataset was scaled to by dividing the (centered) distance by
+the standard deviations.</p>
+<pre class="r"><code>VariancePartitioning1_grouped &lt;- VariancePartitioning1 |&gt; 
+  mutate(type=&quot;dispersal variance \n (fixed model)&quot;) |&gt; 
+  group_by(type, iter) |&gt; 
+  summarise(meandistance=as.numeric(mean(distance)))
+
+VariancePartitioning2_grouped &lt;- VariancePartitioning2 |&gt; 
+  mutate(type=&quot;model variance  \n (fixed dispersal)&quot;) |&gt; 
+  group_by(type, iter) |&gt; 
+  summarise(meandistance=as.numeric(mean(distance))) 
+
+VariancePartitioning3_grouped &lt;- VariancePartitioning3 |&gt; 
+  mutate(type=&quot;total variance  \n (variable model &amp; dispersal)&quot;) |&gt; 
+  group_by(type, iter) |&gt; 
+  summarise(meandistance=as.numeric(mean(distance))) 
+
+
+Total_variance &lt;- rbind(VariancePartitioning1_grouped, VariancePartitioning2_grouped, VariancePartitioning3_grouped) |&gt; 
+ mutate(variance = scale(meandistance, scale = TRUE))
+
+ggplot() + theme_bw() + 
+  ggtitle(&quot;Percent variance for average particle distance at 6hrs&quot;)  + 
+  geom_hline(yintercept=0, linewidth=0.4) + ylim(-4,4) +
+  geom_violin(data=Total_variance, aes(type, variance, fill=type), show.legend=FALSE) +
+  xlab(&quot;&quot;)</code></pre>
+<p><img src="variance-partitioning_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>The bimodal distribution of variance in the dispersal model (red) is
+in part an artifact of the underlying substrate in Mermaid Bay in that
+particles track across both sides of the bay, resulting in differential
+settlement with each simulation.</p>
+<p>Despite substatial variance in coralseed parameters, the combined
+variance is broadly similar to dispersal and coralseed variance
+accounting for ~2-3% variance from the mean dispersal distance at 6
+hours following release.</p>
 </div>
 
 
