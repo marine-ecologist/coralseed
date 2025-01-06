@@ -13,3 +13,6 @@ vignettes/
 .nojekyll.txt
 .github
 ^data-raw$
+^_pkgdown\.yml$
+^pkgdown$
+^\.github$

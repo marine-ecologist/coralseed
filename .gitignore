@@ -7,10 +7,10 @@
 .DS_Store
 .quarto
 coralseed.Rproj
-vignettes/
 inst/doc
 inst/*
 !inst/doc/
 code/
 outputs/
 vignettes archive/
+docs

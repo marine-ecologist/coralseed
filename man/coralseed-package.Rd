@@ -8,6 +8,13 @@
 \description{
 a spatially explicit individual-based probabilistic model for predicting coral settlement following larval dispersal on coral reefs
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://marine-ecologist.github.io/coralseed/}
+}
+
+}
 \author{
 \strong{Maintainer}: George Roff \email{george.roff@csiro.ai} (\href{https://orcid.org/0000-0002-2823-0575}{ORCID})
 
