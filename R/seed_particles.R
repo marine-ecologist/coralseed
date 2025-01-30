@@ -5,6 +5,12 @@
 #' seed_particles() uses predict_competency(), simulate_mortality()
 #'
 #'
+#' seed_particles(input = "Users/rof011/coralseed/data-raw/run_day_11656_lizard_fcst_15_2611_26.json",
+#'                seascape = seascape,
+#'                brmsfit=infamis_tiles_exp,
+#'                simulate.mortality = "typeI",
+#'                simulate.mortality.n = 0.1)
+#'
 #' @param input input
 #' @param example example
 #' @param subsample subsample to n samples
@@ -25,11 +31,12 @@
 
 
 seed_particles <- function(
-    input = NULL, example = NULL, seascape = NULL, subsample = NULL,
+    input = NULL, zarr=FALSE, seascape = NULL, subsample = NULL,
     simulate.mortality = "none", simulate.mortality.n = 0.1,
-    brmsfit, set_b_Intercept=NULL, limit.time = NA,
+    brmsfit=infamis_tiles_exp, set_b_Intercept=NULL, limit.time = NA,
     set.centre = TRUE, seed.value = NULL,
     silent = FALSE, return.plot = FALSE, ...){
+
   ##########################################################################################
   ### 1. extract_particle_points
   # set up particles for single point / time releases
@@ -37,69 +44,25 @@ seed_particles <- function(
   # so add a zero point at centroid of particle release area and set to t0 for
   # particles that aren't currently t0.
 
-  #load(".../R/sysdata.rda")
-
-  # get(".Random.seed", envir = globalenv())
-  # rm(.Random.seed, envir = globalenv())
-
-
-
-
-  ### set seed
-
   set.seed(seed.value)
-  #print(paste0("! is.null seed = ", get(".Random.seed", envir = globalenv())[10]))
 
-  ### set input
-  if (is.null(input) == FALSE) {
-
-    if ("decay_value" %in% names(input)) {
-      load_particles <- input |>
-        sf::st_zm(drop = TRUE, what = "ZM") |>
-        sf::st_transform(20353) |>
-        dplyr::select(-decay_value)
-    } else {
-      load_particles <- oceanparcels_moore_reef |>
-        sf::st_zm(drop = TRUE, what = "ZM") |>
-        sf::st_transform(20353)
-    }
-
-
-  }
-
-  ### set example
-  data_sources <- list(
-    mermaid = Mermaid_PointSource_Bay_01,
-    watson = WatsonN_PointSource_ForeReefSh_01,
-    palfrey = PalfreyN_PointSource_ForeReefEx_01,
-    spawnhub = SpHub_PointSource_SELaggon_01,
-    clamgarden = ClamGarden_PointSource_OpenLagoon_01
-  )
-
-  data_sources_df <- data.frame(
-    dataset_name = c("mermaid", "watson", "palfrey", "spawnhub", "clamgarden"),
-    linked_file_name = c(
-      "Mermaid_PointSource_Bay_01",
-      "WatsonN_PointSource_ForeReefSh_01",
-      "PalfreyN_PointSource_ForeReefEx_01",
-      "SpHub_PointSource_SELaggon_01",
-      "ClamGarden_PointSource_OpenLagoon_01"
-    ),
-    stringsAsFactors = FALSE
-  )
-
-  if (is.null(example) == TRUE) {
-    load_particles <- load_particles
-  } else if (example %in% names(data_sources)) {
-    load_particles <- data_sources[[example]] %>%
-      sf::st_zm(drop = TRUE, what = "ZM") %>%
+  if (isTRUE(zarr)){
+    load_particles <- import_zarr(input)
+  } else {
+    load_particles <-
+      sf::st_read(input, quiet=TRUE) |>
+      sf::st_zm(drop = TRUE, what = "ZM") |>
       sf::st_transform(20353)
   }
 
+    if ("decay_value" %in% names(load_particles)) {
+      load_particles <- load_particles |>
+        dplyr::select(-decay_value)
+    }
+
   ### check file is loaded
   if (is.null(load_particles) == TRUE) {
-    cat("\n\n error: coralseed requires either an input file or an example file (one of mermaid, watson,
-        palfrey, spawnhub, clamgarden) \n\n\n\n")
+    cat("\n\n error: coralseed requires a valid input file either in .json (e.g. CONNIE output) or .zarr (e.g. oceanparcels output)) \n\n\n\n")
     stop()
   }
 
@@ -111,6 +74,7 @@ seed_particles <- function(
       dplyr::mutate(id = as.integer(id))
 
   }
+
 
   ### initiate
   # get details from input

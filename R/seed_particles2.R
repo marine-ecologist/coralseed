@@ -24,7 +24,7 @@
 
 
 seed_particles2 <- function(
-    input = NULL, example = NULL, seascape = NULL, subsample = NULL,
+    input = NULL, format = NULL, seascape = NULL, subsample = NULL,
     simulate.mortality = "none", simulate.mortality.n = 0.1,
     competency.function = "exponential", b_Intercept=NULL, limit.time = NA,
     set.centre = TRUE, seed.value = NULL,
