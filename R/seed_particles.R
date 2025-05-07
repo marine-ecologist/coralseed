@@ -59,7 +59,7 @@ seed_particles <- function(
         sf::st_transform(20353) |>
         dplyr::select(-decay_value)
     } else {
-      load_particles <- oceanparcels_moore_reef |>
+      load_particles <- input |>
         sf::st_zm(drop = TRUE, what = "ZM") |>
         sf::st_transform(20353)
     }
@@ -67,26 +67,26 @@ seed_particles <- function(
 
   }
 
-  ### set example
-  data_sources <- list(
-    mermaid = Mermaid_PointSource_Bay_01,
-    watson = WatsonN_PointSource_ForeReefSh_01,
-    palfrey = PalfreyN_PointSource_ForeReefEx_01,
-    spawnhub = SpHub_PointSource_SELaggon_01,
-    clamgarden = ClamGarden_PointSource_OpenLagoon_01
-  )
-
-  data_sources_df <- data.frame(
-    dataset_name = c("mermaid", "watson", "palfrey", "spawnhub", "clamgarden"),
-    linked_file_name = c(
-      "Mermaid_PointSource_Bay_01",
-      "WatsonN_PointSource_ForeReefSh_01",
-      "PalfreyN_PointSource_ForeReefEx_01",
-      "SpHub_PointSource_SELaggon_01",
-      "ClamGarden_PointSource_OpenLagoon_01"
-    ),
-    stringsAsFactors = FALSE
-  )
+  # ### set example
+  # data_sources <- list(
+  #   mermaid = Mermaid_PointSource_Bay_01,
+  #   watson = WatsonN_PointSource_ForeReefSh_01,
+  #   palfrey = PalfreyN_PointSource_ForeReefEx_01,
+  #   spawnhub = SpHub_PointSource_SELaggon_01,
+  #   clamgarden = ClamGarden_PointSource_OpenLagoon_01
+  # )
+  #
+  # data_sources_df <- data.frame(
+  #   dataset_name = c("mermaid", "watson", "palfrey", "spawnhub", "clamgarden"),
+  #   linked_file_name = c(
+  #     "Mermaid_PointSource_Bay_01",
+  #     "WatsonN_PointSource_ForeReefSh_01",
+  #     "PalfreyN_PointSource_ForeReefEx_01",
+  #     "SpHub_PointSource_SELaggon_01",
+  #     "ClamGarden_PointSource_OpenLagoon_01"
+  #   ),
+  #   stringsAsFactors = FALSE
+  # )
 
   if (is.null(example) == TRUE) {
     load_particles <- load_particles
