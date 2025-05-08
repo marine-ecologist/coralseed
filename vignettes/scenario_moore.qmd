@@ -1,0 +1,102 @@
+---
+title: "Moore Reef, central GBR"
+author: "George Roff"
+date: "2025-03-18"
+format: html
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r fig.height=5, fig.width=9, message=FALSE, warning=FALSE, cache=TRUE, include=FALSE}
+
+load(file="/Users/rof011/coralseed/data/infamis_tiles_exp.rda")
+
+```
+
+Simulated reseeding event at Moore Reef, central Great Barrier Reef based on ocean parcels input
+
+# 1) seed particles
+
+```{r, warning=FALSE, message=FALSE, fig.width=9, fig.height=5, cache=TRUE}
+
+if (interactive()) devtools::load_all()
+
+library(coralseed)
+library(ggplot2)
+library(tidyverse)
+library(sf)
+library(tmap)
+
+
+# prepare inputs
+sf_use_s2(FALSE)
+moore_benthic_map <- st_read("/Users/rof011/coralseed/data-aux/Moore-20250313152514/Benthic-Map/benthic.geojson", quiet=TRUE)
+moore_reef_map <- st_read("/Users/rof011/coralseed/data-aux/Moore-20250313152514/Geomorphic-Map/geomorphic.geojson", quiet=TRUE)
+moore_seascape <- seascape_probability(reefoutline=moore_reef_map, habitat=moore_benthic_map)
+moorereef_particles <- import_zarr("/Users/rof011/GBR_connectivity/outputs/Moore_reseed/output.zarr/")
+
+
+
+#### run coralseed
+
+moore_reef_zarr <- ("/Users/rof011/GBR_connectivity/outputs/Moore_reseed/output.zarr/")
+
+moore_particles <- seed_particles(input = moore_reef_zarr,
+                            zarr = TRUE,
+                            set.centre = TRUE,
+                            seascape = moore_seascape,
+                            probability = "additive",
+                            limit_time = 7,
+                            competency.function = "exponential",
+                            crs = 32755,
+                            simulate.mortality = "typeII",
+                            simulate.mortality.n = 0.1,
+                            return.plot = TRUE,
+                            return.summary = TRUE,
+                            silent = FALSE)
+
+
+```
+
+# 2) settle particles
+
+```{r, warning=FALSE, message=FALSE, fig.width=9, fig.height=8, cache=TRUE}
+
+moore_settlers <-  settle_particles(moore_particles,
+                                    probability = "additive",
+                                    silent = TRUE)
+
+moore_settlement_density <- settlement_density(moore_settlers$points, cellsize=50)
+
+
+```
+
+# 3) map coralseed
+
+```{r, warning=FALSE, message=FALSE, fig.width=9, fig.height=8, cache=TRUE}
+
+map_coralseed(seed_particles_input = moore_particles,
+              settle_particles_input = moore_settlers,
+              settlement_density_input = moore_settlement_density,
+              seascape_probability = moore_seascape,
+              restoration.plot = c(100,100),
+              show.footprint = TRUE,
+              show.tracks = TRUE,
+              subsample = TRUE,
+              webGL = FALSE)
+
+
+```
+
+# 4) coralseed outputs
+
+```{r, warning=FALSE, message=FALSE, fig.width=12, fig.height=9, cache=TRUE}
+
+
+flowchart_coralseed(moore_particles, moore_settlers, 10000, 0.8)
+
+
+```

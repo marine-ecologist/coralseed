@@ -2,31 +2,36 @@
 % Please edit documentation in R/predict_competency.R
 \name{predict_competency}
 \alias{predict_competency}
-\title{Predict_competency}
+\title{Predict competency}
 \usage{
 predict_competency(
   input,
   n_particles = 100,
+  max.time = NULL,
   seed.value = NULL,
-  return.plot = FALSE
+  return.plot = FALSE,
+  ...
 )
 }
 \arguments{
-\item{input}{brmsfit of either 'lognormal', 'exponential', 'weibull' functions}
+\item{input}{brmsfit object from a model using 'lognormal', 'exponential', or 'weibull' family}
 
-\item{n_particles}{number of sims for randomised datasets (see plot for traces)}
+\item{n_particles}{number of random simulations}
 
-\item{seed.value}{set seed value, defaults to NULL}
+\item{max.time}{optional maximum dispersal time limit (default is max time in input$data)}
 
-\item{return.plot}{return output}
+\item{seed.value}{random seed for reproducibility}
 
-\item{...}{passes functions}
+\item{return.plot}{if TRUE, returns ggplot of survival curves + point estimates}
+
+\item{...}{additional arguments (not used)}
 }
 \description{
-Function to generate probability distribution from Allen Coral Atlas input files
+Function to generate time-to-settlement probability distributions using a \code{brms} model
 }
 \details{
-predict_competency_time(infamis_tiles_exp, n_particles=100)
-predict_competency_time(infamis_tiles_log, n_particles=100)
-predict_competency(infamis_tiles_weibull, n_particles=100)
+Examples:
+predict_competency(infamis_tiles_exp, n_particles = 100)
+predict_competency(infamis_tiles_weibull, n_particles = 100)
+predict_competency(infamis_tiles_log, n_particles = 100)
 }

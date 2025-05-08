@@ -6,6 +6,7 @@
 \usage{
 settle_particles(
   input,
+  seascape = seascape,
   probability = "additive",
   silent = TRUE,
   return.plot = FALSE,
@@ -15,23 +16,28 @@ settle_particles(
 )
 }
 \arguments{
-\item{input}{input (defaults to particle_points_expanded from seed_particles() function)}
+\item{input}{output from \code{seed_particles()} or directly a particle \code{sf} object}
 
-\item{probability}{one of "additive", "rapid", "lagged")}
+\item{seascape}{sf object from \code{seascape_probability()}, for plotting base}
 
-\item{silent}{silence outputs}
+\item{probability}{settlement rule, one of "additive", "rapid", or "lagged"}
 
-\item{subsample}{subsample to n particles}
+\item{silent}{suppress printed output (default TRUE)}
 
-\item{...}{pass arguments}
+\item{return.plot}{whether to return tmap plot output}
 
-\item{plot}{Plot time-to-settlement?}
+\item{subsample}{optionally sample N particles for faster plotting}
 
-\item{set.seed}{seed}
+\item{seed.value}{set seed for reproducibility}
+
+\item{...}{additional args}
 }
 \description{
-Function to determine probability of settlement if particles pass suitable substrate
-options: additive (if p=1, settle somewhere in that habitat along the particle trajectory regardless of time)
-lagged (if p=1, settle somewhere in the habitat in the first 10 minutes)
-rapid (if p=1, settle immediately habitat on trajectory )
+Function to determine probability of settlement if particles pass suitable substrate.
+Options:
+\itemize{
+\item "additive": settle somewhere in habitat intersect regardless of time
+\item "lagged": sample first 10 minutes of habitat entry
+\item "rapid": settle at first habitat intersect
+}
 }

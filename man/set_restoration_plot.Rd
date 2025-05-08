@@ -4,16 +4,24 @@
 \alias{set_restoration_plot}
 \title{Set restoration plot}
 \usage{
-set_restoration_plot(input = NULL, width = NULL, length = NULL, center = NULL)
+set_restoration_plot(
+  input = NULL,
+  width = NULL,
+  length = NULL,
+  crs = 4326,
+  center = "coralseed"
+)
 }
 \arguments{
-\item{input}{input (defaults to NULL)}
+\item{input}{input \code{sf} object used to derive the center}
 
 \item{width}{width in metres}
 
 \item{length}{length in metres}
 
-\item{center}{not yet defined, but later to change centre point}
+\item{crs}{CRS for output object (default 4326)}
+
+\item{center}{either "coralseed" for t0-based centroid, or "sf" for direct centroid}
 }
 \description{
 Function to create a rectangular polygon around the release point (centroid or t0 of particle release) for plotting in tmap

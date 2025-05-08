@@ -12,6 +12,7 @@
 #'   \item{settlement_probability}{Probability of settlement}
 #' }
 #' @source See `data/generate_draws.R` for details on data generation.
+#' @export
 #' @examples
 #' \dontrun{
 #` infamis_tiles_draws <- data.frame(

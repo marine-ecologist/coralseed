@@ -15,25 +15,26 @@ simulate_mortality(
 )
 }
 \arguments{
-\item{input}{input (defaults to particle_points_expanded from seed_particles() function)}
+\item{input}{input (e.g. from \code{seed_particles()}, usually a time-expanded \code{sf} object)}
 
-\item{simulate.mortality}{select which type of mortality (one of "typeI", "typeII", "typeIII")}
+\item{simulate.mortality}{select mortality type ("typeI", "typeII", or "typeIII")}
 
-\item{simulate.mortality.n}{proportion of the population to kill (0 = none, 1 = 100\% mortality)}
+\item{simulate.mortality.n}{proportion of population to simulate mortality on (0–1)}
 
-\item{return.plot}{show plot of the results (defaults to FALSE)}
+\item{return.plot}{generate plot output (default: TRUE)}
 
-\item{silent}{silence printing results while running (defaults to FALSE)}
+\item{silent}{suppress printed messages (default: FALSE)}
 
-\item{seed.value}{set seed for consistent results (defaults to NULL)}
+\item{seed.value}{seed for reproducibility (default: NULL)}
 
-\item{...}{pass arguments}
+\item{...}{pass additional args}
 }
 \description{
-Function to simulate mortality of a population. simulate.mortality.n is the proportion of the population to simulate mortality over a 24hr period.
+Function to simulate mortality of a population. \code{simulate.mortality.n} is the proportion of the population to simulate mortality over a 24hr period.
 }
 \details{
-Currently set to mortality types I,II,III parameterised from the weibull distribution (return.plot=TRUE to visualise results against 1000 simulations)
+Mortality types I, II, III are Weibull-distributed. Set \code{return.plot=TRUE} to visualise simulation vs empirical.
 
-tmp <- simulate_mortality(particle_points_expanded, simulate.mortality="typeIII",  simulate.mortality.n = 0.2, return.plot=TRUE)
+Example:
+tmp <- simulate_mortality(particle_points_expanded, simulate.mortality = "typeIII", simulate.mortality.n = 0.2, return.plot = TRUE)
 }

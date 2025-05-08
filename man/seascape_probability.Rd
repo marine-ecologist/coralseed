@@ -5,21 +5,25 @@
 \title{Seascape Probability}
 \usage{
 seascape_probability(
-  reefoutline = NULL,
-  habitat = NULL,
+  reefoutline = benthic_map,
+  habitat = reef_map,
   probability = NULL,
   ...
 )
 }
 \arguments{
-\item{reefoutline}{geojson or shp files for Coral Atlas benthic habitat maps for reef outline}
+\item{reefoutline}{\code{sf} object (or filepath) for Coral Atlas benthic habitat (reef outline)}
 
-\item{habitat}{habitat or shp files for Coral Atlas geomorphic maps}
+\item{habitat}{\code{sf} object (or filepath) for Coral Atlas geomorphic classes}
 
-\item{probability}{habitat specific probabilities (mean and SE) defined as in example below. Defaults to NULL parameterisation embedded in function (see example below)}
+\item{probability}{Optional data.frame with \code{class}, \code{means}, and \code{se} columns for custom settlement probabilities.
+If NULL, defaults are used.}
 
-\item{...}{passes functions}
+\item{...}{Not used. Placeholder for extensibility.}
+}
+\value{
+\code{sf} object with \code{class}, \code{habitat_id}, and \code{settlement_probability}
 }
 \description{
-Function to generate probability distribution from Allen Coral Atlas input files
+Function to generate spatial settlement probability layers from Allen Coral Atlas maps.
 }

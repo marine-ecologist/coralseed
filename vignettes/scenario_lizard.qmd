@@ -1,0 +1,96 @@
+---
+title: "Lizard Island (nGBR CONNIE)"
+output: rmarkdown::html_document
+pkgdown: true
+editor: visual
+---
+
+```{r fig.height=5, fig.width=9, message=FALSE, warning=FALSE, cache=TRUE, include=FALSE}
+
+load(file="/Users/rof011/coralseed/data/infamis_tiles_exp.rda")
+
+```
+
+Simulated reseeding event at Mermaid Bay, Lizard Island
+
+# 1) seed particles
+
+```{r, warning=FALSE, message=FALSE, fig.width=9, fig.height=5, cache=TRUE}
+  
+  
+  library(coralseed)
+  library(ggplot2)
+  library(tidyverse)
+  library(sf)
+  library(tmap)
+  
+  sf_use_s2(FALSE)
+  
+  lizard_benthic_map <- st_read("/Users/rof011/coralseed/data-aux/Lizard-20250314042923/Benthic-Map/benthic.geojson", quiet=TRUE)
+  lizard_reef_map <- st_read("/Users/rof011/coralseed/data-aux/Lizard-20250314042923/Geomorphic-Map/geomorphic.geojson", quiet=TRUE)
+  lizard_seascape <- seascape_probability(reefoutline=lizard_reef_map, habitat=lizard_benthic_map)
+  
+  
+  lizard_particles <- st_read("/Users/rof011/Downloads/run_day_12036_lizard_del_14_1512_sim1_10K_10.json", quiet=TRUE)
+  
+  
+  
+  lizard_particles <- seed_particles(input = "/Users/rof011/Downloads/run_day_12036_lizard_del_14_1512_sim1_10K_10.json",
+                              zarr = FALSE,
+                              set.centre = TRUE,
+                              seascape = lizard_seascape,
+                              probability = "additive",
+                              limit.time = 12,
+                              brmsfit=infamis_tiles_exp,
+                              competency.function = "exponential",
+                              crs = 20353,
+                              simulate.mortality = "typeIII",
+                              simulate.mortality.n = 0.1,
+                              return.plot = TRUE,
+                              return.summary = TRUE,
+                              silent = FALSE)
+
+```
+
+# 2) settle particles
+
+```{r, warning=FALSE, message=FALSE, fig.width=9, fig.height=8, cache=TRUE}
+
+lizard_settlers <- settle_particles(lizard_particles,
+                                    probability = "additive",
+                                    return.plot=FALSE,
+                                    silent = TRUE)
+
+plot_particles(lizard_settlers$points, lizard_seascape)
+lizard_settlement_density <- settlement_density(lizard_settlers$points)
+
+lizard_settlement_summary <- settlement_summary(lizard_particles, lizard_settlers, cellsize=50)
+
+```
+
+# 3) map coralseed
+
+```{r, warning=FALSE, message=FALSE, fig.width=12, fig.height=10, cache=TRUE}
+
+map_coralseed(seed_particles_input = lizard_particles,
+              settle_particles_input = lizard_settlers,
+              settlement_density_input = lizard_settlement_density,
+              seascape_probability = lizard_seascape,
+              restoration.plot = c(100,100),
+              show.footprint = TRUE,
+              show.tracks = TRUE,
+              subsample = 1000,
+              webGL = FALSE)
+
+
+```
+
+# 4) coralseed outputs
+
+```{r, warning=FALSE, message=FALSE, fig.width=12, fig.height=9, cache=TRUE}
+
+
+flowchart_coralseed(lizard_particles, lizard_settlers, multiplier=1000, postsettlement=0.8)
+
+
+```

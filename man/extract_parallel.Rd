@@ -12,13 +12,16 @@ seascapecolors()
 extract_parallel(input, type)
 
 map_coralseed(
-  seed_particles_input = particles,
-  settle_particles_input = settlers,
-  seascape_probability = seascape,
+  seed_particles_input = NULL,
+  settle_particles_input = NULL,
+  settlement_density_input = NULL,
+  seascape_probability = NULL,
   restoration.plot = c(100, 100),
   show.tracks = TRUE,
   show.footprint = FALSE,
   subsample = NULL,
+  heatmap_res = 2,
+  heatmap_buffer = 0.25,
   scalebar = 200,
   webGL = FALSE
 )
@@ -32,13 +35,25 @@ map_coralseed(
 
 \item{settle_particles_input}{input from settle_particles_input}
 
+\item{settlement_density_input}{input from settlement density}
+
 \item{seascape_probability}{input from seascape_probability}
 
 \item{restoration.plot}{dimensions of the restoration plot in metres}
 
-\item{show.tracks}{option to show particle tracks (TRUE, will be large files and slower renders) or without tracks (FALSE, smaller files and faster renders)}
+\item{show.tracks}{option to show particle tracks (TRUE, will be large files and slower renders)}
+
+\item{show.footprint}{show spatial footprint (TRUE/FALSE)}
+
+\item{subsample}{subsample large datasets for visualisation (n)}
+
+\item{heatmap_res}{spatial resolution of heatmap}
+
+\item{heatmap_buffer}{spatial buffer around heatmap in metres}
 
 \item{scalebar}{set scale to X metres}
+
+\item{webGL}{use webGL in tmap? TRUE/FALSE}
 }
 \description{
 Functions to colour maps

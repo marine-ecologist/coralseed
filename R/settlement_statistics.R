@@ -29,11 +29,11 @@ settlement_statistics <- function(
     dplyr::mutate(density = count / (cellsize * cellsize))
 
 
-  concavehull <- concaveman::concaveman(input, concavity = 2, length_threshold = 0)
+  concavehull <- concaveman::concaveman(input |> ungroup(), concavity = 2, length_threshold = 0)
 
-  settlement_output <- list(concavehull, settled_particles_density)
+  settlement_output <- list(settled_particles_density, concavehull)
 
-  names(settlement_output) <- c("area", "grid")
+  names(settlement_output) <- c("grid", "footprint")
 
   return(settlement_output)
 }

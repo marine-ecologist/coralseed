@@ -16,7 +16,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: George Roff \email{george.roff@csiro.ai} (\href{https://orcid.org/0000-0002-2823-0575}{ORCID})
+\strong{Maintainer}: George Roff \email{george.roff@csiro.au} (\href{https://orcid.org/0000-0002-2823-0575}{ORCID})
 
 }
 \keyword{internal}

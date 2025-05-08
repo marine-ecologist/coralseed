@@ -5,6 +5,9 @@
 #' @param input input particle tracks (e.g. coralseed:::Mermaid_PointSource_Bay_01)
 #' @param subset n particles to subset
 #'
+#' @export
+#' @examples
+#' \dontrun{
 #' stat_particles_liz22_del_14_33 <- stationary_particles(liz22_del_14_33)
 #'
 #' stat_liz22_del_14_33_map <- stationary_particles_map(liz22_del_14_33 |> filter(id %in% seq(0:1000)))
@@ -12,7 +15,7 @@
 #'
 #' stat_liz22_del_14_33_map <- stationary_particles_map(run_day_12039_liz22_del_11_35|> filter(id %in% seq(0:100)))
 #' stat_liz22_del_14_33_stationary <- stationary_particles(run_day_12039_liz22_del_11_35)
-#'
+#' }
 #'
 stationary_particles <- function(input) {
     start <- Sys.time ()
