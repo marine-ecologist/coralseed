@@ -25,30 +25,70 @@ library(coralseed)
 library(ggplot2)
 library(tidyverse)
 library(sf)
+library(tmap)
+
+sf_use_s2(FALSE)
+
+## 0. Load example datasets
+
+lizard_benthic_map <- st_read("../data-aux/Lizard-20250314042923/Benthic-Map/benthic.geojson", quiet=TRUE)
+lizard_reef_map <- st_read("../data-aux/Lizard-20250314042923/Geomorphic-Map/geomorphic.geojson", quiet=TRUE)
+lizard_particles <- st_read("../data-aux/run_day_12036_lizard_del_14_1512_sim1_10K_10.json", quiet=TRUE)
+
+
 
 ## 1. simulate settlement probabilities from habitat maps
 # `seascape_probability` takes coral atlas inputs and a data.frame of settlement
 # probability (mean, se) to simulate probability of settlement in habitats surrounding the release area
 
-seascape <- seascape_probability(reefoutline=reef_map, habitat=benthic_map)
+lizard_seascape <- seascape_probability(reefoutline=lizard_reef_map, habitat=lizard_benthic_map)
+
 
 ## 2. seed particles from dispersal model and simulate competency
 # `seed_particles` outputs summary statistics and a four panel diagnostic plot
 
-particles <- seed_particles(example="mermaid", seascape=seascape,
-                            limit_time=6.95, competency.function = "exponential", probability="additive",
-                            simulate.mortality = "typeI",  simulate.mortality.n = 0.1, 
-                            silent=FALSE, return.plot=TRUE)
 
+lizard_particles <- seed_particles(input = "../data-aux/run_day_12036_lizard_del_14_1512_sim1_10K_10.json",
+                                   zarr = FALSE,
+                                   set.centre = TRUE,
+                                   seascape = lizard_seascape,
+                                   probability = "additive",
+                                   limit.time = 12,
+                                   competency.function = "exponential",
+                                   crs = 20353,
+                                   simulate.mortality = "typeIII",
+                                   simulate.mortality.n = 0.1,
+                                   return.plot = TRUE,
+                                   return.summary = TRUE,
+                                   silent = FALSE)
+                                   
 ## 3. simulate settlement of particles
 # `settle_particles` then applies probability across the seascape to simulate spatially
 # explicit patterns of settlement across the seascape:
 
-settlers <-  settle_particles(particles, probability="additive")# %>% with(points)
+
+lizard_settlers <- settle_particles(lizard_particles,
+                                    probability = "additive",
+                                    return.plot=FALSE,
+                                    silent = TRUE)
+
+lizard_settlement_density <- settlement_density(lizard_settlers$points)
+
 
 ## 4. Map combined coralseed outputs
 # `map_coralseed` visualises all outputs from the above three models
 
-map_coralseed(seed_particles=particles, settle_particles=settlers, seascape_probability=seascape, restoration.plot=c(100,100))
+
+
+map_coralseed(seed_particles_input = lizard_particles,
+              settle_particles_input = lizard_settlers,
+              settlement_density_input = lizard_settlement_density,
+              seascape_probability = lizard_seascape,
+              restoration.plot = c(100,100),
+              show.footprint = TRUE,
+              show.tracks = TRUE,
+              subsample = 1000,
+              webGL = TRUE)
+
 
 ```

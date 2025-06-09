@@ -15,6 +15,7 @@ map_coralseed(
   seed_particles_input = NULL,
   settle_particles_input = NULL,
   settlement_density_input = NULL,
+  crs = 20353,
   seascape_probability = NULL,
   restoration.plot = c(100, 100),
   show.tracks = TRUE,

@@ -2,6 +2,7 @@ home:
   title: "coralseed Project"
   description: "coralseed: a spatially explicit reef-scale model of coral settlement following larval reseeding"
 
+
 authors:
   George Roff:
     href: https://github.com/marine.ecologist/
@@ -11,6 +12,9 @@ template:
   bootstrap: 5
   math-rendering: mathjax
   light-switch: true
+  assets:
+    - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css
+
 
 development:
   mode: release
@@ -18,40 +22,45 @@ development:
 navbar:
   structure:
     left:
-    - intro
-    - reference
-    - articles
-    - tutorials
-    - news
+      - intro
+      - reference
+      - simulations
+      - outputs
+      - tutorials
+      - news
     right:
-    - search
-    - github
-    - lightswitch
+      - search
+      - github
+      - lightswitch
   components:
     reference:
+      icon: fa-cube
       text: Reference
       href: reference/index.html
-    search:
-      search: []
-    lightswitch:
-      icon: fa-sun
-      aria-label: Light switch
-      id: lightswitch
-      menu:
-      - text: Light
-        theme: light
-        icon: fa-sun
-      - text: Dark
-        theme: dark
-        icon: fa-moon
-      - text: Auto
-        theme: auto
-        icon: fa-adjust
 
-    articles:
+    simulations:
       text: Simulations
+      icon: fa-layer-group
       menu:
         - text: 1) Lizard Island
           href: articles/scenario_lizard.html
         - text: 2) Moore Reef
           href: articles/scenario_moore.html
+
+    search:
+      search: []
+
+    lightswitch:
+      icon: fa-sun
+      aria-label: Light switch
+      id: lightswitch
+      menu:
+        - text: Light
+          theme: light
+          icon: fa-sun
+        - text: Dark
+          theme: dark
+          icon: fa-moon
+        - text: Auto
+          theme: auto
+          icon: fa-adjust

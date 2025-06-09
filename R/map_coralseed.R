@@ -19,7 +19,7 @@
 #'
 
 map_coralseed <- function(seed_particles_input = NULL, settle_particles_input = NULL,
-                          settlement_density_input = NULL,
+                          settlement_density_input = NULL, crs = 20353,
                           seascape_probability = NULL, restoration.plot = c(100, 100),
                           show.tracks = TRUE, show.footprint = FALSE, subsample = NULL,
                           heatmap_res = 2, heatmap_buffer = 0.25, scalebar = 200, webGL = FALSE) {
@@ -27,6 +27,11 @@ map_coralseed <- function(seed_particles_input = NULL, settle_particles_input = 
   if (is.list(seed_particles_input)) {
     seed_particles_input <- seed_particles_input$seed_particles
   }
+
+  if(!st_crs(seed_particles_input) == crs){
+    seed_particles_input <-  st_transform(seed_particles_input, crs)
+  }
+
 
   if (!is.null(subsample)) {
     seed_particles_input <- seed_particles_input |>
@@ -45,6 +50,15 @@ map_coralseed <- function(seed_particles_input = NULL, settle_particles_input = 
   particle_paths <- settle_particles_input$paths
   particle_points <- settle_particles_input$points |>
     dplyr::mutate(dispersaltime2 = cut(dispersaltime, seq(1, max(settle_particles_input$points$dispersaltime, na.rm = TRUE), 60), labels = FALSE))
+
+    if(!st_crs(particle_paths) == crs){
+      particle_paths <-  st_transform(particle_paths, crs)
+    }
+
+    if(!st_crs(particle_points) == crs){
+      particle_points <-  st_transform(particle_points, crs)
+    }
+
 
   heatmap_coralseed <- settler_heatmap(settle_particles_input$points,
                                        xres = heatmap_res,
@@ -89,6 +103,10 @@ map_coralseed <- function(seed_particles_input = NULL, settle_particles_input = 
     "Outer Reef Flat" = "darkgoldenrod2",
     "Reef Crest" = "coral3"
   ) %>% rlang::set_names(names(.))
+
+  if(!st_crs(seascape_probability) == crs){
+    seascape_probability <-  st_transform(seascape_probability, crs)
+  }
 
   restoration_plot <- seed_particles_input |>
     dplyr::filter(dispersaltime == 0) |>

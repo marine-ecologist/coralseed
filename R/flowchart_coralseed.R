@@ -25,7 +25,7 @@
           }
 
         max_dispersal_time <- seed_particles_input$seed_particles$dispersaltime |> max()
-        total_mortality <- as.numeric(seed_particles_input$summary[16, 2])
+        total_mortality <- as.numeric(seed_particles_input$summary[6, 2])
 
           total_released <- seed_particles_input$seed_particles |>
               dplyr::pull(id) |> unique() |> length()

@@ -128,14 +128,22 @@ seed_particles <- function(
     sf::st_as_sf(coords = c("X", "Y"), crs = crs) |>
     sf::st_cast("POINT")
 
+  mortality_val <- rnorm(1, simulate.mortality.n, 0.005)
+
   particle_points_expanded_postmortality <- simulate_mortality(
     input = particle_points_expanded,
     simulate.mortality = simulate.mortality,
-    simulate.mortality.n = rnorm(1, simulate.mortality.n, 0.005),
+    simulate.mortality.n = mortality_val,
     return.plot = return.plot,
     seed.value = seed.value,
     silent = TRUE
   )
+
+  #print(head(particle_points_expanded_postmortality$simulated_mortality))
+  mortality_count <- particle_points_expanded_postmortality$survivorship_output |>
+    dplyr::filter(mortalitytime < max.time) |> nrow()
+
+
 
   particle_points_probability <- sf::st_join(
     particle_points_expanded_postmortality |> with(simulated_mortality),
@@ -158,13 +166,14 @@ seed_particles <- function(
   if (return.plot) return_list$multiplot <- competency_times_output$simulated_settlers_plot
   if (return.summary) {
     summary_table <- data.frame(
-      Metric = c("Number of particle tracks", "Seed setting", "Start time", "End time", "Dispersal time (hrs)"),
+      Metric = c("Number of particle tracks", "Seed setting", "Start time", "End time", "Dispersal time (hrs)", "Total mortality by tmax"),
       Value = c(
         length(unique(load_particles$id)),
         if (is.null(seed.value)) "[No seed set]" else paste0("[seed = ", seed.value, "]"),
         as.character(t0),
         as.character(tmax),
-        as.numeric(tmax - t0)
+        as.numeric(tmax - t0),
+        as.numeric(mortality_count)
       )
     )
     return_list$summary <- summary_table

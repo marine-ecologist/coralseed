@@ -78,7 +78,8 @@ settle_particles <- function(input, seascape = seascape, probability = "additive
 
   settled_particles_dispersaltime_df <- select_particles |>
     dplyr::select(id, dispersaltime) |>
-    dplyr::rename(maxdispersaltime = dispersaltime)
+    dplyr::rename(maxdispersaltime = dispersaltime) |>
+    as.data.frame()
 
   if (!silent) {
     cat("\n")
@@ -92,7 +93,7 @@ settle_particles <- function(input, seascape = seascape, probability = "additive
     dplyr::group_by(id) |>
     dplyr::summarise(do_union = FALSE, dispersaltime = mean(dispersaltime), .groups = "drop") |>
     sf::st_cast("MULTILINESTRING") |>
-    sf::st_make_valid() |>
+    sf::st_make_valid() %>%
     dplyr::mutate(distance = sf::st_length(.))
 
   results <- list(
