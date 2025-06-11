@@ -1,35 +1,42 @@
 ---
-title: "reseed - mermaid bay '22"
+title: ""
 format: html
 page-layout: full
 ---
-
 <style>
- .container, .row, .col-md-9, .col-md-3 {
+/* Hide title block, first content div (which includes title header) */
+.quarto-title-block,
+main > div:first-child {
+  display: none !important;
+}
+
+/* Optional: remove vertical spacing in main content area */
+main.content,
+main {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Optional: override default column widths in pkgdown layout */
+ .row, .col-md-9, .col-md-3 {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-main {
-  width: 100vw !important;
-}
-
-
+/* Full viewport iframe */
 iframe {
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 56px); /* adjust if navbar height changes */
   border: none;
   display: block;
   margin: 0;
   padding: 0;
 }
-
 </style>
 
-::: {.column-screen}
 
-<iframe src="reseed/index.html" frameborder="0"style="width:100%;height:100vh;border:none;display:block"> </iframe>
+<iframe src="./reseed/index.html" frameborder="0" style="width:100%;height:100vh;border:none;display:block"></iframe>
 
-:::

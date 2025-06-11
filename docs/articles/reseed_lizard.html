@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>reseed - mermaid bay ’22 • coralseed</title>
+<title>reseed_lizard • coralseed</title>
 <!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
   window.MathJax = {
     chtml: {
@@ -18,7 +18,7 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="reseed_lizard_files/libs/quarto-html/popper.min.js"></script><script src="reseed_lizard_files/libs/quarto-html/tippy.umd.min.js"></script><link href="reseed_lizard_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="reseed_lizard_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="reseed - mermaid bay ’22">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="reseed_lizard">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -68,7 +68,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>reseed - mermaid bay ’22</h1>
+      <h1></h1>
 
 
 
@@ -83,32 +83,40 @@
 
 
     <style>
- .container, .row, .col-md-9, .col-md-3 {
+/* Hide title block, first content div (which includes title header) */
+.quarto-title-block,
+main > div:first-child {
+  display: none !important;
+}
+
+/* Optional: remove vertical spacing in main content area */
+main.content,
+main {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Optional: override default column widths in pkgdown layout */
+ .row, .col-md-9, .col-md-3 {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-main {
-  width: 100vw !important;
-}
-
-
+/* Full viewport iframe */
 iframe {
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 56px); /* adjust if navbar height changes */
   border: none;
   display: block;
   margin: 0;
   padding: 0;
 }
-
 </style>
-<div class="column-screen">
-<iframe src="reseed/index.html" frameborder="0" style="width:100%;height:100vh;border:none;display:block">
+<iframe src="./reseed/index.html" frameborder="0" style="width:100%;height:100vh;border:none;display:block">
 </iframe>
-</div>
 
 
 
