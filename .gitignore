@@ -7,13 +7,8 @@
 .DS_Store
 .quarto
 coralseed.Rproj
-inst/doc
-inst/*
-!inst/doc/
 code/
 outputs/
-vignettes archive/
-docs
-cesium/
+archive/
 *.rdb
 ^.*[Cc]ache.*/$
