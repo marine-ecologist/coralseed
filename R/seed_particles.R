@@ -12,7 +12,6 @@
 #'                simulate.mortality.n = 0.1)
 #'
 #' @param input input
-#' @param zarr whether the input is a zarr folder
 #' @param seascape shp file inputs from seascape_probability()
 #' @param subsample subsample to n samples
 #' @param simulate.mortality set mortality type via simulate_mortality() one of "typeI","typeII", "typeIII" (defaults to "none")
@@ -23,6 +22,7 @@
 #' @param set.centre reset CONNIE input to have a central t0 point (defaults to TRUE)
 #' @param seed.value set seed for consistent results (defaults to NULL)
 #' @param crs coordinate reference system, default EPSG:32755
+#' @param interval time interval for interpolating paths
 #' @param silent silence printing results (defaults to TRUE)
 #' @param return.summary return summary table
 #' @param return.plot return plot object
@@ -33,31 +33,26 @@
 #' @export
 
 seed_particles <- function(
-    input = NULL, zarr=FALSE, seascape = NULL, subsample = NULL,
+    input = NULL, seascape = NULL, subsample = NULL,
     simulate.mortality = "none", simulate.mortality.n = 0.1,
     brmsfit=infamis_tiles_exp, set_b_Intercept=NULL, limit.time = NA,
-    set.centre = TRUE, seed.value = NULL, crs=32755,
+    set.centre = TRUE, seed.value = NULL, crs=32755, interval="1 mins",
     silent = TRUE, return.summary = FALSE, return.plot = FALSE,
     save.plot=FALSE, plot.width=12, plot.height=7.5, ...){
 
   set.seed(seed.value)
 
-  if (isTRUE(zarr)) {
-    load_particles <- import_zarr(input) |> sf::st_transform(crs)
-  } else {
-    load_particles <- tryCatch({
-      sf::st_read(input, quiet = TRUE) |>
-        sf::st_zm(drop = TRUE, what = "ZM") |>
-        sf::st_transform(crs)
-    }, warning = function(w) {
-      suppressWarnings(sf::st_read(input, quiet = TRUE) |>
-                         sf::st_zm(drop = TRUE, what = "ZM") |>
-                         sf::st_transform(crs))
-    }, error = function(e) {
-      message("Error loading spatial data: ", conditionMessage(e))
-      return(NULL)
-    })
-  }
+  load_particles <- tryCatch({
+    sf_data <- input
+    if (any(sf::st_z_range(sf_data) != 0)) {
+      sf_data <- sf::st_zm(sf_data, drop = TRUE, what = "ZM")
+    }
+    sf::st_transform(sf_data, crs)
+  }, error = function(e) {
+    message("Error loading spatial data: ", conditionMessage(e))
+    cat("\n\n error: coralseed requires a valid input file in sf format (either .json (e.g. CONNIE output) or .zarr (e.g. oceanparcels output))) \n\n\n\n")
+    return(NULL)
+  })
 
   if ("decay_value" %in% names(load_particles)) {
     load_particles <- load_particles |> dplyr::select(-decay_value)
@@ -117,7 +112,7 @@ seed_particles <- function(
     dplyr::mutate(geometry = gsub("[^0-9. -]", "", geometry), id = as.factor(id)) |>
     tidyr::separate(geometry, into = c("X", "Y"), sep = " ", convert = TRUE) |>
     dplyr::group_by(id) |>
-    tidyr::complete(time = seq(min(time), max(time), by = "1 mins")) |>
+    tidyr::complete(time = seq(min(time), max(time), by = interval)) |>
     dplyr::mutate(X = approx(time, X, time)$y, Y = approx(time, Y, time)$y) |>
     dplyr::mutate(dispersaltime = as.integer(time - min(particle_points$time)) / 60) |>
     dplyr::ungroup() |>
@@ -139,11 +134,8 @@ seed_particles <- function(
     silent = TRUE
   )
 
-  #print(head(particle_points_expanded_postmortality$simulated_mortality))
   mortality_count <- particle_points_expanded_postmortality$survivorship_output |>
     dplyr::filter(mortalitytime < max.time) |> nrow()
-
-
 
   particle_points_probability <- sf::st_join(
     particle_points_expanded_postmortality |> with(simulated_mortality),

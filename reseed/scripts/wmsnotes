@@ -1,0 +1,32 @@
+https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?service=WMS&request=GetFeatureInfo&layers=CRW_SST&query_layers=CRW_SST&info_format=text/xml&version=1.3.0&i=100&j=100&width=256&height=256&crs=EPSG:4326&bbox=-90,-180,90,180
+
+
+Explanation of GetFeatureInfo and Parameters:
+
+	1.	Why a Single Value?
+	•	The WMS server interprets your i and j parameters as the pixel indices within the map image defined by:
+	•	width and height: The total resolution of the image in pixels.
+	•	bbox: The geographic extent of the image in latitude/longitude.
+	•	The server then calculates the geographic location of that single pixel (from i, j within the given bbox) and returns the data for that location.
+	2.	What Does Each Returned Value Mean?
+	•	-38.671875 and 19.3359375: The longitude and latitude of the queried pixel center.
+	•	2826 and 1413: The i and j pixel indices corresponding to the query.
+	•	-38.675001311590336 and 19.32499967226886: The longitude/latitude of the actual grid cell center that the server used to calculate the data.
+	•	2025-01-21T12:00:00.000Z: The timestamp of the data returned.
+	•	25.31: The value (e.g., temperature or other variable) at that grid cell.
+	3.	How to Refine bbox for a Smaller Resolution?
+	•	A smaller bbox with fewer pixels (e.g., 0.5-degree resolution) provides finer granularity. By aligning your bbox with the WMS grid resolution, you can effectively query smaller areas.
+	
+	
+	Example: Refine to a 0.5-degree Pixel bbox
+
+New Parameters for a Smaller bbox:
+
+	•	Bounding Box (bbox): A 0.5x0.5 degree region, e.g., -38.5,19.5,-38.0,20.0.
+	•	Image Resolution (width x height): Adjust to reflect your desired granularity.
+	•	Pixel (i and j): Query the center of the pixel.
+
+Refined URL for bbox with a 0.5-degree Grid:
+
+
+https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?service=WMS&request=GetFeatureInfo&layers=CRW_SST&query_layers=CRW_SST&info_format=text/xml&version=1.3.0&i=1&j=1&width=2&height=2&crs=EPSG:4326&bbox=-38.5,19.5,-38.0,20.0

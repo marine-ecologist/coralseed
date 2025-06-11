@@ -24,43 +24,57 @@ navbar:
     left:
       - intro
       - reference
+      - theory
+      - updates
       - simulations
-      - outputs
-      - tutorials
-      - news
+      - reseed
+
     right:
       - search
       - github
-      - lightswitch
   components:
     reference:
-      icon: fa-cube
+      icon: fa-file
       text: Reference
       href: reference/index.html
 
+    theory:
+      text: theory
+      icon: fa-lightbulb
+      menu:
+        - text: parameterisation
+          icon: fa-circle
+          href: ""
+    updates:
+      text: News
+      icon: fa-spinner
+      href: news/index.html
+
     simulations:
-      text: Simulations
+      text: coralseed
       icon: fa-layer-group
       menu:
-        - text: 1) Lizard Island
+        - text: Lizard Island, northern GBR (example simulation, CONNIE)
+          icon: fa-circle
           href: articles/scenario_lizard.html
-        - text: 2) Moore Reef
+        - text: Moore Reef, central GBR  (example simulation, oceanparcels)
+          icon: fa-circle
           href: articles/scenario_moore.html
 
+    reseed:
+      text: reseed
+      icon: fa-seedling
+      menu:
+        - text: Mermaid Bay reseeding (2002)
+          icon: fa-cube
+          href: articles/reseed-lizard.html
+        - text: About reseed
+          icon: fa-cube
+          href: articles/reseed.html
+
+    github:
+      text:
+      icon: fa-github
+      href: github.com/marine-ecologist/coralseed/
     search:
       search: []
-
-    lightswitch:
-      icon: fa-sun
-      aria-label: Light switch
-      id: lightswitch
-      menu:
-        - text: Light
-          theme: light
-          icon: fa-sun
-        - text: Dark
-          theme: dark
-          icon: fa-moon
-        - text: Auto
-          theme: auto
-          icon: fa-adjust

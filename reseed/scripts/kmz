@@ -1,0 +1,143 @@
+// Cesium setup
+Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhZTNmOGJmZC0zOTcwLTRhMzYtOTEyMC1jYjc5Yzc5YTcwODMiLCJpZCI6MjY4NTE0LCJpYXQiOjE3MzY3MTg2NzB9.X6fIDdZkrPlD5AGjASkJ-IerCu1BLe8IIQLrwJku4LQ";
+
+const viewer = new Cesium.Viewer("cesiumContainer", {
+  baseLayerPicker: false,
+  geocoder: false,
+  timeline: false,
+  animation: false,
+  homeButton: false,
+  navigationHelpButton: false,
+  enablePickFeatures: false,
+  infoBox: false,
+});
+
+const scene = viewer.scene;
+
+// Disable unnecessary visuals
+scene.skyBox.show = false;
+scene.skyAtmosphere.show = false;
+scene.sun.show = false;
+scene.moon.show = false;
+
+// Remove Cesium credits
+viewer._cesiumWidget._creditContainer.style.display = "none";
+
+// Styling for tooltips
+const styles = `
+  #cesiumContainer canvas {
+    image-rendering: smooth;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: rgba(42, 42, 42, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+    pointer-events: none;
+    display: none;
+  }
+`;
+const styleTag = document.createElement("style");
+styleTag.textContent = styles;
+document.head.appendChild(styleTag);
+
+// Tooltips for hover and click
+const hoverTooltip = document.createElement("div");
+hoverTooltip.classList.add("tooltip");
+document.body.appendChild(hoverTooltip);
+
+const clickTooltip = document.createElement("div");
+clickTooltip.classList.add("tooltip");
+document.body.appendChild(clickTooltip);
+
+// Add a dynamic WMS layer
+const wmsLayer = new Cesium.WebMapServiceImageryProvider({
+  url: `https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km`,
+  layers: "CRW_DHW",
+  parameters: {
+    transparent: true,
+    format: "image/png",
+    time: "2025-01-15T12:00:00Z", // Static time
+  },
+  credit: "NOAA Coral Reef Watch",
+});
+
+const imageryLayer = viewer.imageryLayers.addImageryProvider(wmsLayer);
+imageryLayer.alpha = 0.8; // Set transparency for the layer
+
+// Hover Handler for Lon/Lat and dynamic WMS value reporting
+const hoverHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+hoverHandler.setInputAction(async (movement) => {
+  const cartesian = viewer.camera.pickEllipsoid(movement.endPosition, scene.globe.ellipsoid);
+  if (cartesian) {
+    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+    const longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(4);
+    const latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(4);
+
+    // Build GetFeatureInfo URL
+    const bbox = `${longitude - 0.05},${latitude - 0.05},${longitude + 0.05},${latitude + 0.05}`;
+    const queryUrl = `https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&QUERY_LAYERS=CRW_DHW&LAYERS=CRW_DHW&STYLES=&FORMAT=image/png&TRANSPARENT=true&INFO_FORMAT=text/plain&BBOX=${bbox}&SRS=EPSG:4326&WIDTH=256&HEIGHT=256&I=128&J=128`;
+
+    // Fetch value dynamically
+    let value = "N/A";
+    try {
+      const response = await fetch(queryUrl);
+      if (response.ok) {
+        value = await response.text();
+      }
+    } catch (error) {
+      console.error("Error fetching WMS value:", error);
+    }
+
+    hoverTooltip.style.display = "block";
+    hoverTooltip.style.left = `${movement.endPosition.x + 15}px`;
+    hoverTooltip.style.top = `${movement.endPosition.y + 15}px`;
+    hoverTooltip.innerHTML = `
+      Lon: ${longitude}<br>
+      Lat: ${latitude}<br>
+      Value: ${value}
+    `;
+  } else {
+    hoverTooltip.style.display = "none";
+  }
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+// Click Handler for clicked Lon/Lat and WMS value reporting
+const clickHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+clickHandler.setInputAction(async (click) => {
+  const cartesian = viewer.camera.pickEllipsoid(click.position, scene.globe.ellipsoid);
+  if (cartesian) {
+    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+    const longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(4);
+    const latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(4);
+
+    // Build GetFeatureInfo URL
+    const bbox = `${longitude - 0.05},${latitude - 0.05},${longitude + 0.05},${latitude + 0.05}`;
+    const queryUrl = `https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&QUERY_LAYERS=CRW_DHW&LAYERS=CRW_DHW&STYLES=&FORMAT=image/png&TRANSPARENT=true&INFO_FORMAT=text/plain&BBOX=${bbox}&SRS=EPSG:4326&WIDTH=256&HEIGHT=256&I=128&J=128`;
+
+    // Fetch value dynamically
+    let value = "N/A";
+    try {
+      const response = await fetch(queryUrl);
+      if (response.ok) {
+        value = await response.text();
+      }
+    } catch (error) {
+      console.error("Error fetching WMS value:", error);
+    }
+
+    clickTooltip.style.display = "block";
+    clickTooltip.style.left = `${click.position.x + 15}px`;
+    clickTooltip.style.top = `${click.position.y + 15}px`;
+    clickTooltip.innerHTML = `
+      Lon: ${longitude}<br>
+      Lat: ${latitude}<br>
+      Value: ${value}
+    `;
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);

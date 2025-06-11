@@ -41,30 +41,37 @@ Simulated reseeding event at Mermaid Bay, Lizard Island
 # 1) seed particles
 
 ```{r}
+#| eval: true
 #| message: false
 #| warning: false
+#| include: true
 #| cache: true
 #| fig-height: 5
 #| fig-width: 9
+
+library(coralseed)
+library(ggplot2)
+library(tidyverse)
+library(sf)
+library(tmap)
   
-  library(coralseed)
-  library(ggplot2)
-  library(tidyverse)
-  library(sf)
-  library(tmap)
+sf_use_s2(FALSE)
   
-  sf_use_s2(FALSE)
-  
-  lizard_benthic_map <- st_read("/Users/rof011/coralseed/data-aux/Lizard-20250314042923/Benthic-Map/benthic.geojson", quiet=TRUE)
-  lizard_reef_map <- st_read("/Users/rof011/coralseed/data-aux/Lizard-20250314042923/Geomorphic-Map/geomorphic.geojson", quiet=TRUE)
-  lizard_seascape <- seascape_probability(reefoutline=lizard_reef_map, habitat=lizard_benthic_map)
-  
-  
-  lizard_particles <- st_read("/Users/rof011/Downloads/run_day_12036_lizard_del_14_1512_sim1_10K_10.json", quiet=TRUE)
-  
-  
-  
-  lizard_particles <- seed_particles(input = "/Users/rof011/Downloads/run_day_12036_lizard_del_14_1512_sim1_10K_10.json",
+# load seascape  
+lizard_benthic_map <- system.file("extdata", "Lizard_Benthic.geojson", package = "coralseed") |>
+                              st_read(quiet=TRUE)
+
+lizard_reef_map <- system.file("extdata", "Lizard_Geomorphic.geojson", package = "coralseed") |>
+                              st_read(quiet=TRUE)
+
+lizard_seascape <- seascape_probability(reefoutline=lizard_reef_map, habitat=lizard_benthic_map)
+
+# load particles
+lizard_particles_sf <- system.file("extdata", "lizard_del_14_1512_sim1_10.json", package = "coralseed") |> st_read(quiet=TRUE)
+
+
+# run seed particles
+lizard_particles <- seed_particles(lizard_particles_sf,
                               zarr = FALSE,
                               set.centre = TRUE,
                               seascape = lizard_seascape,
@@ -79,6 +86,8 @@ Simulated reseeding event at Mermaid Bay, Lizard Island
                               silent = FALSE)
 
 ```
+
+
 
 # 2) settle particles
 
@@ -106,9 +115,7 @@ lizard_settlement_summary <- settlement_summary(lizard_particles, lizard_settler
 ```{r}
 #| message: false
 #| warning: false
-#| cache: true
-#| fig-height: 10
-#| fig-width: 12
+#| eval: false
 
 map_coralseed(seed_particles_input = lizard_particles,
               settle_particles_input = lizard_settlers,
@@ -122,6 +129,36 @@ map_coralseed(seed_particles_input = lizard_particles,
 
 
 ```
+
+```{r}
+#| message: false
+#| warning: false
+#| cache: true
+#| fig-height: 10
+#| fig-width: 12
+#| eval: true
+#| include: false
+
+lizardmap <- map_coralseed(seed_particles_input = lizard_particles,
+              settle_particles_input = lizard_settlers,
+              settlement_density_input = lizard_settlement_density,
+              seascape_probability = lizard_seascape,
+              restoration.plot = c(100,100),
+              show.footprint = TRUE,
+              show.tracks = TRUE,
+              subsample = 1000,
+              webGL = TRUE)
+
+fs::dir_create("../vignettes/www")
+htmlwidgets::saveWidget(lizardmap, "../vignettes/www/lizardmap.html")
+fs::dir_create("../docs/www")
+htmlwidgets::saveWidget(lizardmap, "../docs/www/lizardmap.html")
+ 
+
+
+```
+
+<iframe src="www/lizardmap.html" width="100%" height="600" style="border:none;"></iframe>
 
 # 4) coralseed outputs
 

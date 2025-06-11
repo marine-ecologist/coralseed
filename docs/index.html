@@ -37,12 +37,20 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html"><span class="fa fa-file"></span> Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html"><span class="fa fa-spinner"></span> News</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-simulations" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Simulations</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-simulations">
-<li><a class="dropdown-item" href="articles/scenario_lizard.html">1) Lizard Island</a></li>
-    <li><a class="dropdown-item" href="articles/scenario_moore.html">2) Moore Reef</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-coralseed" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-layer-group"></span> coralseed</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-coralseed">
+<li><a class="dropdown-item" href="articles/scenario_lizard.html"><span class="fa fa-circle"></span> Lizard Island, northern GBR (example simulation, CONNIE)</a></li>
+    <li><a class="dropdown-item" href="articles/scenario_moore.html"><span class="fa fa-circle"></span> Moore Reef, central GBR  (example simulation, oceanparcels)</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-reseed" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-seedling"></span> reseed</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-reseed">
+<li><a class="dropdown-item" href="articles/reseed-lizard.html"><span class="fa fa-cube"></span> Mermaid Bay reseeding (2002)</a></li>
+    <li><a class="dropdown-item" href="articles/reseed.html"><span class="fa fa-cube"></span> About reseed</a></li>
   </ul>
 </li>
       </ul>
@@ -50,14 +58,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
-<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
-    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
-    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="github.com/marine-ecologist/coralseed/"><span class="fa fa-github"></span></a></li>
       </ul>
 </div>
 
@@ -66,12 +67,21 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="coralseed">coralseed<a class="anchor" aria-label="anchor" href="#coralseed"></a>
+<div class="page-header"><h1 id="coralseed-v101">coralseed v1.0.1<a class="anchor" aria-label="anchor" href="#coralseed-v101"></a>
 </h1></div>
 <!-- badges: start -->
+
 <!-- badges: end -->
+<p><img src="images/clipboard-3457175349.jpeg"></p>
 <p><code>coralseed</code> is a spatially explicit probabilistic model aims to quantify the spatial footprint of coral larval re-seeding from restoration progjects. The model is based on input from high-resolution oceanographic models (<a href="https://connie.csiro.au" class="external-link">CONNIE</a>) that tracking individual particles through space and time. By parameterising larval behaviour (competency, habitat specific substrate settlement preferences, swimming behaviour) individual-based probability of settlement can be modelled for 10<sup>5</sup> - 10<sup>7</sup> larvae. Individual-based settlement probability an dispersal paths then overlaid onto high-resolution habitat maps (<a href="https://www.allencoralatlas.org" class="external-link">Allen Coral Atlas</a>) to form a spatially-explicit model of settlement following release of coral larvae.</p>
-<p><code>coralseed</code> aims to provide insight into key knowledge gaps in larval restoration: 1) Where do larvae settle following release? 2) What is the spatial footprint of larval reseeding projects? 3) what are the likely densities of settled corals? 4) What densities of adult corals (~10cm size) are produced from reseeding and where are they located? By varying initial model parameters (e.g. tidal currents, time of release, larval competency, larval densities, location of release sites), a simulation modelling approach can be used to quantify the likely spatial footprint and expected settlement densities, allowing for optimisation and upscaling of larval reseeding programs on the Great Barrier Reef and elsewhere.</p>
+<p><code>coralseed</code> aims to provide insight into key knowledge gaps in larval restoration:</p>
+<ul>
+<li>Where do larvae settle following release?</li>
+<li>What is the spatial footprint of larval reseeding projects?</li>
+<li>what are the likely densities of settled corals?</li>
+<li>What densities of adult corals (~10cm size) are produced from reseeding and where are they located?</li>
+</ul>
+<p>By varying initial model parameters (e.g. tidal currents, time of release, larval competency, larval densities, location of release sites), a simulation modelling approach can be used to quantify the likely spatial footprint and expected settlement densities, allowing for optimisation and upscaling of larval reseeding programs on the Great Barrier Reef and elsewhere.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -85,31 +95,70 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-tmap/tmap" class="external-link">tmap</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/s2.html" class="external-link">sf_use_s2</a></span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## 0. Load example datasets</span></span>
+<span></span>
+<span><span class="va">lizard_benthic_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="st">"../data-aux/Lizard-20250314042923/Benthic-Map/benthic.geojson"</span>, quiet<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">lizard_reef_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="st">"../data-aux/Lizard-20250314042923/Geomorphic-Map/geomorphic.geojson"</span>, quiet<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">lizard_particles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="st">"../data-aux/run_day_12036_lizard_del_14_1512_sim1_10K_10.json"</span>, quiet<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span></span>
 <span></span>
 <span><span class="co">## 1. simulate settlement probabilities from habitat maps</span></span>
 <span><span class="co"># `seascape_probability` takes coral atlas inputs and a data.frame of settlement</span></span>
 <span><span class="co"># probability (mean, se) to simulate probability of settlement in habitats surrounding the release area</span></span>
 <span></span>
-<span><span class="va">seascape</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/seascape_probability.html">seascape_probability</a></span><span class="op">(</span>reefoutline<span class="op">=</span><span class="va">reef_map</span>, habitat<span class="op">=</span><span class="va">benthic_map</span><span class="op">)</span></span>
+<span><span class="va">lizard_seascape</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/seascape_probability.html">seascape_probability</a></span><span class="op">(</span>reefoutline<span class="op">=</span><span class="va">lizard_reef_map</span>, habitat<span class="op">=</span><span class="va">lizard_benthic_map</span><span class="op">)</span></span>
+<span></span>
 <span></span>
 <span><span class="co">## 2. seed particles from dispersal model and simulate competency</span></span>
 <span><span class="co"># `seed_particles` outputs summary statistics and a four panel diagnostic plot</span></span>
 <span></span>
-<span><span class="va">particles</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/seed_particles.html">seed_particles</a></span><span class="op">(</span>example<span class="op">=</span><span class="st">"mermaid"</span>, seascape<span class="op">=</span><span class="va">seascape</span>,</span>
-<span>                            limit_time<span class="op">=</span><span class="fl">6.95</span>, competency.function <span class="op">=</span> <span class="st">"exponential"</span>, probability<span class="op">=</span><span class="st">"additive"</span>,</span>
-<span>                            simulate.mortality <span class="op">=</span> <span class="st">"typeI"</span>,  simulate.mortality.n <span class="op">=</span> <span class="fl">0.1</span>, </span>
-<span>                            silent<span class="op">=</span><span class="cn">FALSE</span>, return.plot<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
+<span><span class="va">lizard_particles</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/seed_particles.html">seed_particles</a></span><span class="op">(</span>input <span class="op">=</span> <span class="st">"../data-aux/run_day_12036_lizard_del_14_1512_sim1_10K_10.json"</span>,</span>
+<span>                                   zarr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                                   set.centre <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                                   seascape <span class="op">=</span> <span class="va">lizard_seascape</span>,</span>
+<span>                                   probability <span class="op">=</span> <span class="st">"additive"</span>,</span>
+<span>                                   limit.time <span class="op">=</span> <span class="fl">12</span>,</span>
+<span>                                   competency.function <span class="op">=</span> <span class="st">"exponential"</span>,</span>
+<span>                                   crs <span class="op">=</span> <span class="fl">20353</span>,</span>
+<span>                                   simulate.mortality <span class="op">=</span> <span class="st">"typeIII"</span>,</span>
+<span>                                   simulate.mortality.n <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>                                   return.plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                                   return.summary <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                                   silent <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>                                   </span>
 <span><span class="co">## 3. simulate settlement of particles</span></span>
 <span><span class="co"># `settle_particles` then applies probability across the seascape to simulate spatially</span></span>
 <span><span class="co"># explicit patterns of settlement across the seascape:</span></span>
 <span></span>
-<span><span class="va">settlers</span> <span class="op">&lt;-</span>  <span class="fu"><a href="reference/settle_particles.html">settle_particles</a></span><span class="op">(</span><span class="va">particles</span>, probability<span class="op">=</span><span class="st">"additive"</span><span class="op">)</span><span class="co"># %&gt;% with(points)</span></span>
+<span></span>
+<span><span class="va">lizard_settlers</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/settle_particles.html">settle_particles</a></span><span class="op">(</span><span class="va">lizard_particles</span>,</span>
+<span>                                    probability <span class="op">=</span> <span class="st">"additive"</span>,</span>
+<span>                                    return.plot<span class="op">=</span><span class="cn">FALSE</span>,</span>
+<span>                                    silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">lizard_settlement_density</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/settlement_density.html">settlement_density</a></span><span class="op">(</span><span class="va">lizard_settlers</span><span class="op">$</span><span class="va">points</span><span class="op">)</span></span>
+<span></span>
 <span></span>
 <span><span class="co">## 4. Map combined coralseed outputs</span></span>
 <span><span class="co"># `map_coralseed` visualises all outputs from the above three models</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/extract_parallel.html">map_coralseed</a></span><span class="op">(</span>seed_particles<span class="op">=</span><span class="va">particles</span>, settle_particles<span class="op">=</span><span class="va">settlers</span>, seascape_probability<span class="op">=</span><span class="va">seascape</span>, restoration.plot<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span></span>
+<span><span class="fu"><a href="reference/extract_parallel.html">map_coralseed</a></span><span class="op">(</span>seed_particles_input <span class="op">=</span> <span class="va">lizard_particles</span>,</span>
+<span>              settle_particles_input <span class="op">=</span> <span class="va">lizard_settlers</span>,</span>
+<span>              settlement_density_input <span class="op">=</span> <span class="va">lizard_settlement_density</span>,</span>
+<span>              seascape_probability <span class="op">=</span> <span class="va">lizard_seascape</span>,</span>
+<span>              restoration.plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">100</span><span class="op">)</span>,</span>
+<span>              show.footprint <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>              show.tracks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>              subsample <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>              webGL <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">

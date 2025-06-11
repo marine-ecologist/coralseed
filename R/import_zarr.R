@@ -10,12 +10,16 @@
 #'
 
 import_zarr <- function(input, crs = 4326) {
+  input <- sub("/+$", "", as.character(input[1]))  # ensure no trailing slash
 
-  lon <- Rarr::read_zarr_array(paste0(input, "lon/"))
-  lat <- Rarr::read_zarr_array(paste0(input, "lat/"))
-  time <- Rarr::read_zarr_array(paste0(input, "time/"))
-  trajectory <- Rarr::read_zarr_array(paste0(input, "trajectory/"))
-  obs <- Rarr::read_zarr_array(paste0(input, "obs/"))
+  # Append slash since file.path will not add one between input and subdir
+  read_array <- function(var) Rarr::read_zarr_array(file.path(input, var))
+
+  lon <- read_array("lon")
+  lat <- read_array("lat")
+  time <- read_array("time")
+  trajectory <- read_array("trajectory")
+  obs <- read_array("obs")
 
   lat_vec <- as.vector(lat)
   lon_vec <- as.vector(lon)
@@ -29,14 +33,14 @@ import_zarr <- function(input, crs = 4326) {
     time = time_vec,
     obs = obs_vec,
     trajectory = trajectory_vec
-  ) %>%
+  ) |>
     dplyr::rename(id = obs) |>
-    dplyr::filter(!is.na(lon), !is.na(lat)) %>%
+    dplyr::filter(!is.na(lon), !is.na(lat)) |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = crs) |>
     dplyr::select(-id) |>
     dplyr::rename(id = trajectory) |>
     dplyr::mutate(dispersaltime = as.numeric(time - min(time)) / 60) |>
-    arrange(id, dispersaltime)
+    dplyr::arrange(id, dispersaltime)
 
   return(data_df)
 }
