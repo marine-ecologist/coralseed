@@ -14,3 +14,6 @@ code/
 outputs/
 vignettes archive/
 docs
+cesium/
+*.rdb
+^.*[Cc]ache.*/$
