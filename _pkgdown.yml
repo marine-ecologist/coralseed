@@ -24,7 +24,6 @@ navbar:
     left:
       - intro
       - reference
-      - theory
       - updates
       - simulations
       - reseed
@@ -38,13 +37,7 @@ navbar:
       text: Reference
       href: reference/index.html
 
-    theory:
-      text: theory
-      icon: fa-lightbulb
-      menu:
-        - text: parameterisation
-          icon: fa-circle
-          href: ""
+
     updates:
       text: News
       icon: fa-spinner
