@@ -48,10 +48,10 @@ navbar:
       icon: fa-layer-group
       menu:
         - text: Lizard Island, northern GBR (example simulation, CONNIE)
-          icon: fa-circle
+          icon: fa-location-dot
           href: articles/scenario_lizard.html
         - text: Moore Reef, central GBR  (example simulation, oceanparcels)
-          icon: fa-circle
+          icon: fa-location-dot
           href: articles/scenario_moore.html
 
     reseed:
@@ -60,7 +60,7 @@ navbar:
       menu:
         - text: Mermaid Bay reseeding (2002)
           icon: fa-cube
-          href: articles/reseed-lizard.html
+          href: articles/reseed_lizard.html
         - text: About reseed
           icon: fa-cube
           href: articles/reseed.html

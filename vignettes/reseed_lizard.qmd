@@ -1,73 +1,35 @@
 ---
-title: "Oceans 0.1.1"
+title: "reseed - mermaid bay '22"
 format: html
 page-layout: full
 ---
 
 <style>
- 
-  body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-  }
+ .container, .row, .col-md-9, .col-md-3 {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 
-  .quarto-title-block, 
-  main > div:first-child {
-    display: none !important; /* Hides title block */
-  }
+main {
+  width: 100vw !important;
+}
 
-  main.content {
-    padding-top: 0 !important;
-    margin-top: 0 !important;
-  }
 
-  .column-screen {
-    margin: 0 !important;
-    padding: 0 !important;
-    height: calc(100vh - 56px); /* 56px is default navbar height */
-  }
-
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-    margin: 0;
-    padding: 0;
-  }
-  
-  <!--  /* Turn navbar black */ -->
-  <!-- .navbar { -->
-  <!--   background-color: #202020 !important; -->
-  <!-- } -->
-
-  <!-- /* Optional: Make navbar text white */ -->
-  <!-- .navbar a, -->
-  <!-- .navbar-brand, -->
-  <!-- .navbar-nav > li > a { -->
-  <!--   color: white !important; -->
-  <!-- } -->
-
-  <!-- /* Optional: Change hover/focus colors */ -->
-  <!-- .navbar a:hover, -->
-  <!-- .navbar a:focus { -->
-  <!--   color: #ddd !important; -->
-  <!-- } -->
-
-  /* Optional: remove border/shadow */
-  .navbar {
-    border: none !important;
-    box-shadow: none !important;
-  }
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
 
 </style>
 
------
-
-
 ::: {.column-screen}
 
-<iframe src="/reseed/index.html" frameborder="0"style="width:100%;height:100vh;border:none;display:block"> </iframe>
+<iframe src="reseed/index.html" frameborder="0"style="width:100%;height:100vh;border:none;display:block"> </iframe>
 
 :::
