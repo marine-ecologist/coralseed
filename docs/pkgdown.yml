@@ -3,11 +3,12 @@ pkgdown: 2.1.3.9000
 pkgdown_sha: f950aed41af49c732ba7884d0806c3641a7b94b3
 articles:
   index: index.html
+  manuscript: manuscript.html
   reseed_lizard: reseed_lizard.html
   reseed: reseed.html
   scenario_lizard: scenario_lizard.html
   scenario_moore: scenario_moore.html
-last_built: 2025-06-11T08:48Z
+last_built: 2025-06-12T00:15Z
 urls:
   reference: https://marine-ecologist.github.io/coralseed/reference
   article: https://marine-ecologist.github.io/coralseed/articles

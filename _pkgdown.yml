@@ -2,19 +2,19 @@ home:
   title: "coralseed Project"
   description: "coralseed: a spatially explicit reef-scale model of coral settlement following larval reseeding"
 
-
 authors:
   George Roff:
     href: https://github.com/marine.ecologist/
 
 url: https://marine-ecologist.github.io/coralseed/
+
 template:
   bootstrap: 5
   math-rendering: mathjax
   light-switch: true
+  css: extra.css
   assets:
     - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css
-
 
 development:
   mode: release
@@ -25,49 +25,64 @@ navbar:
       - intro
       - reference
       - updates
+      - manuscript
+      - tutorials
       - simulations
       - reseed
-
     right:
       - search
       - github
+
   components:
     reference:
-      icon: fa-file
+      icon: fa-user-circle-o
       text: Reference
       href: reference/index.html
 
-
     updates:
-      text: News
       icon: fa-spinner
+      text: Changelog
       href: news/index.html
 
-    simulations:
-      text: coralseed
-      icon: fa-layer-group
+    manuscript:
+      icon: fa-file
+      text: Manuscript
+      href: articles/manuscript.html
+
+    tutorials:
+      icon: fa-copy
+      text: Tutorials
       menu:
-        - text: Lizard Island, northern GBR (example simulation, CONNIE)
+        - text: tbf
+          icon: fa-location-dot
+          href: news/index.html
+
+    simulations:
+      icon: fa-layer-group
+      text: Outputs
+      menu:
+        - text: Lizard Island, northern GBR (CONNIE)
           icon: fa-location-dot
           href: articles/scenario_lizard.html
-        - text: Moore Reef, central GBR  (example simulation, oceanparcels)
+        - text: Moore Reef, central GBR (oceanparcels)
           icon: fa-location-dot
           href: articles/scenario_moore.html
 
     reseed:
-      text: reseed
       icon: fa-seedling
+      text: reseed
       menu:
-        - text: Mermaid Bay reseeding (2002)
-          icon: fa-cube
-          href: articles/reseed_lizard.html
         - text: About reseed
           icon: fa-cube
           href: articles/reseed.html
+        - text: Mermaid Bay reseeding (2002)
+          icon: fa-cube
+          href: articles/reseed_lizard.html
 
     github:
-      text:
       icon: fa-github
-      href: github.com/marine-ecologist/coralseed/
+      text: GitHub
+      href: https://github.com/marine-ecologist/coralseed/
+
     search:
       search: []

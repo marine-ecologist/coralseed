@@ -4,10 +4,12 @@ format: html
 editor: visual
 ---
 
-*Where do larvae go when you release them?*
+![](images/clipboard-74258557.gif)
 
-*Where are they likely to settle after the release?*
+-   *Where do larvae go when you release them?*
 
-*Are there suitable habitats available near the release site for larvae to settle?*
+-   *Where are they likely to settle after the release?*
+
+-   *Are there suitable habitats available near the release site for larvae to settle?*
 
 `reseed` is a `javascript` interactive mapping tool written in `CesiumJS`. The `reseed` tool aims to distill the main outputs from the `coralseed` model (larval dispersal, settlement, mortality) and make the process simpler and visually appealing for stakeholder engagement. Tracking dispersal paths and likely settlement points through animation and rendering the outputs on high-resolution satellite maps, `reseed` aims to focus on the real-world outputs from restoration programs - without the scientific complexity or model outputs. `reseed` can be run in the field using a local server and requires no internet connectivity for use in stakeholder presentations in remote / unconnected locations (e.g. `python3 -m http.server 8000 )`

@@ -37,20 +37,27 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="reference/index.html"><span class="fa fa-file"></span> Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="news/index.html"><span class="fa fa-spinner"></span> News</a></li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html"><span class="fa fa-user-circle-o"></span> Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html"><span class="fa fa-spinner"></span> Changelog</a></li>
+<li class="nav-item"><a class="nav-link" href="articles/manuscript.html"><span class="fa fa-file"></span> Manuscript</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-coralseed" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-layer-group"></span> coralseed</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-coralseed">
-<li><a class="dropdown-item" href="articles/scenario_lizard.html"><span class="fa fa-location-dot"></span> Lizard Island, northern GBR (example simulation, CONNIE)</a></li>
-    <li><a class="dropdown-item" href="articles/scenario_moore.html"><span class="fa fa-location-dot"></span> Moore Reef, central GBR  (example simulation, oceanparcels)</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-copy"></span> Tutorials</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
+<li><a class="dropdown-item" href="news/index.html"><span class="fa fa-location-dot"></span> tbf</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-outputs" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-layer-group"></span> Outputs</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-outputs">
+<li><a class="dropdown-item" href="articles/scenario_lizard.html"><span class="fa fa-location-dot"></span> Lizard Island, northern GBR (CONNIE)</a></li>
+    <li><a class="dropdown-item" href="articles/scenario_moore.html"><span class="fa fa-location-dot"></span> Moore Reef, central GBR (oceanparcels)</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-reseed" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-seedling"></span> reseed</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-reseed">
-<li><a class="dropdown-item" href="articles/reseed_lizard.html"><span class="fa fa-cube"></span> Mermaid Bay reseeding (2002)</a></li>
-    <li><a class="dropdown-item" href="articles/reseed.html"><span class="fa fa-cube"></span> About reseed</a></li>
+<li><a class="dropdown-item" href="articles/reseed.html"><span class="fa fa-cube"></span> About reseed</a></li>
+    <li><a class="dropdown-item" href="articles/reseed_lizard.html"><span class="fa fa-cube"></span> Mermaid Bay reseeding (2002)</a></li>
   </ul>
 </li>
       </ul>
@@ -58,7 +65,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="nav-link" href="github.com/marine-ecologist/coralseed/"><span class="fa fa-github"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/marine-ecologist/coralseed/"><span class="fa fa-github"></span> GitHub</a></li>
       </ul>
 </div>
 
@@ -69,10 +76,10 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="coralseed-v101">coralseed v1.0.1<a class="anchor" aria-label="anchor" href="#coralseed-v101"></a>
 </h1></div>
+<p><img src="images/clipboard-484104969.jpeg"></p>
 <!-- badges: start -->
 
 <!-- badges: end -->
-<p><img src="images/clipboard-3457175349.jpeg"></p>
 <p><code>coralseed</code> is a spatially explicit probabilistic model aims to quantify the spatial footprint of coral larval re-seeding from restoration progjects. The model is based on input from high-resolution oceanographic models (<a href="https://connie.csiro.au" class="external-link">CONNIE</a>) that tracking individual particles through space and time. By parameterising larval behaviour (competency, habitat specific substrate settlement preferences, swimming behaviour) individual-based probability of settlement can be modelled for 10<sup>5</sup> - 10<sup>7</sup> larvae. Individual-based settlement probability an dispersal paths then overlaid onto high-resolution habitat maps (<a href="https://www.allencoralatlas.org" class="external-link">Allen Coral Atlas</a>) to form a spatially-explicit model of settlement following release of coral larvae.</p>
 <p><code>coralseed</code> aims to provide insight into key knowledge gaps in larval restoration:</p>
 <ul>

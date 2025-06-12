@@ -89,8 +89,8 @@ const layerControls = {
 
 const layerToggleContainer = document.createElement("div");
 layerToggleContainer.style.position = "absolute";
-layerToggleContainer.style.top = "10px";
-layerToggleContainer.style.left = "10px";
+layerToggleContainer.style.top = "15px";
+layerToggleContainer.style.left = "30px";
 layerToggleContainer.style.zIndex = "1000";
 layerToggleContainer.style.background = "rgba(255, 255, 255, 0.8)";
 layerToggleContainer.style.padding = "6px";
@@ -113,14 +113,12 @@ subtitle.style.whiteSpace = "normal";
 subtitle.style.wordWrap = "break-word";
 subtitle.style.width = "280px";
 subtitle.innerHTML = `
-  - RRAP Moving Corals project <br> 
+  - RRAP Moving Corals project <br>
   - CONNIE particle track input <br>
   - 10am simulated release 16th December 2022 <br>
   - 10k particles tracked for a 12hr period <br><br>
-  visualised via coralseed and CesiumJS <br>
-   <a href="https://marine-ecologist.github.com/coralseed/" target="_blank">
-    marine-ecologist.github.com/coralseed/
-  </a> <br><br>
+  visualised via <a href="https://marine-ecologist.github.com/coralseed/" target="_blank">coralseed<a/> and <a href="https://cesium.com/" target="_blank">CesiumJS</a> <br>
+   <br><br>
   <b> Select layers </b>
   <br>
 `;
@@ -193,8 +191,8 @@ Cesium.GeoJsonDataSource.load("geojson/lizard_seascape.geojson").then(seascapes 
     }
   });
   return viewer.dataSources.add(seascapes).then(() => {
-    seascapes.show = false;
-  });
+   seascapes.show = document.querySelector('input[data-layer="Seascape"]').checked;
+ });
 }).then(() => {
 
   // 2. Larval tracks

@@ -1,12 +1,12 @@
 # coralseed v1.0.1
 
+![](images/clipboard-484104969.jpeg)
+
 <!-- badges: start -->
 
 [![CRAN status](https://www.r-pkg.org/badges/version/coralseed)](https://CRAN.R-project.org/package=coralseed) [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 
 <!-- badges: end -->
-
-![](images/clipboard-3457175349.jpeg)
 
 `coralseed` is a spatially explicit probabilistic model aims to quantify the spatial footprint of coral larval re-seeding from restoration progjects. The model is based on input from high-resolution oceanographic models ([CONNIE](https://connie.csiro.au)) that tracking individual particles through space and time. By parameterising larval behaviour (competency, habitat specific substrate settlement preferences, swimming behaviour) individual-based probability of settlement can be modelled for 10^5^ - 10^7^ larvae. Individual-based settlement probability an dispersal paths then overlaid onto high-resolution habitat maps ([Allen Coral Atlas](https://www.allencoralatlas.org)) to form a spatially-explicit model of settlement following release of coral larvae.
 
@@ -99,5 +99,4 @@ map_coralseed(seed_particles_input = lizard_particles,
               show.tracks = TRUE,
               subsample = 1000,
               webGL = TRUE)
-
 ```
