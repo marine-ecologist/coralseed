@@ -1,0 +1,69 @@
+---
+title: ""
+format:
+  html:
+    toc: false
+    page-layout: full
+---
+<style>
+
+/* Make content column full width */
+.row > .col-md-9 {
+  flex: 0 0 100%; !important;
+  max-width: 100%; !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.col-md-9 {
+  flex: 0 0 100%; !important;
+  max-width: 100%; !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.col-md-3 {
+  display: none !important;
+}
+
+div.container.template-quarto {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.page-header {
+  display: none !important;
+}
+
+main {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+iframe {
+  width: 100%;
+  height: calc(100vh - 56px);
+  margin-top: 56px;
+ 
+  border: none;
+  display: block;
+}
+
+footer {
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  display: none !important;
+}
+
+
+</style>
+
+
+<iframe src="../www/mooremap.html" frameborder="0" style="width:100%;height:calc(100vh - 56px);border:none;display:block"></iframe>
+

@@ -35,7 +35,7 @@ navbar:
 
   components:
     reference:
-      icon: fa-user-circle-o
+      icon: fa-layer-group
       text: Reference
       href: reference/index.html
 
@@ -53,20 +53,23 @@ navbar:
       icon: fa-copy
       text: Tutorials
       menu:
-        - text: tbf
-          icon: fa-location-dot
-          href: news/index.html
-
-    simulations:
-      icon: fa-layer-group
-      text: Outputs
-      menu:
         - text: Lizard Island, northern GBR (CONNIE)
           icon: fa-location-dot
           href: articles/scenario_lizard.html
         - text: Moore Reef, central GBR (oceanparcels)
           icon: fa-location-dot
           href: articles/scenario_moore.html
+
+    simulations:
+      icon: fa-globe
+      text: Outputs
+      menu:
+        - text: Lizard Island, northern GBR (CONNIE)
+          icon: fa-location-dot
+          href: articles/coralseed_lizard.html
+        - text: Moore Reef, central GBR (oceanparcels)
+          icon: fa-location-dot
+          href: articles/coralseed_moore.html
 
     reseed:
       icon: fa-seedling
