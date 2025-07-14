@@ -40,7 +40,6 @@ Simulated reseeding event at Moore Reef, central Great Barrier Reef based on oce
 
 # 1) seed particles
 
-
 ```{r}
 #| echo: true
 #| eval: true
@@ -87,8 +86,6 @@ moore_particles <- seed_particles(moorereef_particles,
                             silent = FALSE)
                                   
 ```
-
-
 
 # 2) settle particles
 
