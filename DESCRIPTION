@@ -1,6 +1,6 @@
 Package: coralseed
 Title: coralseed: a spatially explicit reef-scale model of larval reseeding
-Version: 1.0.1
+Version: 1.1.0
 Authors@R: 
     person("George", "Roff", , "george.roff@csiro.au", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2823-0575"))
