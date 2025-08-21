@@ -5,7 +5,7 @@
 #' seed_particles() uses predict_competency(), simulate_mortality()
 #'
 #'
-#' seed_particles(input = "Users/rof011/coralseed/data-raw/run_day_11656_lizard_fcst_15_2611_26.json",
+#' seed_particles_dt(input = "Users/rof011/coralseed/data-raw/run_day_11656_lizard_fcst_15_2611_26.json",
 #'                seascape = seascape,
 #'                brmsfit=infamis_tiles_exp,
 #'                simulate.mortality = "typeI",
@@ -32,7 +32,7 @@
 #' @param ... passes functions
 #' @export
 
-seed_particles <- function(
+seed_particles_dt <- function(
     input = NULL, seascape = NULL, subsample = NULL,
     simulate.mortality = "none", simulate.mortality.n = 0.1,
     brmsfit=infamis_tiles_exp, set_b_Intercept=NULL, limit.time = NA,
@@ -70,6 +70,7 @@ seed_particles <- function(
       dplyr::mutate(id = as.integer(id))
   }
 
+  tic()
   t0 <- min(load_particles$time)
   tmax <- max(load_particles$time)
   n_id <- length(unique(load_particles$id))
@@ -79,8 +80,6 @@ seed_particles <- function(
   if (!is.na(limit.time)) {
     load_particles <- load_particles |> dplyr::filter(dispersaltime <= limit.time * 60)
   }
-
-  n_id <- dplyr::n_distinct(load_particles$id)
 
   if (set.centre == TRUE) {
     load_particles_t0 <- load_particles |>
@@ -109,6 +108,7 @@ seed_particles <- function(
 
   competency_times <- competency_times_output |> with(simulated_settlers) |> dplyr::sample_frac(1) |> dplyr::mutate(id = as.factor(unique(particle_points$id)))
 
+  toc()
   particle_points_expanded <- particle_points |>
     as.data.frame() |>
     dplyr::mutate(geometry = gsub("[^0-9. -]", "", geometry), id = as.factor(id)) |>
@@ -125,16 +125,6 @@ seed_particles <- function(
     sf::st_as_sf(coords = c("X", "Y"), crs = crs) |>
     sf::st_cast("POINT")
 
-  mortality_val <- rnorm(1, simulate.mortality.n, 0.005)
-
-  particle_points_expanded_postmortality <- simulate_mortality(
-    input = particle_points_expanded,
-    simulate.mortality = simulate.mortality,
-    simulate.mortality.n = mortality_val,
-    return.plot = return.plot,
-    seed.value = seed.value,
-    silent = TRUE
-  )
 
   mortality_count <- particle_points_expanded_postmortality$survivorship_output |>
     dplyr::filter(mortalitytime < max.time) |> nrow()

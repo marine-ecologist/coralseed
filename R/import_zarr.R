@@ -9,11 +9,15 @@
 #' @export
 #'
 
-import_zarr <- function(input, crs = 4326) {
+import_zarr <- function(input, origin = "1970-01-01 15:00:00", crs = 4326) {
   input <- sub("/+$", "", as.character(input[1]))  # ensure no trailing slash
 
   # Append slash since file.path will not add one between input and subdir
   read_array <- function(var) Rarr::read_zarr_array(file.path(input, var))
+
+  origin_time <- as.POSIXct(origin, tz = "UTC")
+
+
 
   lon <- read_array("lon")
   lat <- read_array("lat")
@@ -21,9 +25,15 @@ import_zarr <- function(input, crs = 4326) {
   trajectory <- read_array("trajectory")
   obs <- read_array("obs")
 
+  time_vec <- as.POSIXct(
+    as.vector(time) - time[1],
+    origin = origin,
+    tz = "UTC"
+  )
+
   lat_vec <- as.vector(lat)
   lon_vec <- as.vector(lon)
-  time_vec <- as.POSIXct(as.vector(time), origin = "1970-01-01", tz = "UTC")
+  #time_vec <- as.POSIXct(as.vector(time), origin = origin, tz = "UTC")
   trajectory_vec <- rep(trajectory, times = ncol(lat))
   obs_vec <- rep(obs, each = nrow(lat))
 

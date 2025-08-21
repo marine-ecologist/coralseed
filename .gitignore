@@ -9,6 +9,7 @@
 coralseed.Rproj
 code/
 outputs/
+cesium/
 archive/
 *.rdb
 ^.*[Cc]ache.*/$

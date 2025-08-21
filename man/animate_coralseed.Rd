@@ -4,14 +4,7 @@
 \alias{animate_coralseed}
 \title{Animate Coral Seed Particle Tracks}
 \usage{
-animate_coralseed(
-  input,
-  filename,
-  width = 1200,
-  height = 600,
-  delay = 10,
-  loop = FALSE
-)
+animate_coralseed(input, outputfolder, n = 100)
 }
 \arguments{
 \item{input}{An sf object containing particle tracks. Must include a 'time' and 'id' column.}

@@ -87,8 +87,6 @@ lizard_particles <- seed_particles(lizard_particles_sf,
 
 ```
 
-
-
 # 2) settle particles
 
 ```{r}
@@ -158,7 +156,9 @@ htmlwidgets::saveWidget(lizardmap, "../docs/www/lizardmap.html")
 
 ```
 
-<iframe src="www/lizardmap.html" width="100%" height="600" style="border:none;"></iframe>
+<iframe src="www/lizardmap.html" width="100%" height="600" style="border:none;">
+
+</iframe>
 
 # 4) coralseed outputs
 

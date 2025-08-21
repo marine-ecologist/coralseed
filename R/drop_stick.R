@@ -32,6 +32,8 @@ drop_stick <- function(input, n_time = 100, saveoutput = NULL) {
     dplyr::filter(long_repeats) |>
     dplyr::pull(id)
 
+  cat(print(ids_with_repeats_id))
+
   output <- tmp_particle_track |>
     dplyr::filter(!id %in% ids_with_repeats_id) |>
     dplyr::arrange(id, dispersaltime) |>
