@@ -7,7 +7,7 @@
 stationary_particles(input)
 }
 \arguments{
-\item{input}{input particle tracks (e.g. coralseed:::Mermaid_PointSource_Bay_01)}
+\item{input}{input particle tracks}
 
 \item{subset}{n particles to subset}
 }
@@ -18,11 +18,18 @@ Function to identify stationary particles in particle tracks
 \dontrun{
 stat_particles_liz22_del_14_33 <- stationary_particles(liz22_del_14_33)
 
-stat_liz22_del_14_33_map <- stationary_particles_map(liz22_del_14_33 |> filter(id \%in\% seq(0:1000)))
-stat_liz22_del_14_33_map <- stationary_particles_map(coralseed:::Mermaid_PointSource_Bay_01 |> filter(id \%in\% seq(0:1000)))
+stat_liz22_del_14_33_map <- stationary_particles_map(liz22_del_14_33 |>
+  filter(id \%in\% seq(0:1000)))
+stat_liz22_del_14_33_map <-
+  stationary_particles_map(coralseed:::Mermaid_PointSource_Bay_01 |>
+  filter(id \%in\% seq(0:1000)))
 
-stat_liz22_del_14_33_map <- stationary_particles_map(run_day_12039_liz22_del_11_35|> filter(id \%in\% seq(0:100)))
-stat_liz22_del_14_33_stationary <- stationary_particles(run_day_12039_liz22_del_11_35)
+stat_liz22_del_14_33_map <-
+  stationary_particles_map(run_day_12039_liz22_del_11_35 |>
+  filter(id \%in\% seq(0:100)))
+
+stat_liz22_del_14_33_stationary <-
+  stationary_particles(run_day_12039_liz22_del_11_35)
 }
 
 }

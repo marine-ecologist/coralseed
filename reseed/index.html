@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>coralseed view</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Cesium -->
+  <script defer src="Build/Cesium/Cesium.js"></script>
+  <link href="Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <!-- cesium-navigation-es6 (UMD exposes global CesiumNavigation) -->
+  <link rel="stylesheet" href="https://unpkg.com/cesium-navigation-es6@3.0.9/dist/cesium-navigation.css">
+  <script defer src="https://unpkg.com/cesium-navigation-es6@3.0.9/dist/cesium-navigation.umd.js"></script>
+  <style>
+    html, body, #cesiumContainer { width:100%; height:100%; margin:0; padding:0; overflow:hidden; }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <!-- Your scripts (token first, then app) -->
+  <script defer src="js/coralseed.head.js"></script>
+  <script defer src="js/coralseed.0.5.js"></script>
+</body>
+</html>

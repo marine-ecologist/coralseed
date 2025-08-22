@@ -1,6 +1,6 @@
 # coralseed v1.0.1
 
-![](images/clipboard-484104969.jpeg)
+![](man/figures/coralseedtrace.png)
 
 <!-- badges: start -->
 

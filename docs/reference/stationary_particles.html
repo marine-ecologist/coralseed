@@ -51,7 +51,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Stationary particles</h1>
-
+      <small class="dont-index">Source: <a href="https://github.com/marine-ecologist/coralseed/blob/HEAD/R/stationary_particles.R" class="external-link"><code>R/stationary_particles.R</code></a></small>
       <div class="d-none name"><code>stationary_particles.Rd</code></div>
     </div>
 
@@ -69,7 +69,7 @@
 
 
 <dl><dt id="arg-input">input<a class="anchor" aria-label="anchor" href="#arg-input"></a></dt>
-<dd><p>input particle tracks (e.g. coralseed:::Mermaid_PointSource_Bay_01)</p></dd>
+<dd><p>input particle tracks</p></dd>
 
 
 <dt id="arg-subset">subset<a class="anchor" aria-label="anchor" href="#arg-subset"></a></dt>
@@ -82,11 +82,18 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">stat_particles_liz22_del_14_33</span> <span class="op">&lt;-</span> <span class="fu">stationary_particles</span><span class="op">(</span><span class="va">liz22_del_14_33</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">stat_liz22_del_14_33_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="stationary_particles_map.html">stationary_particles_map</a></span><span class="op">(</span><span class="va">liz22_del_14_33</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">id</span> <span class="op"><a href="https://rspatial.github.io/terra/reference/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">1000</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">stat_liz22_del_14_33_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="stationary_particles_map.html">stationary_particles_map</a></span><span class="op">(</span><span class="fu">coralseed</span><span class="fu">:::</span><span class="va">Mermaid_PointSource_Bay_01</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">id</span> <span class="op"><a href="https://rspatial.github.io/terra/reference/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">1000</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">stat_liz22_del_14_33_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="stationary_particles_map.html">stationary_particles_map</a></span><span class="op">(</span><span class="va">liz22_del_14_33</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">id</span> <span class="op"><a href="https://rspatial.github.io/terra/reference/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">1000</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">stat_liz22_del_14_33_map</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="stationary_particles_map.html">stationary_particles_map</a></span><span class="op">(</span><span class="fu">coralseed</span><span class="fu">:::</span><span class="va">Mermaid_PointSource_Bay_01</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">id</span> <span class="op"><a href="https://rspatial.github.io/terra/reference/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">1000</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">stat_liz22_del_14_33_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="stationary_particles_map.html">stationary_particles_map</a></span><span class="op">(</span><span class="va">run_day_12039_liz22_del_11_35</span><span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">id</span> <span class="op"><a href="https://rspatial.github.io/terra/reference/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">stat_liz22_del_14_33_stationary</span> <span class="op">&lt;-</span> <span class="fu">stationary_particles</span><span class="op">(</span><span class="va">run_day_12039_liz22_del_11_35</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">stat_liz22_del_14_33_map</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="stationary_particles_map.html">stationary_particles_map</a></span><span class="op">(</span><span class="va">run_day_12039_liz22_del_11_35</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">id</span> <span class="op"><a href="https://rspatial.github.io/terra/reference/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">stat_liz22_del_14_33_stationary</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="fu">stationary_particles</span><span class="op">(</span><span class="va">run_day_12039_liz22_del_11_35</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

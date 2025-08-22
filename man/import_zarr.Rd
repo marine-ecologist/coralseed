@@ -4,7 +4,7 @@
 \alias{import_zarr}
 \title{Seed particles}
 \usage{
-import_zarr(input, crs = 4326)
+import_zarr(input, origin = "1970-01-01 15:00:00", crs = 4326)
 }
 \arguments{
 \item{input}{input zarr folder}

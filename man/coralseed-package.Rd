@@ -4,14 +4,15 @@
 \name{coralseed-package}
 \alias{coralseed}
 \alias{coralseed-package}
-\title{coralseed: coralseed: a spatially explicit reef-scale model of larval reseeding}
+\title{coralseed: Spatially Explicit Reef-Scale Model of Larval Reseeding}
 \description{
-a spatially explicit individual-based probabilistic model for predicting coral settlement following larval dispersal on coral reefs
+A spatially explicit, individual-based probabilistic model for predicting coral settlement following larval dispersal on coral reefs.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://marine-ecologist.github.io/coralseed/}
+  \item Report bugs at \url{https://github.com/marine-ecologist/coralseed/issues}
 }
 
 }

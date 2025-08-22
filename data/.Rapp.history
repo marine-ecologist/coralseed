@@ -4,3 +4,5 @@ load("/Users/rof011/coralseed/data/parameter_draws_log.rda")
 env()
 ls()
 parameter_draws_exp
+load("/Users/rof011/coralseed/data/draws_weibull.Rds")
+load("/Users/rof011/coralseed/data/draws_log.Rds")

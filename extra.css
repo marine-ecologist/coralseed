@@ -1,0 +1,13 @@
+/* extra.css */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
+
+h1, h2, h3, h4, h5, h6,
+.navbar-brand, .navbar-nav .nav-link {
+  font-family: 'Roboto Slab', Georgia, serif !important;
+}
+
+/* shrink navbar brand and links */
+.navbar .navbar-brand,
+.navbar .nav-link {
+  font-size: 0.8em !important;   /* 80% of default */
+}

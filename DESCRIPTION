@@ -1,11 +1,12 @@
 Package: coralseed
-Title: coralseed: a spatially explicit reef-scale model of larval reseeding
+Title: Spatially Explicit Reef-Scale Model of Larval Reseeding
 Version: 1.1.0
 Authors@R: 
     person("George", "Roff", , "george.roff@csiro.au", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2823-0575"))
-Description: a spatially explicit individual-based probabilistic model for predicting coral settlement following larval dispersal on coral reefs
-License: GPL (>= 3)
+Description: A spatially explicit, individual-based probabilistic model for predicting 
+    coral settlement following larval dispersal on coral reefs.
+License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
@@ -40,5 +41,13 @@ Imports:
     tmap,
     utils,
     viridis
+Suggests:
+    knitr,
+    rmarkdown,
+    pkgdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
 LazyData: false
 URL: https://marine-ecologist.github.io/coralseed/
+BugReports: https://github.com/marine-ecologist/coralseed/issues
+Config/testthat/edition: 3

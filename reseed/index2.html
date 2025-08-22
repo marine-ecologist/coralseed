@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>coralseed view</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.108/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.108/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <style>
+    html, body, #cesiumContainer {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .tooltip {
+      position: absolute;
+      background: rgba(42, 42, 42, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-family: Arial, sans-serif;
+      pointer-events: none;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+<div id="cesiumContainer"></div>
+const viewer = new Cesium.Viewer("cesiumContainer", {
+  animation: false,
+  timeline: false,
+  fullscreenButton: false,
+  baseLayerPicker: true,  // allow switching base imagery
+  terrainProvider: Cesium.createWorldTerrain()
+});
+
+// --- keep your viewer creation as-is above ---
+
+// OPTIONAL: if you want to see geometry even when it's behind hills
+// viewer.scene.globe.depthTestAgainstTerrain = false;
+
+// Color ramp for settlers (unchanged)
+const settlementColors = [
+  "#5e4fa2","#3288bd","#66c2a5","#abdda4","#e6f598",
+  "#ffffbf","#fee08b","#fdae61","#f46d43","#d53e4f","#9e0142"
+].map(c => Cesium.Color.fromCssColorString(c).withAlpha(0.9));
+
+// Load Paths + Points (no clampToGround anywhere)
+Promise.all([
+  Cesium.GeoJsonDataSource.load("geojson/lizard_particles_linestrings.geojson"),
+  Cesium.GeoJsonDataSource.load("geojson/lizard_settlers_points.geojson")
+]).then(async ([paths, settlers]) => {
+  // ========= 1) PATHS =========
+  const pathEntities = paths.entities.values;
+  const validPaths = pathEntities.map(e => {
+    const timeStr = e.properties?.time?.getValue();
+    const t = timeStr ? new Date(new Date(timeStr).getTime() + 10 * 3600000) : null; // +10h
+    const posNow = e.polyline?.positions?.getValue(Cesium.JulianDate.now());
+    return t && posNow?.length ? { entity: e, date: t, positions: posNow } : null;
+  }).filter(Boolean);
+
+  // lift polylines by +30 m so they don't intersect terrain
+  const POLYLINE_LIFT_M = 30;
+  validPaths.forEach(({ entity, positions }) => {
+    const lifted = positions.map(p => {
+      const c = Cesium.Cartographic.fromCartesian(p);
+      return Cesium.Cartesian3.fromRadians(c.longitude, c.latitude, (c.height || 0) + POLYLINE_LIFT_M);
+    });
+    entity.polyline = new Cesium.PolylineGraphics({
+      positions: new Cesium.ConstantProperty(lifted),
+      width: 1,
+      material: Cesium.Color.WHITE.withAlpha(0.3) // no clampToGround
+    });
+  });
+
+  await viewer.dataSources.add(paths);
+  paths.show = true;
+
+  // ========= 2) POINTS (SETTLERS) =========
+  const pointEntities = settlers.entities.values;
+  const validPts = pointEntities.map(e => {
+    const timeStr = e.properties?.time?.getValue();
+    const val = e.properties?.dispersaltime?.getValue();
+    const t = timeStr ? new Date(new Date(timeStr).getTime() + 10 * 3600000) : null; // +10h
+    return t && Number.isFinite(val) ? { entity: e, date: t, val } : null;
+  }).filter(Boolean);
+
+  // color ramp by dispersal time
+  const vals = validPts.map(d => d.val);
+  const vmin = Math.min(...vals);
+  const vmax = Math.max(...vals);
+
+  // lift points by +8 m and render with absolute height (no heightReference)
+  const POINT_LIFT_M = 8;
+  validPts.forEach(({ entity, val }) => {
+    // get original lon/lat from entity.position (cartographic on ellipsoid)
+    const pos = entity.position?.getValue?.(Cesium.JulianDate.now());
+    if (pos) {
+      const c = Cesium.Cartographic.fromCartesian(pos);
+      entity.position = new Cesium.ConstantPositionProperty(
+        Cesium.Cartesian3.fromRadians(c.longitude, c.latitude, (c.height || 0) + POINT_LIFT_M)
+      );
+    }
+
+    const norm = (val - vmin) / (vmax - vmin || 1);
+    const color = settlementColors[Math.floor(norm * (settlementColors.length - 1))];
+
+    entity.point = new Cesium.PointGraphics({
+      pixelSize: 6,
+      color: color.withAlpha(0.9),
+      outlineColor: Cesium.Color.BLACK,
+      outlineWidth: 0.5
+      // no heightReference
+    });
+  });
+
+  await viewer.dataSources.add(settlers);
+  settlers.show = true;
+});
+
+</body>
+</html>

@@ -2,85 +2,36 @@
 % Please edit documentation in R/st_to_xyzm.R
 \name{sf_to_xyzm}
 \alias{sf_to_xyzm}
-\title{Build LINESTRING XYZM trips from POINTS or (MULTI)LINESTRING}
+\title{Build LINESTRING XYZM trips (integer M from a time column)}
 \usage{
-sf_to_xyzm(
-  sf_obj,
-  type = c("points", "linestring"),
-  time_col = "dispersaltime",
-  group_col = NULL,
-  time_units = c("auto", "secs", "mins", "hours"),
-  z_val = 0,
-  cast_multi = TRUE
-)
+sf_to_xyzm(sf_obj, time_col = "dispersaltime", z_val = 0, cast_multi = TRUE)
 }
 \arguments{
-\item{sf_obj}{\code{sf} object. POINTS for \code{type="points"}; LINESTRING or
-MULTILINESTRING for \code{type="linestring"}.}
+\item{sf_obj}{sf object (POINTS for type="points"; LINESTRING/MULTILINESTRING for type="linestring")}
 
-\item{type}{One of \code{c("points","linestring")}.}
+\item{time_col}{character name of time/index column (integers or numeric)}
 
-\item{time_col}{Name of the column containing time/index values (numeric,
-\code{POSIXt}, or \code{difftime}). When numeric, conversion uses
-\code{time_units}.}
+\item{z_val}{numeric constant Z (default 0)}
 
-\item{group_col}{Name of the id/group column (only for \code{type="points"}).
-If \code{NULL}, uses \code{"id"} when present, else a single group is used.}
+\item{cast_multi}{logical; cast MULTILINESTRING to LINESTRING (default TRUE)}
 
-\item{time_units}{One of \code{c("auto","secs","mins","hours")}. Applies to
-numeric time: \code{"mins"} multiplies by 60; \code{"hours"} by 3600;
-\code{"secs"} and \code{"auto"} leave numeric as-is. \code{POSIXt} and
-\code{difftime} are converted to seconds.}
+\item{type}{c("points","linestring")}
 
-\item{z_val}{Constant Z value to assign to all vertices (default \code{0}).}
+\item{group_col}{character, group/id column for points (default "id" if present)}
 
-\item{cast_multi}{If \code{TRUE}, MULTILINESTRING is cast to LINESTRING.}
-}
-\value{
-\code{sf} LINESTRING \strong{XYZM} object with attributes retained.
-Geometry carries an \code{m_range} attribute used by
-\code{mapdeck::add_trips()}.
+\item{id_col}{character, id column for linestring collapse (default "id" if present)}
 }
 \description{
-Converts an input \strong{sf} object into LINESTRING \strong{XYZM} geometry
-for WebGL animation (e.g., \code{mapdeck::add_trips()}). The M-dimension is
-taken from a time/index column. For \code{type="points"}, features are grouped
-by \code{group_col} (defaults to \code{"id"} if present) and ordered by time
-before constructing paths. For \code{type="linestring"}, each feature's M is
-applied to all its vertices. The function also sets the required
-\code{m_range} geometry attribute used by \code{mapdeck}.
-}
-\examples{
-\dontrun{
-# From MULTILINESTRING with minutes in `dispersaltime`
-mls_wgs <- sf::st_transform(particle_mls_dispersaltime, 4326)
-trips_ls <- trips_xyzm(
-  mls_wgs, type = "linestring",
-  time_col = "dispersaltime", time_units = "mins", z_val = 0
-)
-
-# From POINTS with minutes + id grouping
-pts_wgs <- sf::st_transform(particle_points_points, 4326)
-trips_pts <- trips_xyzm(
-  pts_wgs, type = "points",
-  time_col = "dispersaltime", group_col = "id",
-  time_units = "mins", z_val = 0
-)
-
-# Map (Esri imagery as basemap)
-center <- with(as.list(sf::st_bbox(trips_ls)), c((xmin+xmax)/2, (ymin+ymax)/2))
-mapdeck::set_token(Sys.getenv("MAPBOX_TOKEN"))
-mapdeck::mapdeck(style = "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-                 location = center, zoom = 12, pitch = 45) |>
-  mapdeck::add_trips(
-    data = trips_ls,
-    stroke_colour = "dispersaltime",
-    palette = "rdbu", reverse = TRUE,
-    stroke_width = 6, animation_speed = 6000, trail_length = 36000,
-    legend = TRUE
-  )
+Minimal helper to create LINESTRING XYZM for mapdeck::add_trips()
+using an integer range from a time/index column (e.g. "dispersaltime").
+\itemize{
+\item type = "points": group points by \code{group_col} (default "id") ordered by time,
+build one LINESTRING per group with M = integer(time).
+\item type = "linestring": if \code{id_col} present, collapse time-sliced features per id
+and ramp M linearly from t -> next_t along vertices; last slice uses next_t = t + 1.
+If no \code{id_col}, each feature ramps t -> t+1.
 }
 }
-\seealso{
-\code{\link[mapdeck]{add_trips}}
+\details{
+Sets geometry m_range attribute required by mapdeck.
 }

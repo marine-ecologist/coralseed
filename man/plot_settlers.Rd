@@ -20,7 +20,9 @@ Function to plot output of seed_particles in base R for quick cheks
 }
 \examples{
 \dontrun{
-#' # particles <- seed_particles("mermaid", seascape=seascape, limit_time=720, competency.function = "exponential", simulate.mortality = "typeI", simulate.mortality.n = 0.1, probability="additive",return.plot=FALSE, silent=TRUE)
+#' # particles <- seed_particles("mermaid", seascape=seascape,
+limit_time=720, competency.function = "exponential", simulate.mortality = "typeI",
+simulate.mortality.n = 0.1, probability="additive",return.plot=FALSE, silent=TRUE)
 # plot_particles(particles)
 }
 }
