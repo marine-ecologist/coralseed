@@ -1,0 +1,202 @@
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m_202406/vo",
+    //layer: "GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m_202406/uo",
+    style: "cmap:viridis",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+    maximumLevel: 10,
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m_202406/uo",
+    style: "cmap:viridis",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+    maximumLevel: 10,
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+const wmtsLayervector = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m_202406/uo",
+    style: "vectorStyle:solidAndVector",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+    maximumLevel: 10,
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+
+
+// Wave Height
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_WAV_001_027/cmems_mod_glo_wav_anfc_0.083deg_PT3H-i_202411/VHM0",
+    style: "cmap:amp",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+// Dissolved Iron - mole_concentration_of_dissolved_iron_in_sea_water
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_BGC_001_028/cmems_mod_glo_bgc-nut_anfc_0.25deg_P1D-m_202311/fe",
+    style: "cmap:dense",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+//DIOC
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_BGC_001_028/cmems_mod_glo_bgc-car_anfc_0.25deg_P1D-m_202311/dissic",
+    style: "cmap:dense",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+
+// Nitrate
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_BGC_001_028/cmems_mod_glo_bgc-nut_anfc_0.25deg_P1D-m_202311/no3",
+    style: "cmap:matter,logScale",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+// Phosphate
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_BGC_001_028/cmems_mod_glo_bgc-nut_anfc_0.25deg_P1D-m_202311/po4",
+    style: "cmap:dense",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+
+// KD
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_BGC_001_028/cmems_mod_glo_bgc-optics_anfc_0.25deg_P1D-m_202311/kd",
+    style: "cmap:viridis,logScale",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+// CHL
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_BGC_001_028/cmems_mod_glo_bgc-pft_anfc_0.25deg_P1D-m_202311/chl",
+    style: "cmap:algae",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+
+
+// Salinity
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy-so_anfc_0.083deg_P1D-m_202406/so",
+    style: "cmap:haline",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);
+
+
+
+
+// Vertical current velocity
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+const wmtsLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapTileServiceImageryProvider({
+    url: "https://wmts.marine.copernicus.eu/teroWmts",
+    layer: "GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy-wcur_anfc_0.083deg_P1D-m_202406/wo",
+    style: "cmap:viridis",
+    format: "image/png",
+    tileMatrixSetID: "EPSG:4326",
+
+    tilingScheme: new Cesium.GeographicTilingScheme(),
+  })
+);

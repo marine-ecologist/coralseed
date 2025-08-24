@@ -9,13 +9,7 @@
 #' @param pch pch
 #' @param ... passes functions
 #' @export
-#' @examples
-#' \dontrun{
-#' #' # particles <- seed_particles("mermaid", seascape=seascape,
-#' limit_time=720, competency.function = "exponential", simulate.mortality = "typeI",
-#' simulate.mortality.n = 0.1, probability="additive",return.plot=FALSE, silent=TRUE)
-#' # plot_particles(particles)
-#'}
+
 
 plot_settlers <- function(input = NULL, pch=16, size=0.5, ...) {
   palette <- heat.colors(12)

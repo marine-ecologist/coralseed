@@ -1,0 +1,60 @@
+
+
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+// Define the geographic extent for the image
+const rectangle = Cesium.Rectangle.fromDegrees(-180, -90, 180, 90); // Global extent
+
+// Create a canvas to load and process the image
+const canvas = document.createElement("canvas");
+const context = canvas.getContext("2d");
+
+// Load the image into the canvas
+const img = new Image();
+img.crossOrigin = "anonymous"; // Enable CORS for external images
+img.src = 'https://www.ncei.noaa.gov/data/oceans/crw/5km/v3.1/image_plain/daily/sst/png/1998/coraltemp_v3.1_19980103.png';
+
+img.onload = () => {
+    // Set canvas dimensions to match the image
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    // Draw the image onto the canvas
+    context.drawImage(img, 0, 0, img.width, img.height);
+
+    // Get image data
+    const imageData = context.getImageData(0, 0, img.width, img.height);
+    const pixels = imageData.data; // Flat array [R, G, B, A, R, G, B, A, ...]
+
+    // Remap colors
+    for (let i = 0; i < pixels.length; i += 4) {
+        // Get original color
+        const r = pixels[i];
+        const g = pixels[i + 1];
+        const b = pixels[i + 2];
+        const a = pixels[i + 3];
+
+        // Example remap: Invert colors
+        pixels[i] = 255 - r;       // Red
+        pixels[i + 1] = 255 - g;   // Green
+        pixels[i + 2] = 255 - b;   // Blue
+        pixels[i + 3] = a;         // Alpha (keep unchanged)
+    }
+
+    // Put modified data back to the canvas
+    context.putImageData(imageData, 0, 0);
+
+    // Export the modified canvas as a data URL
+    const remappedImageURL = canvas.toDataURL("image/png");
+
+    // Use the remapped image in Cesium
+    const imageryProvider = new Cesium.SingleTileImageryProvider({
+        url: remappedImageURL,
+        tileWidth: 256,        // Set tile width (default is 256)
+        tileHeight: 256,        // Set tile height (default is 256)
+        rectangle: rectangle // Set the same spatial extent
+    });
+
+    // Add the remapped image to Cesium
+    viewer.imageryLayers.addImageryProvider(imageryProvider);
+};

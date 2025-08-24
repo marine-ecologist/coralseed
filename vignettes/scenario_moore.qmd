@@ -36,7 +36,7 @@ load(file="/Users/rof011/coralseed/data/infamis_tiles_exp.rda")
 ```
 :::
 
-Simulated reseeding event at Moore Reef, central Great Barrier Reef based on ocean parcels input
+Simulated reseeding event at Moore Reef, northern Great Barrier Reef based on ocean parcels input
 
 # 1) seed particles
 
@@ -100,6 +100,8 @@ moore_settlers <-  settle_particles(moore_particles,
                                     probability = "additive",
                                     silent = TRUE)
 
+plot_particles(moore_settlers$points, moore_seascape)
+
 moore_settlement_density <- settlement_density(moore_settlers$points, cellsize=50)
 
 
@@ -130,7 +132,7 @@ map_coralseed(seed_particles_input = moore_particles,
 #| cache: true
 #| fig-height: 10
 #| fig-width: 12
-#| eval: true
+#| eval: false
 #| include: false
 
 mooremap <- map_coralseed(seed_particles_input = moore_particles,
@@ -144,16 +146,16 @@ mooremap <- map_coralseed(seed_particles_input = moore_particles,
               webGL = TRUE)
 
 
-fs::dir_create(paste0(getwd(), "/vignettes/www"))
-htmlwidgets::saveWidget(mooremap, paste0(getwd(), "/vignettes/www/mooremap.html"))
-fs::dir_create(paste0(getwd(), "/docs/www"))
-htmlwidgets::saveWidget(mooremap, paste0(getwd(), "/docs/www/mooremap.html"))
+# fs::dir_create(paste0(getwd(), "/vignettes/www"))
+# htmlwidgets::saveWidget(mooremap, paste0(getwd(), "/vignettes/www/mooremap.html"))
+#fs::dir_create(paste0(getwd(), "/docs/www"))
+htmlwidgets::saveWidget(mooremap, "/Users/rof011/coralseed/data/www/mooremap.html")
  
 
 
 ```
 
-<iframe src="../data/www/mooremap.html" width="100%" height="600" style="border:none;">
+<iframe src="/www/mooremap.html" width="100%" height="600" style="border:none;">
 
 </iframe>
 

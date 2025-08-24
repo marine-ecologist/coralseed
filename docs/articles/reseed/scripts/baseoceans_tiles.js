@@ -1,0 +1,50 @@
+// Initialize the Cesium viewer
+const viewer = new Cesium.Viewer("cesiumContainer", {
+  baseLayer: Cesium.ImageryLayer.fromProviderAsync(
+    Cesium.TileMapServiceImageryProvider.fromUrl(
+      Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII")
+    )
+  ),
+  baseLayerPicker: true,
+  geocoder: false,
+  timeline: false,
+  animation: false,
+  homeButton: false,
+  navigationHelpButton: false,
+});
+
+const scene = viewer.scene;
+
+// Disable visuals safely
+scene.skyBox.show = false;
+scene.skyAtmosphere.show = false;
+scene.sun.show = false;
+scene.moon.show = false;
+
+// Remove credits
+viewer._cesiumWidget._creditContainer.style.display = "none";
+
+// Add SST WMS layer
+const sstLayer = viewer.imageryLayers.addImageryProvider(
+// 3. Add WMS Tile Layers (Lowest Rendering Priority)
+function createWMSTileLayer(metric) {
+  const staticDate = "20240314"; // Static date
+  const url = `https://storage.googleapis.com/production-coral-tiles/crw/sst/${staticDate}/{z}/{x}/{y}.png`;
+  return new Cesium.UrlTemplateImageryProvider({
+    url: url,
+    credit: "Data from Coral Reef Watch (CRW)",
+  });
+}
+
+);
+
+// Define the handler for click events
+const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+handler.setInputAction(async (click) => {
+  const cartesian = viewer.camera.pickEllipsoid(click.position, scene.globe.ellipsoid);
+ 
+
+
+   
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);

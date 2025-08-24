@@ -1,0 +1,66 @@
+const viewer = new Cesium.Viewer("cesiumContainer");
+
+// Define the geographic extent for the image
+const rectangle = Cesium.Rectangle.fromDegrees(-180, -90, 180, 90); // Global extent
+
+// Create a canvas to load and process the image
+const canvas = document.createElement("canvas");
+const context = canvas.getContext("2d");
+
+// Load the image into the canvas
+const img = new Image();
+img.crossOrigin = "anonymous"; // Enable CORS for external images
+img.src = 'https://www.ncei.noaa.gov/data/oceans/crw/5km/v3.1/image_plain/daily/sst/png/1998/coraltemp_v3.1_19980103.png';
+
+img.onload = () => {
+    // Set canvas dimensions to match the image
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    // Draw the image onto the canvas
+    context.drawImage(img, 0, 0, img.width, img.height);
+
+    // Use the image in Cesium
+    const imageryProvider = new Cesium.SingleTileImageryProvider({
+        url: img.src, // Use the original image
+        rectangle: rectangle, // Set the geographic extent
+        tileWidth: 256,        // Set tile width (default is 256)
+        tileHeight: 256       // Set tile height (default is 256)
+    });
+
+    const layer = viewer.imageryLayers.addImageryProvider(imageryProvider);
+
+    // Add click event to retrieve RGBA values
+    viewer.screenSpaceEventHandler.setInputAction((click) => {
+        // Get the clicked position on the globe
+        const pickedPosition = viewer.scene.pickPosition(click.position);
+        if (!pickedPosition) {
+            console.log('Click was not on the globe.');
+            return;
+        }
+
+        // Convert the globe position to geographic coordinates
+        const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
+        const lon = Cesium.Math.toDegrees(cartographic.longitude);
+        const lat = Cesium.Math.toDegrees(cartographic.latitude);
+
+        console.log(`Clicked Longitude: ${lon}, Latitude: ${lat}`);
+
+        // Map geographic coordinates to pixel coordinates
+        const x = Math.floor(((lon + 180) / 360) * canvas.width);
+        const y = Math.floor((1 - (lat + 90) / 180) * canvas.height);
+
+        if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+            // Get pixel data at the mapped position
+            const imageData = context.getImageData(x, y, 1, 1);
+            const [r, g, b, a] = imageData.data; // RGBA values
+
+            console.log(`RGBA: (${r}, ${g}, ${b}, ${a})`);
+            alert(`Clicked RGBA: (${r}, ${g}, ${b}, ${a})`);
+        } else {
+            console.log('Clicked point is outside the image bounds.');
+        }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+};
+
+

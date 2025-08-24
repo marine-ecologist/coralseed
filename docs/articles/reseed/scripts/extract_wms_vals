@@ -1,0 +1,65 @@
+// Initialize the Cesium viewer
+const viewer = new Cesium.Viewer("cesiumContainer", {
+});
+
+const scene = viewer.scene;
+
+// Add SST WMS layer
+const sstLayer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.WebMapServiceImageryProvider({
+    url: `https://pae-paha.pacioos.hawaii.edu/thredds/wms/dhw_5km`,
+    layers: "CRW_DHW",
+    parameters: {
+      transparent: true,
+      format: "image/png",
+    },
+  })
+);
+
+// Set the WMS layer alpha to 0.7
+const addedLayer = viewer.imageryLayers.get(viewer.imageryLayers.length - 1);
+addedLayer.alpha = 0.7;
+
+const styles = `
+  #cesiumContainer canvas {
+    image-rendering: smooth;
+    image-rendering: -webkit-optimize-contrast;
+  }
+`;
+const styleTag = document.createElement("style");
+styleTag.textContent = styles;
+document.head.appendChild(styleTag);
+
+
+// Define the handler for click events
+const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+handler.setInputAction(async (click) => {
+  const pickRay = scene.camera.getPickRay(click.position);
+  const imageryLayerFeatures = await scene.imageryLayers.pickImageryLayerFeatures(pickRay, scene);
+
+  if (imageryLayerFeatures && imageryLayerFeatures.length > 0) {
+    const rawText = imageryLayerFeatures[0].description;
+
+    // Extract values using regular expressions
+    const gridCentreLonMatch = rawText.match(/&lt;gridCentreLon&gt;([-0-9.]+)&lt;\/gridCentreLon&gt;/);
+    const gridCentreLatMatch = rawText.match(/&lt;gridCentreLat&gt;([-0-9.]+)&lt;\/gridCentreLat&gt;/);
+    const valueMatch = rawText.match(/&lt;value&gt;([-0-9.]+)&lt;\/value&gt;/);
+
+    if (gridCentreLonMatch && gridCentreLatMatch && valueMatch) {
+      // Extract and round the values
+      const samplelon = parseFloat(gridCentreLonMatch[1]).toFixed(5);
+      const samplelat = parseFloat(gridCentreLatMatch[1]).toFixed(5);
+      const sampleval = parseFloat(valueMatch[1]).toFixed(2);
+
+      // Log the values
+      console.log(`Longitude: ${samplelon}`);
+      console.log(`Latitude: ${samplelat}`);
+      console.log(`Value: ${sampleval}`);
+    } else {
+      console.error("Could not extract all values from the raw text.");
+    }
+  } else {
+    console.log("No feature info found at this location.");
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);

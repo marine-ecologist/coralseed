@@ -13,12 +13,17 @@ template:
   math-rendering: mathjax
   light-switch: true
   css: extra.css
-  assets: reseed
-    - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css
+  includes:
+    in_header: |
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+
+    
+assets:
+  - ../data/www
 
 development:
   mode: release
-
+  
 navbar:
   structure:
     left:
