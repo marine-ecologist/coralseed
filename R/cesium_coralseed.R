@@ -1,4 +1,5 @@
-animate_coralseed <- function(input, outputfolder, n = 100) {
+#' @keywords internal
+export_cesium_coralseed <- function(input, outputfolder, n = 100) {
 
   sf::st_transform(input$paths, 4326) |>
     sf::st_write(paste0(outputfolder, "cesium/geojson/Lpaths.geojson"), driver = "GeoJSON", delete_dsn = TRUE)
