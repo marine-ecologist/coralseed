@@ -12,23 +12,32 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends:
     R (>= 3.5.0)
-Imports: 
+Imports:
+    brms,
     concaveman,
     data.table,
     dplyr,
+    FNN,
     forcats,
     foreach,
     ggplot2,
     ggpubr,
     grDevices,
+    gstat,
+    htmltools,
+    htmlwidgets,
+    jsonlite,
     leaflet,
     leaflet.extras,
     lubridate,
     magrittr,
     ncdf4,
+    networkD3,
     patchwork,
     purrr,
+    Rarr,
     rlang,
+    scales,
     sf,
     sp,
     spatstat.explore,
@@ -36,11 +45,13 @@ Imports:
     stats,
     stringr,
     terra,
+    tibble,
     tidyr,
     tidyterra,
     tmap,
     utils,
-    viridis
+    viridis,
+    webshot2
 Suggests:
     knitr,
     rmarkdown,
