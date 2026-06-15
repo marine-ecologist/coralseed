@@ -95,7 +95,16 @@ plot_particle_states <- function(particles, n=100, t=30){
 
 seed_particles_interventions <- function(particles, velocities, uncertainty_sd, settlers, option) {
 
+  if (!requireNamespace("parallel", quietly = TRUE)) stop("Package 'parallel' is required. Install it with: install.packages('parallel')")
+  if (!requireNamespace("doSNOW", quietly = TRUE)) stop("Package 'doSNOW' is required. Install it with: install.packages('doSNOW')")
+  if (!requireNamespace("foreach", quietly = TRUE)) stop("Package 'foreach' is required. Install it with: install.packages('foreach')")
 
+  makeCluster  <- parallel::makeCluster
+  detectCores  <- parallel::detectCores
+  stopCluster  <- parallel::stopCluster
+  registerDoSNOW <- doSNOW::registerDoSNOW
+  `%dopar%`    <- foreach::`%dopar%`
+  foreach      <- foreach::foreach
 
   # Ensure velocities are ordered by time
   velocities <- velocities %>% arrange(time)

@@ -41,6 +41,7 @@ Imports:
     utils
 Suggests:
     brms,
+    doSNOW,
     foreach,
     htmltools,
     htmlwidgets,
@@ -51,6 +52,7 @@ Suggests:
     networkD3,
     Rarr,
     rmarkdown,
+    parallel,
     pkgdown,
     sp,
     testthat (>= 3.0.0),

@@ -34,7 +34,7 @@ dataset_grouped_subset <- dataset_grouped %>% group_by(id) %>% slice_sample(n=10
 dataset_grouped_median <- dataset_grouped %>% group_by(minutes) %>% summarise(settlement_probability=median(settlement_probability))
 
 # Plot
-ggplot() + theme_bw() + xlab("Hours after release") + ylab("Settlement Probability") + ylim(0,1) +
+ggplot2::ggplot() + ggplot2::theme_bw() + ggplot2::xlab("Hours after release") + ggplot2::ylab("Settlement Probability") + ggplot2::ylim(0,1) +
   geom_line(data=dataset_grouped_subset, aes(x=minutes/60, y=settlement_probability, group=id), linewidth=0.05, color="slategrey") +
   geom_line(data=dataset_grouped_median, aes(x=minutes/60, y=settlement_probability), linewidth=1, color="black")
 
