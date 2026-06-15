@@ -102,8 +102,9 @@ settle_particles <- function(input, seascape = seascape, probability = "additive
   )
 
   if (return.plot) {
+    if (!requireNamespace("tmap", quietly = TRUE)) stop("Package 'tmap' is required for return.plot=TRUE. Install it with: install.packages('tmap')")
     tmap::tmap_mode("plot")
-    settlemap <- tm_basemap("Esri.WorldImagery", alpha = 0.8) +
+    settlemap <- tmap::tm_basemap("Esri.WorldImagery", alpha = 0.8) +
       tmap::tm_shape(seascape, bbox = sf::st_bbox(results$paths |> sf::st_buffer(50))) +
       tmap::tm_polygons("class", col = "black", lwd = 0.2, alpha = 0.2,
                         legend.show = TRUE,

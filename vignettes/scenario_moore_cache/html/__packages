@@ -1,5 +1,3 @@
-conflicted
-coralseed
 ggplot2
 tidyverse
 tibble
@@ -12,3 +10,6 @@ forcats
 lubridate
 sf
 tmap
+testthat
+coralseed
+networkD3

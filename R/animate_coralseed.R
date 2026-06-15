@@ -32,6 +32,8 @@
   #'
   animate_coralseed <- function(input, filename, width = 1200, height = 600, delay = 10, loop = FALSE) {
 
+        if (!requireNamespace("tmap", quietly = TRUE)) stop("Package 'tmap' is required. Install it with: install.packages('tmap')")
+
         animobj <- tmap::tm_shape(
             input |>
                 dplyr::arrange(time, id) |>

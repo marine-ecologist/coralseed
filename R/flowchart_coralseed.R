@@ -20,6 +20,10 @@
 
   flowchart_coralseed <- function(seed_particles_input, settle_particles_input, save_output=NULL, multiplier = 1, postsettlement = 0.8, width=10, height=6) {
 
+        if (!requireNamespace("networkD3", quietly = TRUE)) stop("Package 'networkD3' is required. Install it with: install.packages('networkD3')")
+        if (!requireNamespace("htmlwidgets", quietly = TRUE)) stop("Package 'htmlwidgets' is required. Install it with: install.packages('htmlwidgets')")
+        if (!requireNamespace("htmltools", quietly = TRUE)) stop("Package 'htmltools' is required. Install it with: install.packages('htmltools')")
+
         if (!is.list(seed_particles_input)) {
             stop("flowchart_coralseed requires seed_particles() to be run with return.summary = FALSE\n")
           }

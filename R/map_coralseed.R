@@ -24,6 +24,10 @@ map_coralseed <- function(seed_particles_input = NULL, settle_particles_input = 
                           show.tracks = TRUE, show.footprint = FALSE, subsample = NULL,
                           heatmap_res = 2, heatmap_buffer = 0.25, scalebar = 200, webGL = FALSE) {
 
+  if (!requireNamespace("tmap", quietly = TRUE)) stop("Package 'tmap' is required. Install it with: install.packages('tmap')")
+  if (!requireNamespace("leaflet", quietly = TRUE)) stop("Package 'leaflet' is required. Install it with: install.packages('leaflet')")
+  if (!requireNamespace("leaflet.extras", quietly = TRUE)) stop("Package 'leaflet.extras' is required. Install it with: install.packages('leaflet.extras')")
+
   if (is.list(seed_particles_input)) {
     seed_particles_input <- seed_particles_input$seed_particles
   }
@@ -118,7 +122,7 @@ map_coralseed <- function(seed_particles_input = NULL, settle_particles_input = 
   tmap::tmap_mode("view")
   if (webGL) tmap::tm_view(use_WebGL = TRUE)
 
-  tmp <- tm_basemap("Esri.WorldImagery") +
+  tmp <- tmap::tm_basemap("Esri.WorldImagery") +
 
     tmap::tm_shape(seascape_probability, name = "<b> [Seascape]</b> habitats") +
     tmap::tm_polygons(fill = "class", lwd = 0.2, col = "black", fill_alpha = 0.6,
@@ -359,7 +363,7 @@ map_coralseed <- function(seed_particles_input = NULL, settle_particles_input = 
 #     tmap::tm_view(use_WebGL=TRUE)
 #   }
 #
-#   tmp <- tm_basemap("Esri.WorldImagery") +
+#   tmp <- tmap::tm_basemap("Esri.WorldImagery") +
 #
 #     # seascape habitats
 #

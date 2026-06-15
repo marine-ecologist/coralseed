@@ -10,6 +10,7 @@
 #'
 
 import_zarr <- function(input, origin = "1970-01-01 15:00:00", crs = 4326) {
+  if (!requireNamespace("Rarr", quietly = TRUE)) stop("Package 'Rarr' is required. Install it with: install.packages('Rarr')")
   input <- sub("/+$", "", as.character(input[1]))  # ensure no trailing slash
 
   # Append slash since file.path will not add one between input and subdir

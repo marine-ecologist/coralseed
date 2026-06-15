@@ -23,6 +23,9 @@
 
 extract_ocean_parcels <- function(folder, crs = 4326, subsample = "none", depth=FALSE) {
 
+  if (!requireNamespace("jsonlite", quietly = TRUE)) stop("Package 'jsonlite' is required. Install it with: install.packages('jsonlite')")
+  if (!requireNamespace("Rarr", quietly = TRUE)) stop("Package 'Rarr' is required. Install it with: install.packages('Rarr')")
+
   # read metadata for time origin
   zmetadata_path <- paste0(folder, ".zmetadata")
   zmetadata_content <- jsonlite::fromJSON(zmetadata_path)

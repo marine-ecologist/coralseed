@@ -15,6 +15,8 @@ settlement_statistics <- function(
     input = NULL, combined = FALSE, cellsize = 20, concavehull = TRUE,
     concavity = 2, length_threshold = 0, ...) {
 
+  if (!requireNamespace("sp", quietly = TRUE)) stop("Package 'sp' is required. Install it with: install.packages('sp')")
+
 
   # make a spatial grid across the settled particles, set cell size (metres)
   settled_particles_grid <- input |>

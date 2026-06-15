@@ -41,6 +41,15 @@ Simulated reseeding event at Moore Reef, northern Great Barrier Reef based on oc
 # 1) seed particles
 
 ```{r}
+#| message: false
+#| warning: false
+#| include: false
+#| eval: true
+devtools::load_all()
+sf::sf_use_s2(FALSE)
+```
+
+```{r}
 #| echo: true
 #| eval: true
 #| message: false
@@ -50,13 +59,13 @@ Simulated reseeding event at Moore Reef, northern Great Barrier Reef based on oc
 #| fig-width: 9
 
 
-library(coralseed)
+#library(coralseed)
 library(ggplot2)
 library(tidyverse)
 library(sf)
 library(tmap)
 
-sf_use_s2(FALSE)
+
 
 # load seascape  
 moore_benthic_map <- system.file("extdata", "Moore_Benthic.geojson", package = "coralseed") |>
@@ -68,8 +77,14 @@ moore_reef_map <- system.file("extdata", "Moore_Geomorphic.geojson", package = "
 moore_seascape <- seascape_probability(reefoutline=moore_reef_map, habitat=moore_benthic_map)
 
 # load particles - import example zarr (oceanparcels output)
-moorereef_particles <- system.file("extdata", "output.zarr", package = "coralseed") |>  
-                          import_zarr()
+  {zip_path <- system.file("extdata", "Moore_reseed.zip", package = "coralseed", mustWork = TRUE)
+  out_dir <- file.path(tempdir(), "coralseed_Moore_reseed")
+  unlink(out_dir, recursive = TRUE, force = TRUE)
+  dir.create(out_dir, recursive = TRUE)
+  utils::unzip(zip_path, exdir = out_dir)}
+
+moorereef_particles <- import_zarr(file.path(out_dir, "output.zarr"))
+
 
 # run seed particles
 moore_particles <- seed_particles(moorereef_particles,
@@ -168,6 +183,7 @@ htmlwidgets::saveWidget(mooremap, "/Users/rof011/coralseed/data/www/mooremap.htm
 #| fig-height: 9
 #| fig-width: 12
 
+library(networkD3)
 
 flowchart_coralseed(seed_particles_input = moore_particles, 
                     settle_particles_input = moore_settlers, 

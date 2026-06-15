@@ -14,6 +14,7 @@
 #'
 
 settlement_density <- function(input = NULL, messages=FALSE, calculate_hull=TRUE, combined=FALSE, cellsize = 20, concavity = 1.2, length_threshold = 10, ...) {
+  if (!requireNamespace("sp", quietly = TRUE)) stop("Package 'sp' is required. Install it with: install.packages('sp')")
   ##### function to calculate density
   # if (combined==TRUE){
   #   input #|> dplyr::ungroup()

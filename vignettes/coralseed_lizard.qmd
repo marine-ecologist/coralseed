@@ -5,6 +5,8 @@ format:
     toc: false
     page-layout: full
 ---
+
+```{=html}
 <style>
 
 /* Make content column full width */
@@ -63,7 +65,8 @@ footer {
 
 
 </style>
+```
 
+<iframe src="www/lizardmap.html" frameborder="0" style="width:100%;height:calc(100vh - 56px);border:none;display:block">
 
-<iframe src="www/lizardmap.html" frameborder="0" style="width:100%;height:calc(100vh - 56px);border:none;display:block"></iframe>
-
+</iframe>

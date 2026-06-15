@@ -13,33 +13,23 @@ RoxygenNote: 7.3.3
 Depends:
     R (>= 3.5.0)
 Imports:
-    brms,
     concaveman,
+    methods,
     data.table,
     dplyr,
     FNN,
     forcats,
-    foreach,
     ggplot2,
-    ggpubr,
     grDevices,
     gstat,
-    htmltools,
-    htmlwidgets,
-    jsonlite,
-    leaflet,
-    leaflet.extras,
     lubridate,
     magrittr,
     ncdf4,
-    networkD3,
     patchwork,
     purrr,
-    Rarr,
     rlang,
     scales,
     sf,
-    sp,
     spatstat.explore,
     spatstat.geom,
     stats,
@@ -48,15 +38,24 @@ Imports:
     tibble,
     tidyr,
     tidyterra,
-    tmap,
-    utils,
-    viridis,
-    webshot2
+    utils
 Suggests:
+    brms,
+    foreach,
+    htmltools,
+    htmlwidgets,
+    jsonlite,
     knitr,
+    leaflet,
+    leaflet.extras,
+    networkD3,
+    Rarr,
     rmarkdown,
     pkgdown,
-    testthat (>= 3.0.0)
+    sp,
+    testthat (>= 3.0.0),
+    tmap,
+    webshot2
 VignetteBuilder: knitr
 LazyData: false
 URL: https://marine-ecologist.github.io/coralseed/

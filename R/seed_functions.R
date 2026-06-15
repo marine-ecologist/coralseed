@@ -10,12 +10,12 @@ simulate_larvae <- function (n_sims, n_id, b_intercept, n_seed){
   b_Intercept_variance <- sd(coralseed::parameter_draws_exp$b_Intercept)
   sim_exp <- data.frame(b_Intercept = rnorm(1000, b_Intercept, b_Intercept_variance))
 
-  dataset_quartiles <- foreach::foreach(i=1:n_sims, .combine="rbind") %do% {
+  dataset_quartiles <- do.call(rbind, lapply(seq_len(n_sims), function(i) {
     post_sm1_sample_exp <- sim_exp %>% dplyr::slice_sample(n = n_sims)
     post_sm1_sample_exp <- sim_exp %>% dplyr::slice_sample(n = n_sims)
     individual_times <- rexp(runif(n_id), rate = 1/(exp(post_sm1_sample_exp[1,1])))
     data.frame(settlement_point=sort(round(individual_times)), id=(n_id)-seq(0,n_id-1,1), sim=(i))
-  }
+  }))
 
   simulated_settlers_total <- dataset_quartiles |>
     dplyr::filter(sim %in%  "101") |>  # sample(1:n_sims,1)) |> # randomly sample adplyr:: filter? fixing for now

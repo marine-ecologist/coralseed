@@ -11,6 +11,7 @@
 
 return_draws <- function(input, fit, tmax=12, by=1, n=1000, ...){
 
+  if (!requireNamespace("brms", quietly = TRUE)) stop("Package 'brms' is required. Install it with: install.packages('brms')")
 
   if (fit=="exp"){
 

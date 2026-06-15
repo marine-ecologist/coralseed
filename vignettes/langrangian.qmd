@@ -1,0 +1,707 @@
+---
+title: "2D Lagrangian particle simulation"
+format:
+  html:
+    code-fold: true
+    code-tools: true
+    embed-resources: true
+    self-contained: true
+editor: visual
+---
+
+**Methods:** We used a simplified, observation-driven 2D Lagrangian particle-tracking model to explore short-term passive dispersal from three release locations. Particles were advected using spatially interpolated logger-derived eastward and northward velocities at 5 min timesteps, with stochastic horizontal diffusion represented by a random-walk term. Land was treated as an impermeable boundary, with particles intersecting land reset to their previous wet position and re-advected with a new random-walk displacement.
+
+**Caveats:** As the well-known aphorism states, “Essentially, all models are wrong, but some are useful.” Models should therefore be viewed as decision-support tools rather than absolute representations of reality. They necessarily simplify complex systems and rely on baseline assumptions, but these simplifications can still provide a structured way to explore likely outcomes, compare scenarios, and guide decisions that would otherwise rely largely on judgement or guesswork. The particle-tracking model below is useful for exploring relative short-term passive dispersal pathways, differences among release sites, retention versus export tendencies, and sensitivity to release timing and horizontal diffusion under the measured logger-depth current conditions, but cannot be used to robustly infer exact particle trajectories, full hydrodynamic circulation, vertical or depth-dependent transport, or wave/wind-driven transport.
+
+### Example: Pinnacle Bay, Hook Islands, Whitsundays
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+#| cache: true
+
+library(tidyverse)
+library(janitor)
+library(sf)
+
+gbr_shp <- dhw::download_gbr_spatial(return="base") |> sf::st_make_valid()
+
+```
+
+Flow fields were generated from TCM-01 tilt logger current observations deployed across the Pinnacle Bay, Hook Islands, Whitsundays in mid-November 2025. Each logger recorded current speed and heading, which were resolved into eastward and northward velocity components and averaged to 60 s intervals. A 12hr window between 11:00 and 23:00 on the 17th November was used to simulate an interpolated flow field.
+
+```{r}
+#| message: false
+#| warning: false
+#| cache: true
+#| fig-height: 5
+#| fig-width: 9
+
+set.seed(101)
+
+library(tidyverse)
+library(janitor)
+library(sf)
+
+tiltmeter_dir <- "/Users/rof011/coralseed/code/tiltmeter"
+
+inst_sf <- tribble(
+  ~lat,        ~lon,        ~inst,
+  -20.060709,  148.960138,  "2209049",
+  -20.060966,  148.960434,  "2307076",
+  -20.061180,  148.961006,  "2307074",
+  -20.061194,  148.961482,  "2209046",
+  -20.061212,  148.961916,  "1611109",
+  -20.061279,  148.962260,  "2307075",
+  -20.061236,  148.962533,  "2307077",
+  -20.061206,  148.962770,  "2209052",
+  -20.061131,  148.963162,  "2209054",
+  -20.060709,  148.960138,  "22070156",
+  -20.061194,  148.961482,  "1611121",
+  -20.061206,  148.962770,  "1611112"
+) |>
+  mutate(
+    inst = as.character(inst)
+  )
+
+tiltmeters <- list.files(
+    path = tiltmeter_dir,
+    pattern = "\\.csv$",
+    full.names = TRUE
+  ) |>
+    map_dfr(\(file) {
+      read.csv(file) |>
+        mutate(
+          inst = basename(file) |>
+            str_remove("_.*$")
+        )
+    }) |>
+    janitor::clean_names() |> 
+  mutate(
+    time = ymd_hms(iso_8601_time, tz = "UTC")
+  ) |> 
+  left_join(inst_sf) |> 
+  drop_na(lon) |> 
+  st_as_sf(
+    coords = c("lon", "lat"),
+    crs = 4326,
+    remove = FALSE
+  ) |> 
+  filter(time >= ymd_hms("2025-11-17T11:00:00.000", tz = "UTC")) |> 
+  filter(time <= ymd_hms("2025-11-17T23:00:00.000", tz = "UTC"))
+                  
+# 
+tiltdate <- tiltmeters |> group_by(inst) |> slice(1)
+# gbr_shp <- dhw::download_gbr_spatial(return="base") |> st_make_valid()
+gbr_land <- gbr_shp |> filter(FEAT_NAME %in% c("Island", "Mainland", "Rock")) |> st_transform(4326)
+gbr_reef_shp <- gbr_shp |> filter(FEAT_NAME %in% "Reef") |> st_transform(4326)
+gbr_buffer <-  tiltdate |> st_buffer(250) |> st_bbox()
+land_poly <- st_crop(gbr_land, gbr_buffer) |> st_transform(4326)
+reef_poly <- st_crop(gbr_reef_shp, gbr_buffer) |> st_transform(4326)
+
+ggplot() + theme_bw() +
+  geom_sf(data=land_poly, fill="forestgreen") +
+  geom_sf(data=reef_poly, fill="wheat1", alpha=0.8) +
+  geom_sf(data=tiltdate, aes(color=inst), show.legend=FALSE) +
+  geom_sf_text(data=tiltdate, aes(label=inst), size=2.5, position = "jitter", show.legend=FALSE) +
+  theme(
+    panel.background = element_rect(fill = "lightblue2", colour = NA),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.5),
+    plot.margin = margin(0, 0, 0, 0)
+  ) + coord_sf(expand = FALSE) + xlab("Longitude") + ylab("Latitude")
+
+```
+
+### Interpolate flow field
+
+Point-based velocity observations from tiltmeters were spatially interpolated across the study domain using inverse distance weighting (`gstat::idw()`) to create a time-varying two-dimensional flow field (5m resolution) at each timestep. Interpolation was restricted to the water domain, with land and reef polygons used to define barriers and exclude non-water areas where appropriate. The resulting gridded flow fields describe the observed horizontal current structure across the logger array and were used to advect passive particles in the Lagrangian dispersal simulation. As the flow fields are derived from spatial interpolation of fixed-point measurements rather than a hydrodynamic model, they represent an observation-driven approximation of near-bed or logger-depth currents during the deployment period.
+
+```{r}
+#| message: false
+#| warning: false
+#| cache: true
+#| fig-height: 5
+#| fig-width: 9
+
+
+library(tidyverse)
+library(sf)
+library(lubridate)
+library(gstat)
+
+crs_m <- 32755
+grid_res_m <- 10
+buffer_m <- 250
+
+
+tiltmeters_m <- tiltmeters |>
+  st_drop_geometry() |>
+  mutate(
+    time_5min = floor_date(time, unit = "5 minutes"),
+    u_ms = velocity_e_cm_s / 100,
+    v_ms = velocity_n_cm_s / 100
+  ) |>
+  group_by(inst, lat, lon, time_5min) |>
+  summarise(
+    u_ms = mean(u_ms, na.rm = TRUE),
+    v_ms = mean(v_ms, na.rm = TRUE),
+    speed_ms = mean(speed_cm_s / 100, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  st_as_sf(
+    coords = c("lon", "lat"),
+    crs = 4326,
+    remove = FALSE
+  ) |>
+  st_transform(crs_m)
+
+# Build grid 
+
+domain_m <- tiltmeters_m |>
+  st_union() |>
+  st_convex_hull() |>
+  st_buffer(buffer_m) |> 
+  st_crop(st_transform(gbr_buffer, crs_m))
+
+grid_geom <- st_make_grid(
+  domain_m,
+  cellsize = grid_res_m,
+  what = "centers"
+)
+
+grid_sf <- st_sf(
+  grid_id = seq_along(grid_geom),
+  geometry = grid_geom,
+  crs = crs_m
+) |>
+  st_filter(domain_m)
+
+grid_xy <- st_coordinates(grid_sf)
+
+grid_sf <- grid_sf |>
+  mutate(
+    x = grid_xy[, 1],
+    y = grid_xy[, 2]
+  )
+
+st_geometry(grid_sf) <- "geometry"
+
+grid_sp <- as(grid_sf, "Spatial")
+
+
+# Interpolation function
+
+interpolate_one_time <- function(dat_t, grid_sf, grid_sp) {
+  
+  if (nrow(dat_t) < 3) {
+    return(tibble())
+  }
+  
+  dat_xy <- st_coordinates(dat_t)
+  
+  dat_t <- dat_t |>
+    mutate(
+      x = dat_xy[, 1],
+      y = dat_xy[, 2]
+    )
+  
+  st_geometry(dat_t) <- "geometry"
+  dat_sp <- as(dat_t, "Spatial")
+  
+  u_idw <- gstat::idw(
+    formula = u_ms ~ 1,
+    locations = dat_sp,
+    newdata = grid_sp,
+    idp = 2,
+    debug.level = 0
+  )
+  
+  v_idw <- gstat::idw(
+    formula = v_ms ~ 1,
+    locations = dat_sp,
+    newdata = grid_sp,
+    idp = 2,
+    debug.level = 0
+  )
+  
+  grid_sf |>
+    st_drop_geometry() |>
+    mutate(
+      time = unique(dat_t$time_5min),
+      u_ms = u_idw$var1.pred,
+      v_ms = v_idw$var1.pred,
+      speed_ms = sqrt(u_ms^2 + v_ms^2),
+      heading_degrees = (atan2(u_ms, v_ms) * 180 / pi + 360) %% 360
+    )
+}
+
+# Interpolate flow field
+
+flow_field <- tiltmeters_m |>
+  group_split(time_5min) |>
+  map_dfr(
+    interpolate_one_time,
+    grid_sf = grid_sf,
+    grid_sp = grid_sp
+  ) |>
+  st_as_sf(
+    coords = c("x", "y"),
+    crs = crs_m,
+    remove = FALSE
+  ) 
+
+flow_field_4326 <- flow_field |>
+  st_transform(4326)
+
+# -----------------------------
+# Plot one timestep
+# -----------------------------
+
+flow_plot <- flow_field |>
+  filter(time==ymd_hms("2025-11-17T11:30:00.000", tz = "UTC")) |> 
+  mutate(
+    xend = x + u_ms * 20,
+    yend = y + v_ms * 20
+  )
+
+ggplot() +
+  geom_sf(
+    data = flow_plot,
+    aes(colour = speed_ms),
+    size = 4, linewidth=0
+  ) +
+  geom_segment(
+    data = flow_plot |> st_drop_geometry(),
+    aes(x = x, y = y, xend = xend, yend = yend),
+    arrow = arrow(length = unit(0.08, "inches")),
+    linewidth = 0.35, alpha=0.2,
+    color="white"
+  ) +
+  geom_sf(data=land_poly) +
+#  coord_sf(crs = st_crs(crs_m)) +
+  theme_bw() 
+
+
+
+```
+
+### Seed particles
+
+Passive particle dispersal was simulated using a two-dimensional Lagrangian particle-tracking approach driven by interpolated current-meter observations. Eastward and northward velocity components from the tiltmeters were averaged to 60 s intervals and spatially interpolated across the bay to generate a time-varying flow field. Particles were released from three fixed source locations at a rate of 1,000 particles per site every 60 s for 1 h, giving 180,000 particles in total. Particle positions were updated at 60 s timesteps using local interpolated velocities, with horizontal diffusion represented by a random-walk term, where \*K\*\* is the horizontal diffusion coefficient integrated into a random displacement per timestep (`rnorm(n(), mean = 0, sd = sqrt(2 * K * dt))`), with the random-walk standard deviation set at `sqrt(2 * 0.05 * 60)` (i.e. particle movemement per timestep = current displacement + random diffusion). Particles were treated as passive, depth-invariant tracers. When a particle intersected land, it was not classified as permanently beached; instead, its position was reset to the previous wet location and it was re-advected on the next timestep with the stochastic diffusion term retained. This iterative re-release/random-walk procedure prevented particles from becoming trapped on land boundaries while maintaining land as an impermeable barrier to net transport. Importantly, the model represents a simplified, observation-driven 2D Lagrangian advection–diffusion simulation rather than a full hydrodynamic model.
+
+\*K can be set from K = 0, where particles follow only the interpolated currents with no diffusion, through weak (K = 0.01), modest small-bay (K = 0.05), and stronger (K = 0.1) spreading, up to very strong coastal mixing (K = 1).
+
+```{r}
+#| message: false
+#| warning: false
+#| cache: true
+#| fig-height: 5
+#| fig-width: 9
+
+set.seed(101)
+
+library(tidyverse)
+library(sf)
+library(lubridate)
+library(FNN)
+
+crs_m <- 32755
+
+dt <- 5 * 60
+release_duration_seconds <- 60 * 60
+n_particles_per_site_per_release <- 100
+K <- 0.05
+max_land_retry <- 200
+
+land_m <- land_poly |>
+  st_transform(crs_m) |>
+  st_make_valid()
+
+release_times <- seq(
+  from = min(flow_field$time, na.rm = TRUE),
+  by = "60 sec",
+  length.out = release_duration_seconds / dt
+)
+
+release_sites <- tribble(
+  ~lat,        ~lon,       
+  -20.0612,   148.9605,  
+  -20.0614,   148.9615,  
+  -20.06125,  148.9625  
+) |> 
+  st_as_sf(
+    coords = c("lon", "lat"),
+    crs = 4326,
+    remove = FALSE
+  ) 
+
+release_sites_m <- release_sites |>
+  mutate(site_id = row_number()) |>
+  st_transform(crs_m) %>%
+  mutate(
+    release_x = st_coordinates(.)[, 1],
+    release_y = st_coordinates(.)[, 2]
+  )
+
+particles0 <- release_sites_m |>
+  st_drop_geometry() |>
+  select(site_id, release_x, release_y) |>
+  crossing(
+    release_time = release_times,
+    particle_i = seq_len(n_particles_per_site_per_release)
+  ) |>
+  group_by(site_id, release_time) |>
+  mutate(
+    release_i = cur_group_id()
+  ) |>
+  ungroup() |>
+  mutate(
+    particle_uid = str_c(
+      "site", str_pad(site_id, 2, pad = "0"),
+      "_rel", str_pad(release_i, 3, pad = "0"),
+      "_p", str_pad(particle_i, 4, pad = "0")
+    ),
+    particle_id = row_number(),
+    time = release_time,
+    age_seconds = 0,
+    x = release_x,
+    y = release_y,
+    status = "active",
+    land_retry_n = 0L
+  ) |>
+  select(
+    particle_id,
+    particle_uid,
+    site_id,
+    particle_i,
+    release_i,
+    release_time,
+    time,
+    age_seconds,
+    x,
+    y,
+    status,
+    land_retry_n
+  )
+
+flow_lookup <- flow_field |>
+  st_transform(crs_m) |>
+  st_drop_geometry() |>
+  select(time, x, y, u_ms, v_ms)
+
+flow_times <- sort(unique(flow_lookup$time))
+
+nearest_flow <- function(particles_t, flow_t) {
+  
+  nn <- FNN::get.knnx(
+    data = flow_t |> select(x, y) |> as.matrix(),
+    query = particles_t |> select(x, y) |> as.matrix(),
+    k = 1
+  )
+  
+  particles_t |>
+    mutate(
+      u_ms = flow_t$u_ms[nn$nn.index[, 1]],
+      v_ms = flow_t$v_ms[nn$nn.index[, 1]]
+    )
+}
+
+check_land_hit <- function(dat, land_m, crs_m) {
+  
+  dat_sf <- dat |>
+    st_as_sf(
+      coords = c("x", "y"),
+      crs = crs_m,
+      remove = FALSE
+    )
+  
+  lengths(st_intersects(dat_sf, land_m)) > 0
+}
+
+move_particles <- function(
+    particles_t,
+    flow_lookup,
+    land_m,
+    tt,
+    dt = 60,
+    K = 0.05,
+    max_land_retry = 200
+) {
+  
+  tt <- as.POSIXct(tt, origin = "1970-01-01", tz = "UTC")
+  
+  flow_t <- flow_lookup |>
+    filter(time == tt)
+  
+  if (nrow(flow_t) == 0) {
+    return(particles_t)
+  }
+  
+  active <- particles_t |>
+    filter(status == "active")
+  
+  inactive <- particles_t |>
+    filter(status != "active")
+  
+  if (nrow(active) == 0) {
+    return(particles_t)
+  }
+  
+  active_next <- active |>
+    nearest_flow(flow_t = flow_t) |>
+    mutate(
+      x_old = x,
+      y_old = y,
+      x = x + u_ms * dt + rnorm(n(), mean = 0, sd = sqrt(2 * K * dt)),
+      y = y + v_ms * dt + rnorm(n(), mean = 0, sd = sqrt(2 * K * dt)),
+      time = tt + dt,
+      age_seconds = age_seconds + dt,
+      land_retry_n = 0L
+    )
+  
+  hit_land <- check_land_hit(active_next, land_m = land_m, crs_m = crs_m)
+  
+  retry_i <- 0L
+  
+  while (any(hit_land) && retry_i < max_land_retry) {
+    
+    retry_i <- retry_i + 1L
+    n_hit <- sum(hit_land)
+    
+    active_next$x[hit_land] <- active_next$x_old[hit_land] +
+      active_next$u_ms[hit_land] * dt +
+      rnorm(n_hit, mean = 0, sd = sqrt(2 * K * dt))
+    
+    active_next$y[hit_land] <- active_next$y_old[hit_land] +
+      active_next$v_ms[hit_land] * dt +
+      rnorm(n_hit, mean = 0, sd = sqrt(2 * K * dt))
+    
+    active_next$land_retry_n[hit_land] <- active_next$land_retry_n[hit_land] + 1L
+    
+    hit_land <- check_land_hit(active_next, land_m = land_m, crs_m = crs_m)
+  }
+  
+  active_next <- active_next |>
+    mutate(
+      x = if_else(hit_land, x_old, x),
+      y = if_else(hit_land, y_old, y),
+      status = "active"
+    ) |>
+    select(
+      particle_id,
+      particle_uid,
+      site_id,
+      particle_i,
+      release_i,
+      release_time,
+      time,
+      age_seconds,
+      x,
+      y,
+      status,
+      land_retry_n
+    )
+  
+  bind_rows(inactive, active_next)
+}
+
+sim_times <- flow_times[
+  flow_times >= min(release_times) &
+    flow_times <= max(flow_times)
+]
+
+particles_active <- tibble()
+particle_tracks <- vector("list", length(sim_times))
+
+for (i in seq_along(sim_times)) {
+  
+  tt <- sim_times[i]
+  
+  new_particles <- particles0 |>
+    filter(release_time == tt)
+  
+  particles_active <- bind_rows(
+    particles_active,
+    new_particles
+  )
+  
+  particles_active <- move_particles(
+    particles_t = particles_active,
+    flow_lookup = flow_lookup,
+    land_m = land_m,
+    tt = tt,
+    dt = dt,
+    K = K,
+    max_land_retry = max_land_retry
+  )
+  
+  particle_tracks[[i]] <- particles_active |>
+    mutate(
+      track_step = i,
+      track_time = tt
+    )
+}
+
+particle_tracks <- bind_rows(particle_tracks) |>
+  arrange(particle_id, time, track_step)
+
+particle_tracks_sf <- particle_tracks |>
+  st_as_sf(
+    coords = c("x", "y"),
+    crs = crs_m,
+    remove = FALSE
+  )
+
+particle_tracks_4326 <- particle_tracks_sf |>
+  st_transform(4326)
+
+final_particles <- particle_tracks_sf |>
+  group_by(particle_id, particle_uid) |>
+  slice_max(time, n = 1, with_ties = FALSE) |>
+  ungroup()
+
+particle_track_summary <- particle_tracks |>
+  summarise(
+    n_particles = n_distinct(particle_id),
+    n_particle_uids = n_distinct(particle_uid),
+    n_track_rows = n(),
+    mean_land_retry_n = mean(land_retry_n, na.rm = TRUE),
+    max_land_retry_n = max(land_retry_n, na.rm = TRUE),
+    prop_retried_land = mean(land_retry_n > 0, na.rm = TRUE)
+  )
+
+track_sample <- particle_tracks_sf |>
+  filter(particle_id %in% sample(unique(particle_id), 10))
+
+```
+
+Below are n=12 individual subsampled particle tracks from the particle dispersal model
+
+```{r}
+#| message: false
+#| warning: false
+#| cache: true
+#| fig-height: 5
+#| fig-width: 9
+
+ggplot() +
+  theme_bw() +
+  theme(
+    panel.background = element_rect(fill = "lightblue2", colour = NA),
+    #plot.background = element_rect(fill = "lightblue2", colour = NA),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.5),
+    plot.margin = margin(0, 0, 0, 0)
+  ) +
+  geom_sf(
+    data = land_m,
+    fill = "forestgreen",
+    colour = NA
+  ) +
+   geom_sf(data=reef_poly, fill="wheat1", alpha=0.8) +
+  geom_path(
+    data = track_sample |> st_drop_geometry(),
+    aes(
+      x = x,
+      y = y,
+      group = particle_uid
+    ),
+    color="black",
+    alpha = 1,
+    linewidth = 1
+  ) +
+   geom_sf(
+    data = track_sample |> slice_max(n=1, order_by=time),
+    aes(group = particle_uid),
+    color="black", shape=21,
+    size = 2) +
+geom_sf(
+    data = track_sample |> slice_min(n=1, order_by=time),
+    aes(group = particle_uid),
+    color="black", shape=21, color="black",
+    size = 2) +
+geom_sf(
+    data = release_sites_m,
+    color="black", stroke=0.2,
+    size = 1, alpha=0.2
+  ) +
+ # scale_color_distiller(palette="Spectral") +
+  coord_sf(crs = st_crs(crs_m), expand = FALSE) +
+  labs(
+    colour = "Release site",
+    x = NULL,
+    y = NULL
+  ) + 
+  facet_wrap(~particle_uid)
+
+
+
+```
+
+Combined particle tracks for a subset of 100 particle tracks for the full 12 hour period highlighting i) local retention within the bay across the 12hr period, ii) advection of currents and loss of a limited number of particles from the western point, and iii) loss of particles through the eastern passage returning through the rocks through a change in tidal currents \~8hrs post-release
+
+```{r}
+#| message: false
+#| warning: false
+#| cache: true
+#| fig-height: 5
+#| fig-width: 9
+
+land_poly_2 <- st_crop(gbr_land |> st_transform(st_crs(particle_tracks_sf)), 
+                       particle_tracks_sf |> st_buffer(100) |> st_bbox()) |> st_transform(4326)
+reef_poly_2 <- st_crop(gbr_reef_shp |> st_transform(st_crs(particle_tracks_sf)),
+                       particle_tracks_sf |> st_buffer(100) |> st_bbox()) |> st_transform(4326)
+
+
+
+track_sample2 <- particle_tracks_sf |>
+  filter(particle_id %in% sample(unique(particle_id), 100))
+
+ggplot() +
+  theme_bw() +
+  theme(
+    panel.background = element_rect(fill = "lightblue2", colour = NA),
+    #plot.background = element_rect(fill = "lightblue2", colour = NA),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 0.5),
+    plot.margin = margin(0, 0, 0, 0)
+  ) +
+  geom_sf(
+    data = land_poly_2,
+    fill = "forestgreen",
+    colour = NA
+  ) +
+  geom_sf(data=reef_poly, fill="wheat1", alpha=0.8) +
+  geom_path(
+    data = track_sample2 |> st_drop_geometry(),
+    aes(
+      x = x,
+      y = y,
+      group=particle_uid,
+      color = age_seconds/60
+    ),
+    alpha = 1,
+    linewidth = 0.1
+  ) +
+geom_sf(
+    data = release_sites_m,
+    color="black", #stroke=0.2,
+    size = 2, alpha=0.5
+  ) +
+#  scale_color_distiller(palette="RdBu") +
+  scale_color_viridis_c(option = "magma", direction=-1) +
+  coord_sf(crs = st_crs(crs_m), expand = FALSE) +
+  labs(
+    colour = "Time\n (mins)",
+    x = NULL,
+    y = NULL
+  ) 
+
+
+
+```

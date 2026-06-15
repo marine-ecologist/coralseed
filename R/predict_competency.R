@@ -18,6 +18,8 @@
 predict_competency <- function(input, n_particles = 100, max.time = NULL,
                                seed.value = NULL, return.plot = FALSE, ...) {
 
+  if (!requireNamespace("brms", quietly = TRUE)) stop("Package 'brms' is required. Install it with: install.packages('brms')")
+
   set.seed(seed.value)
   brms_family <- input$family$family
   model_draws <- brms::as_draws_df(input)

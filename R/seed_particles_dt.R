@@ -70,7 +70,7 @@ seed_particles_dt <- function(
       dplyr::mutate(id = as.integer(id))
   }
 
-  tic()
+  .t0_proc <- proc.time()
   t0 <- min(load_particles$time)
   tmax <- max(load_particles$time)
   n_id <- length(unique(load_particles$id))
@@ -108,7 +108,7 @@ seed_particles_dt <- function(
 
   competency_times <- competency_times_output |> with(simulated_settlers) |> dplyr::sample_frac(1) |> dplyr::mutate(id = as.factor(unique(particle_points$id)))
 
-  toc()
+  message(sprintf("Elapsed: %.1fs", (proc.time() - .t0_proc)[["elapsed"]]))
   particle_points_expanded <- particle_points |>
     as.data.frame() |>
     dplyr::mutate(geometry = gsub("[^0-9. -]", "", geometry), id = as.factor(id)) |>
