@@ -1,6 +1,6 @@
 Package: coralseed
 Title: Spatially Explicit Reef-Scale Model of Larval Reseeding
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: 
     person("George", "Roff", , "george.roff@csiro.au", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2823-0575"))
@@ -11,7 +11,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends:
-    R (>= 3.5.0)
+    R (>= 4.1.0)
 Imports:
     concaveman,
     methods,
@@ -43,22 +43,23 @@ Suggests:
     brms,
     doSNOW,
     foreach,
+    future,
+    furrr,
     htmltools,
     htmlwidgets,
     jsonlite,
-    knitr,
     leaflet,
     leaflet.extras,
+    MASS,
     networkD3,
+    Purrr,
     Rarr,
-    rmarkdown,
     parallel,
     pkgdown,
     sp,
     testthat (>= 3.0.0),
     tmap,
     webshot2
-VignetteBuilder: knitr
 LazyData: false
 URL: https://marine-ecologist.github.io/coralseed/
 BugReports: https://github.com/marine-ecologist/coralseed/issues

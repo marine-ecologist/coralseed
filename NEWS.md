@@ -1,3 +1,5 @@
+# coralseed 1.2.0
+
 # coralseed 1.1.0
 
 # coralseed 1.0.1 (11/06/25)
