@@ -7,9 +7,9 @@
 plot_draws(input, slice = 100)
 }
 \arguments{
-\item{slice}{n number of simulations for spaghetti plot}
+\item{input}{output from return_draws()}
 
-\item{n}{number of simulations}
+\item{slice}{number of simulations to draw for spaghetti plot (default 100)}
 }
 \description{
 Function to plot spaghetti draws from time-to-competency brms model

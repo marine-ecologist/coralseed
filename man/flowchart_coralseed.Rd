@@ -19,9 +19,15 @@ flowchart_coralseed(
 
 \item{settle_particles_input}{A named list containing \verb{$points}, an \code{sf} object with settled larvae and \code{id}.}
 
+\item{save_output}{optional file path to save output as png, jpg, or pdf}
+
 \item{multiplier}{Numeric multiplier to scale particle counts (e.g., if each simulated particle represents multiple larvae).}
 
 \item{postsettlement}{Postsettlement mortality in proportion (e.g. 80\% = 0.8)}
+
+\item{width}{output width in inches (default 10)}
+
+\item{height}{output height in inches (default 6)}
 }
 \value{
 An interactive Sankey diagram (htmlwidget).

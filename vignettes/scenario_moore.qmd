@@ -1,5 +1,5 @@
 ---
-title: "Moore Reef (cGBR oceanparcels)"
+title: "3i. coralseed example Moore Reef (cGBR oceanparcels)"
 author: "George Roff"
 date: "2025-03-18"
 format:

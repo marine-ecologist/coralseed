@@ -1,4 +1,4 @@
-# coralseed v1.0.1
+# coralseed 1.2.0
 
 ![](man/figures/coralseedtrace.png)
 

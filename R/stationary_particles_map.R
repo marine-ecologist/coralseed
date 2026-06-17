@@ -2,7 +2,7 @@
 #'
 #' Function to identify and map stationary particles in particle tracks
 #'
-#' @param input input particle tracks (e.g. coralseed:::Mermaid_PointSource_Bay_01)
+#' @param input input particle tracks (e.g. coralseed::reef_map)
 #' @param subset n particles to subset
 #' @export
 #' @examples
@@ -14,7 +14,7 @@
 #' stat_liz22_del_14_33_map <-
 #'   stationary_particles_map(liz22_del_14_33 |> filter(id %in% seq(0:1000)))
 #' stat_liz22_del_14_33_map <-
-#'   stationary_particles_map(coralseed:::Mermaid_PointSource_Bay_01 |>
+#'   stationary_particles_map(coralseed::reef_map |>
 #'   filter(id %in% seq(0:1000)))
 #'
 #' stat_liz22_del_14_33_map <-

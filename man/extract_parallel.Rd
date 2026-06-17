@@ -38,6 +38,8 @@ map_coralseed(
 
 \item{settlement_density_input}{input from settlement density}
 
+\item{crs}{coordinate reference system (default 20353)}
+
 \item{seascape_probability}{input from seascape_probability}
 
 \item{restoration.plot}{dimensions of the restoration plot in metres}

@@ -32,6 +32,8 @@
 
 settler_heatmap <- function(input, xres = 20, yres = 20, buffer_factor = 0.1) {
 
+  if (!requireNamespace("MASS", quietly = TRUE)) stop("Package 'MASS' is required. Install it with: install.packages('MASS')")
+
   # Extract points from sf object
   points <- input
 

@@ -1,0 +1,241 @@
+---
+title: "End-to-end coralseed workflow: Lizard Island"
+author: "George Roff"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    code-tools: true
+execute:
+  echo: true
+  warning: false
+  message: false
+  cache: false
+---
+
+## Overview
+
+This tutorial runs the core `coralseed` workflow for a simulated reseeding event at Lizard Island:
+
+1. load reef and benthic habitat maps;
+2. convert habitat classes into a spatial seascape settlement-probability surface;
+3. seed particles from an external dispersal model;
+4. simulate settlement;
+5. estimate settlement density and settlement summaries;
+6. visualise the output.
+
+
+```{r}
+library(coralseed)
+library(tidyverse)
+library(sf)
+library(tmap)
+library(ggplot2)
+
+sf::sf_use_s2(FALSE)
+```
+
+## Load example spatial data
+
+The package includes Lizard Island example data in `inst/extdata`. These are accessed with `system.file()` so the tutorial works after installation.
+
+```{r}
+lizard_benthic_map <- system.file(
+  "extdata", "Lizard_Benthic.geojson",
+  package = "coralseed"
+) |>
+  sf::st_read(quiet = TRUE)
+
+lizard_reef_map <- system.file(
+  "extdata", "Lizard_Geomorphic.geojson",
+  package = "coralseed"
+) |>
+  sf::st_read(quiet = TRUE)
+
+lizard_particles_sf <- system.file(
+  "extdata", "lizard_del_14_1512_sim1_10.json",
+  package = "coralseed"
+) |>
+  sf::st_read(quiet = TRUE)
+```
+
+## Build the seascape probability surface
+
+`seascape_probability()` combines reef geomorphology and benthic habitat maps and assigns settlement probabilities to habitat classes.
+
+```{r}
+lizard_seascape <- seascape_probability(
+  reefoutline = lizard_reef_map,
+  habitat = lizard_benthic_map
+)
+
+lizard_seascape
+```
+
+```{re}
+ggplot(lizard_seascape) +
+  geom_sf(aes(fill = settlement_probability), colour = NA) +
+  scale_fill_viridis_c(na.value = "grey90") +
+  labs(
+    fill = "Settlement\nprobability",
+    title = "Lizard Island settlement-probability seascape"
+  ) +
+  theme_bw()
+```
+
+## Seed particles
+
+`seed_particles()` takes particle positions from an external dispersal model and adds biological filters, including time limits, competency, mortality, and settlement probability.
+
+```{r}
+lizard_particles <- seed_particles(
+  input = lizard_particles_sf,
+  zarr = FALSE,
+  set.centre = TRUE,
+  seascape = lizard_seascape,
+  probability = "additive",
+  limit.time = 12,
+  competency.function = "exponential",
+  crs = 20353,
+  simulate.mortality = "typeIII",
+  simulate.mortality.n = 0.1,
+  return.plot = TRUE,
+  return.summary = TRUE,
+  silent = FALSE
+)
+```
+
+Inspect the returned object.
+
+```{r}
+names(lizard_particles)
+
+lizard_particles$summary
+```
+
+## Settle particles
+
+`settle_particles()` applies spatial settlement probability and returns the simulated settled subset.
+
+```{r}
+lizard_settlers <- settle_particles(
+  lizard_particles,
+  probability = "additive",
+  return.plot = FALSE,
+  silent = TRUE
+)
+
+names(lizard_settlers)
+```
+
+## Plot settled particles
+
+```{r}
+#| fig-height: 7
+#| fig-width: 9
+plot_particles(
+  lizard_settlers$points,
+  lizard_seascape
+)
+```
+
+## Estimate settlement density
+
+`settlement_density()` converts settled particles into a spatial density surface.
+
+```{r}
+lizard_settlement_density <- settlement_density(
+  lizard_settlers$points
+)
+
+lizard_settlement_density
+```
+
+## Summarise settlement
+
+`settlement_summary()` gives spatially explicit summary metrics, usually binned to a selected cell size.
+
+```{r}
+lizard_settlement_summary <- settlement_summary(
+  lizard_particles,
+  lizard_settlers,
+  cellsize = 50
+)
+
+lizard_settlement_summary
+```
+
+## Interactive map
+
+Interactive leaflet widgets can be heavy in pkgdown builds. For stable documentation, the live `map_coralseed()` call is shown but not evaluated by default.
+
+```{r}
+#| eval: false
+map_coralseed(
+  seed_particles_input = lizard_particles,
+  settle_particles_input = lizard_settlers,
+  settlement_density_input = lizard_settlement_density,
+  seascape_probability = lizard_seascape,
+  restoration.plot = c(100, 100),
+  show.footprint = TRUE,
+  show.tracks = TRUE,
+  subsample = 1000,
+  webGL = TRUE
+)
+```
+
+To save a stable HTML widget for pkgdown:
+
+```{r}
+#| eval: false
+lizard_map <- map_coralseed(
+  seed_particles_input = lizard_particles,
+  settle_particles_input = lizard_settlers,
+  settlement_density_input = lizard_settlement_density,
+  seascape_probability = lizard_seascape,
+  restoration.plot = c(100, 100),
+  show.footprint = TRUE,
+  show.tracks = TRUE,
+  subsample = 1000,
+  webGL = TRUE
+)
+
+fs::dir_create("vignettes/www")
+htmlwidgets::saveWidget(
+  lizard_map,
+  "vignettes/www/lizard_map.html",
+  selfcontained = TRUE
+)
+```
+
+Then embed it manually:
+
+```{=html}
+<!-- <iframe src="www/lizard_map.html" width="100%" height="700"></iframe> -->
+```
+
+## Model flowchart
+
+```{r flowchart}
+#| fig-height: 8
+#| fig-width: 10
+flowchart_coralseed(
+  lizard_particles,
+  lizard_settlers,
+  multiplier = 1000,
+  postsettlement = 0.8
+)
+```
+
+## Key outputs
+
+```{r}
+list(
+  seascape = lizard_seascape,
+  seeded_particles = lizard_particles,
+  settlers = lizard_settlers,
+  settlement_density = lizard_settlement_density,
+  settlement_summary = lizard_settlement_summary
+)
+```

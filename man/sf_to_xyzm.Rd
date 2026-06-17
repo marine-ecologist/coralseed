@@ -7,19 +7,13 @@
 sf_to_xyzm(sf_obj, time_col = "dispersaltime", z_val = 0, cast_multi = TRUE)
 }
 \arguments{
-\item{sf_obj}{sf object (POINTS for type="points"; LINESTRING/MULTILINESTRING for type="linestring")}
+\item{sf_obj}{sf object with LINESTRING/MULTILINESTRING geometry}
 
 \item{time_col}{character name of time/index column (integers or numeric)}
 
 \item{z_val}{numeric constant Z (default 0)}
 
 \item{cast_multi}{logical; cast MULTILINESTRING to LINESTRING (default TRUE)}
-
-\item{type}{c("points","linestring")}
-
-\item{group_col}{character, group/id column for points (default "id" if present)}
-
-\item{id_col}{character, id column for linestring collapse (default "id" if present)}
 }
 \description{
 Minimal helper to create LINESTRING XYZM for mapdeck::add_trips()

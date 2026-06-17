@@ -9,11 +9,15 @@ return_draws(input, fit, tmax = 12, by = 1, n = 1000, ...)
 \arguments{
 \item{input}{brms model fit}
 
+\item{fit}{distribution family: "exp", "weibull", or "lognormal"}
+
 \item{tmax}{max time in hours}
 
 \item{by}{seq by in minutes}
 
 \item{n}{number of simulations}
+
+\item{...}{additional arguments (unused)}
 }
 \description{
 Function to return draws from time-to-competency brms model

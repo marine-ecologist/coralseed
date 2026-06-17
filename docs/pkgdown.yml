@@ -2,16 +2,22 @@ pandoc: 3.7.0.2
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
+  01_lizard_end_to_end: 01_lizard_end_to_end.html
+  02_seascape_probability: 02_seascape_probability.html
+  03_particles_competency_mortality: 03_particles_competency_mortality.html
+  04_settlement_density_summary: 04_settlement_density_summary.html
+  05_visualisation_maps_animation: 05_visualisation_maps_animation.html
+  06_scenario_comparison: 06_scenario_comparison.html
+  07_tiltmeter_flow_particles: 07_tiltmeter_flow_particles.html
+  08_diagnostics_performance_pkgdown: 08_diagnostics_performance_pkgdown.html
   coralseed_lizard: coralseed_lizard.html
   coralseed_moore: coralseed_moore.html
-  index: index.html
   langrangian: langrangian.html
-  manuscript: manuscript.html
   reseed_lizard: reseed_lizard.html
   reseed: reseed.html
   scenario_lizard: scenario_lizard.html
   scenario_moore: scenario_moore.html
-last_built: 2026-06-11T00:51Z
+last_built: 2026-06-17T04:50Z
 urls:
   reference: https://marine-ecologist.github.io/coralseed/reference
   article: https://marine-ecologist.github.io/coralseed/articles

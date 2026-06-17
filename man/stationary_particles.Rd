@@ -8,8 +8,6 @@ stationary_particles(input)
 }
 \arguments{
 \item{input}{input particle tracks}
-
-\item{subset}{n particles to subset}
 }
 \description{
 Function to identify stationary particles in particle tracks
@@ -21,7 +19,7 @@ stat_particles_liz22_del_14_33 <- stationary_particles(liz22_del_14_33)
 stat_liz22_del_14_33_map <- stationary_particles_map(liz22_del_14_33 |>
   filter(id \%in\% seq(0:1000)))
 stat_liz22_del_14_33_map <-
-  stationary_particles_map(coralseed:::Mermaid_PointSource_Bay_01 |>
+  stationary_particles_map(coralseed::reef_map |>
   filter(id \%in\% seq(0:1000)))
 
 stat_liz22_del_14_33_map <-

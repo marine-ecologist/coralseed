@@ -10,12 +10,9 @@
 #'
 #' Sets geometry m_range attribute required by mapdeck.
 #'
-#' @param sf_obj  sf object (POINTS for type="points"; LINESTRING/MULTILINESTRING for type="linestring")
-#' @param type    c("points","linestring")
+#' @param sf_obj sf object with LINESTRING/MULTILINESTRING geometry
 #' @param time_col character name of time/index column (integers or numeric)
-#' @param group_col character, group/id column for points (default "id" if present)
-#' @param id_col character, id column for linestring collapse (default "id" if present)
-#' @param z_val   numeric constant Z (default 0)
+#' @param z_val numeric constant Z (default 0)
 #' @param cast_multi logical; cast MULTILINESTRING to LINESTRING (default TRUE)
 #' @export
 sf_to_xyzm <-  function(sf_obj,

@@ -12,28 +12,9 @@
   #' @param threshold Numeric. Thresholding value < will remove low-density values
   #'
   #'
-  #' @export
-  #'
-  #' @examples
-  #' \dontrun{
-  #' library(sf)
-  #' library(terra)
-  #'
-  #' # Example: Generate a random set of points
-  #' set.seed(123)
-  #' points_sf <- st_as_sf(data.frame(
-  #'   X = runif(100, min = 1000, max = 2000),
-  #'   Y = runif(100, min = 500, max = 1500)
-  #' ), coords = c("X", "Y"), crs = 4326)
-  #'
-  #' # Generate heatmap with 50m resolution and 10% buffer
-  #' heatmap <- settler_heatmap(points_sf, xres = 50, yres = 50, buffer_factor = 0.1)
-  #'
-  #' # Plot result
-  #' plot(heatmap)
-  #' }
+  #' @keywords internal
 
-  settler_heatmap <- function(input, xres = 20, yres = 20, buffer_factor = 0.1, n=100, threshold=10) {
+  .settler_heatmap_legacy <- function(input, xres = 20, yres = 20, buffer_factor = 0.1, n=100, threshold=10) {
 
         # Extract points from sf object
         points <- input

@@ -4,6 +4,7 @@
 #' Uses sp::over instead of sf for speed
 #'
 #' @param input input (defaults to NULL)
+#' @param messages print progress messages (default FALSE)
 #' @param calculate_hull true/false calculate concave hull (can be time intensive on large datasets, defaults to true)
 #' @param combined test to allow multiple coralseed file inputs in list (defaults to FALSE)
 #' @param cellsize dimensions of grid to count settlers (defaults to 20m)

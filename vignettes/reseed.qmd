@@ -1,5 +1,5 @@
 ---
-title: "reseed: interactive data tools for visualising coralseed output"
+title: "4i: reseed: interactive data tools"
 format: html
 editor: visual
 ---

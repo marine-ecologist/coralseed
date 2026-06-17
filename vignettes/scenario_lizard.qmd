@@ -1,5 +1,5 @@
 ---
-title: "Lizard Island (nGBR CONNIE)"
+title: "2i. coralseed - Lizard Island (nGBR CONNIE)"
 author: "George Roff"
 date: "2025-03-18"
 format:
@@ -39,6 +39,16 @@ load(file="/Users/rof011/coralseed/data/infamis_tiles_exp.rda")
 Simulated reseeding event at Mermaid Bay, Lizard Island
 
 # 1) seed particles
+
+```{r}
+#| message: false
+#| warning: false
+#| cache: true
+#| include: false
+#| 
+load(file="/Users/rof011/coralseed/data/infamis_tiles_exp.rda")
+
+```
 
 ```{r}
 #| eval: true
@@ -114,6 +124,7 @@ lizard_settlement_summary <- settlement_summary(lizard_particles, lizard_settler
 #| message: false
 #| warning: false
 #| eval: false
+#| cache: true
 
 map_coralseed(seed_particles_input = lizard_particles,
               settle_particles_input = lizard_settlers,
@@ -131,26 +142,25 @@ map_coralseed(seed_particles_input = lizard_particles,
 ```{r}
 #| message: false
 #| warning: false
-#| cache: true
 #| fig-height: 10
 #| fig-width: 12
-#| eval: true
+#| eval: false
 #| include: false
 
-lizardmap <- map_coralseed(seed_particles_input = lizard_particles,
-              settle_particles_input = lizard_settlers,
-              settlement_density_input = lizard_settlement_density,
-              seascape_probability = lizard_seascape,
-              restoration.plot = c(100,100),
-              show.footprint = TRUE,
-              show.tracks = TRUE,
-              subsample = 1000,
-              webGL = TRUE)
-
-fs::dir_create("../vignettes/www")
-htmlwidgets::saveWidget(lizardmap, "../vignettes/www/lizardmap.html")
-fs::dir_create("../docs/www")
-htmlwidgets::saveWidget(lizardmap, "../docs/www/lizardmap.html")
+# lizardmap <- map_coralseed(seed_particles_input = lizard_particles,
+#               settle_particles_input = lizard_settlers,
+#               settlement_density_input = lizard_settlement_density,
+#               seascape_probability = lizard_seascape,
+#               restoration.plot = c(100,100),
+#               show.footprint = TRUE,
+#               show.tracks = TRUE,
+#               subsample = 1000,
+#               webGL = TRUE)
+# 
+# fs::dir_create("../vignettes/www")
+# htmlwidgets::saveWidget(lizardmap, "../vignettes/www/lizardmap.html")
+# fs::dir_create("../docs/www")
+# htmlwidgets::saveWidget(lizardmap, "../docs/www/lizardmap.html")
  
 
 

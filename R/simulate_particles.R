@@ -7,11 +7,16 @@
 #' particle positions that intersect land are repeatedly redrawn up to a
 #' maximum retry limit.
 #'
+#' The time loop is sequential because each particle position depends on its
+#' previous position. Optional parallel processing is therefore implemented by
+#' splitting independent simulations across release sites.
+#'
 #' @param flow_field An `sf` point object containing gridded flow fields. Must
 #'   contain columns `time`, `x`, `y`, `u_ms`, and `v_ms`. Velocities should be
 #'   in metres per second.
 #' @param land_poly An `sf` polygon object representing land or other exclusion
-#'   areas that particles should not enter.
+#'   areas that particles should not enter. Use `NULL` to disable land
+#'   exclusion.
 #' @param release_sites An `sf` point object giving particle release locations.
 #' @param crs_m Numeric or character. Projected coordinate reference system
 #'   used for particle movement in metres. Default is `32755`.
@@ -19,14 +24,30 @@
 #'   `5 * 60`.
 #' @param release_duration_seconds Numeric. Duration over which particles are
 #'   released, in seconds. Default is `60 * 60`.
+#' @param release_by Character. Interval between release times, passed to
+#'   `seq.POSIXt()`. Default is `paste(dt, "sec")`, so release times align with
+#'   flow-field time steps.
+#' @param release_start Optional release start time. If `NULL`, the first
+#'   available flow-field timestamp is used.
+#'#' @param beached Logical. If `TRUE`, particles that still intersect land after
+#'   `max_land_retry` attempts are marked as `"beached"`, recorded once, and
+#'   removed from subsequent simulation steps. If `FALSE`, they are returned to
+#'   their previous position and remain active. Default is `FALSE`.
 #' @param n_particles_per_site_per_release Integer. Number of particles released
 #'   per site at each release time. Default is `100`.
 #' @param K Numeric. Horizontal diffusivity used in the random-walk term, in
 #'   square metres per second. Default is `0.05`.
+#' @param random_walk_sd Optional numeric. Standard deviation of the horizontal
+#'   random-walk displacement in metres per timestep. If `NULL`, it is calculated
+#'   from horizontal diffusivity as `sqrt(2 * K * dt)`. Default is `NULL`.
 #' @param max_land_retry Integer. Maximum number of redraw attempts for
 #'   particles that intersect land after movement. Default is `200`.
 #' @param seed Integer. Random seed for reproducible particle release and
 #'   diffusion. Default is `101`.
+#' @param parallel Logical. If `TRUE`, run release sites in parallel using
+#'   `future` and `furrr`. Default is `FALSE`.
+#' @param workers Integer. Number of parallel workers. If `NULL`, uses one fewer
+#'   than the number of available cores.
 #'
 #' @return A named list with:
 #' \describe{
@@ -45,7 +66,8 @@
 #'   \item{particles0}{Initial particle release table.}
 #'   \item{release_sites_m}{Release sites transformed to `crs_m`, with release
 #'   coordinates.}
-#'   \item{land_m}{Land polygon transformed to `crs_m`.}
+#'   \item{land_m}{Land polygon transformed to `crs_m`, or `NULL` if
+#'   `land_poly = NULL`.}
 #' }
 #'
 #' @details
@@ -66,8 +88,9 @@
 #' still intersects land after `max_land_retry` attempts, it is returned to its
 #' previous position for that time step.
 #'
-#' Flow fields are matched exactly by timestamp. Time steps with no matching
-#' flow-field data return particles unchanged.
+#' Flow fields are matched exactly by timestamp. For this reason,
+#' `release_by = paste(dt, "sec")` is recommended unless the flow field has
+#' finer temporal resolution.
 #'
 #' @examples
 #' \dontrun{
@@ -81,7 +104,9 @@
 #'   n_particles_per_site_per_release = 100,
 #'   K = 0.05,
 #'   max_land_retry = 200,
-#'   seed = 101
+#'   seed = 101,
+#'   parallel = TRUE,
+#'   workers = 6
 #' )
 #'
 #' particle_sim$particle_tracks_sf
@@ -90,11 +115,11 @@
 #' }
 #'
 #' @importFrom dplyr mutate select filter arrange group_by ungroup row_number
-#'   cur_group_id bind_rows summarise n_distinct slice_max if_else n
+#'   cur_group_id bind_rows summarise n_distinct slice_max if_else n dense_rank
 #' @importFrom tidyr crossing
 #' @importFrom stringr str_c str_pad
 #' @importFrom sf st_transform st_make_valid st_coordinates st_drop_geometry
-#'   st_as_sf st_intersects
+#'   st_as_sf st_intersects st_crs
 #' @importFrom FNN get.knnx
 #' @importFrom stats rnorm
 #' @importFrom tibble tibble
@@ -102,101 +127,133 @@
 #' @export
 simulate_particles <- function(
     flow_field,
-    land_poly,
+    land_poly = NULL,
     release_sites,
     crs_m = 32755,
     dt = 5 * 60,
     release_duration_seconds = 60 * 60,
+    release_by = paste(dt, "sec"),
+    release_start = NULL,
     n_particles_per_site_per_release = 100,
     K = 0.05,
+    random_walk_sd = NULL,
     max_land_retry = 200,
-    seed = 101
+    beached = FALSE,
+    seed = 101,
+    parallel = FALSE,
+    workers = NULL
 ) {
 
-  requireNamespace("tidyverse")
-  requireNamespace("sf")
   requireNamespace("lubridate")
   requireNamespace("FNN")
+  requireNamespace("purrr")
+
+  if (!inherits(flow_field, "sf")) {
+    stop("`flow_field` must be an sf object.", call. = FALSE)
+  }
+
+  if (!inherits(release_sites, "sf")) {
+    stop("`release_sites` must be an sf object.", call. = FALSE)
+  }
+
+  required_flow_cols <- c("time", "x", "y", "u_ms", "v_ms")
+  missing_flow_cols <- setdiff(required_flow_cols, names(flow_field))
+
+  if (length(missing_flow_cols) > 0) {
+    stop(
+      "`flow_field` is missing required columns: ",
+      paste(missing_flow_cols, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  if (!is.null(land_poly) && !inherits(land_poly, "sf")) {
+    stop("`land_poly` must be NULL or an sf polygon object.", call. = FALSE)
+  }
+
+  if (!is.null(random_walk_sd)) {
+    if (!is.numeric(random_walk_sd) || length(random_walk_sd) != 1 || random_walk_sd < 0) {
+      stop("`random_walk_sd` must be NULL or a single non-negative numeric value.", call. = FALSE)
+    }
+  }
+
+  if (!is.logical(beached) || length(beached) != 1) {
+    stop("`beached` must be a single TRUE/FALSE value.", call. = FALSE)
+  }
+
+  if (parallel) {
+    requireNamespace("future")
+    requireNamespace("furrr")
+  }
 
   set.seed(seed)
 
-  land_m <- land_poly |>
-    sf::st_transform(crs_m) |>
-    sf::st_make_valid()
+  land_m <- NULL
+
+  if (!is.null(land_poly)) {
+    land_m <- land_poly |>
+      sf::st_transform(crs_m) |>
+      sf::st_make_valid()
+  }
 
   release_sites_m <- release_sites |>
     dplyr::mutate(site_id = dplyr::row_number()) |>
-    sf::st_transform(crs_m) %>%
+    sf::st_transform(crs_m)
+
+  release_xy <- sf::st_coordinates(release_sites_m)
+
+  release_sites_m <- release_sites_m |>
     dplyr::mutate(
-      release_x = sf::st_coordinates(.)[, 1],
-      release_y = sf::st_coordinates(.)[, 2]
+      release_x = release_xy[, 1],
+      release_y = release_xy[, 2]
     )
 
   flow_lookup <- flow_field |>
     sf::st_transform(crs_m) |>
     sf::st_drop_geometry() |>
     dplyr::mutate(
-      time = as.POSIXct(time, tz = "UTC")
+      time = as.POSIXct(.data$time, tz = "UTC")
     ) |>
-    dplyr::select(time, x, y, u_ms, v_ms)
+    dplyr::select(
+      .data$time,
+      .data$x,
+      .data$y,
+      .data$u_ms,
+      .data$v_ms
+    )
 
   flow_times <- sort(unique(flow_lookup$time))
 
+  if (length(flow_times) == 0) {
+    stop("`flow_field` contains no valid flow-field times.", call. = FALSE)
+  }
+
+  if (is.null(release_start)) {
+    release_start <- min(flow_times, na.rm = TRUE)
+  }
+
+  release_start <- as.POSIXct(release_start, tz = "UTC")
+
   release_times <- seq(
-    from = min(flow_times, na.rm = TRUE),
-    by = paste(dt, "sec"),
-    length.out = release_duration_seconds / dt
+    from = release_start,
+    to = release_start + release_duration_seconds - 1,
+    by = release_by
   )
 
-  particles0 <- release_sites_m |>
-    sf::st_drop_geometry() |>
-    dplyr::select(site_id, release_x, release_y) |>
-    tidyr::crossing(
-      release_time = release_times,
-      particle_i = seq_len(n_particles_per_site_per_release)
-    ) |>
-    dplyr::group_by(site_id, release_time) |>
-    dplyr::mutate(
-      release_i = dplyr::cur_group_id()
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(
-      particle_uid = stringr::str_c(
-        "site", stringr::str_pad(site_id, 2, pad = "0"),
-        "_rel", stringr::str_pad(release_i, 3, pad = "0"),
-        "_p", stringr::str_pad(particle_i, 4, pad = "0")
-      ),
-      particle_id = dplyr::row_number(),
-      time = release_time,
-      age_seconds = 0,
-      x = release_x,
-      y = release_y,
-      status = "active",
-      land_retry_n = 0L
-    ) |>
-    dplyr::select(
-      particle_id,
-      particle_uid,
-      site_id,
-      particle_i,
-      release_i,
-      release_time,
-      time,
-      age_seconds,
-      x,
-      y,
-      status,
-      land_retry_n
-    )
+  release_times <- as.POSIXct(
+    release_times,
+    origin = "1970-01-01",
+    tz = "UTC"
+  )
 
   nearest_flow <- function(particles_t, flow_t) {
 
     nn <- FNN::get.knnx(
       data = flow_t |>
-        dplyr::select(x, y) |>
+        dplyr::select(.data$x, .data$y) |>
         as.matrix(),
       query = particles_t |>
-        dplyr::select(x, y) |>
+        dplyr::select(.data$x, .data$y) |>
         as.matrix(),
       k = 1
     )
@@ -209,6 +266,14 @@ simulate_particles <- function(
   }
 
   check_land_hit <- function(dat, land_m, crs_m) {
+
+    if (is.null(land_m)) {
+      return(rep(FALSE, nrow(dat)))
+    }
+
+    if (nrow(dat) == 0) {
+      return(logical(0))
+    }
 
     dat_sf <- dat |>
       sf::st_as_sf(
@@ -233,33 +298,39 @@ simulate_particles <- function(
     tt <- as.POSIXct(tt, origin = "1970-01-01", tz = "UTC")
 
     flow_t <- flow_lookup |>
-      dplyr::filter(time == tt)
+      dplyr::filter(.data$time == tt)
 
     if (nrow(flow_t) == 0) {
       return(particles_t)
     }
 
     active <- particles_t |>
-      dplyr::filter(status == "active")
+      dplyr::filter(.data$status == "active")
 
     inactive <- particles_t |>
-      dplyr::filter(status != "active")
+      dplyr::filter(.data$status != "active")
 
     if (nrow(active) == 0) {
       return(particles_t)
     }
 
-    rw_sd <- sqrt(2 * K * dt)
+    rw_sd <- if (is.null(random_walk_sd)) {
+      sqrt(2 * K * dt)
+    } else {
+      random_walk_sd
+    }
 
     active_next <- active |>
       nearest_flow(flow_t = flow_t) |>
       dplyr::mutate(
-        x_old = x,
-        y_old = y,
-        x = x + u_ms * dt + stats::rnorm(dplyr::n(), mean = 0, sd = rw_sd),
-        y = y + v_ms * dt + stats::rnorm(dplyr::n(), mean = 0, sd = rw_sd),
+        x_old = .data$x,
+        y_old = .data$y,
+        x = .data$x + .data$u_ms * dt +
+          stats::rnorm(dplyr::n(), mean = 0, sd = rw_sd),
+        y = .data$y + .data$v_ms * dt +
+          stats::rnorm(dplyr::n(), mean = 0, sd = rw_sd),
         time = tt + dt,
-        age_seconds = age_seconds + dt,
+        age_seconds = .data$age_seconds + dt,
         land_retry_n = 0L
       )
 
@@ -284,7 +355,8 @@ simulate_particles <- function(
         active_next$v_ms[hit_land] * dt +
         stats::rnorm(n_hit, mean = 0, sd = rw_sd)
 
-      active_next$land_retry_n[hit_land] <- active_next$land_retry_n[hit_land] + 1L
+      active_next$land_retry_n[hit_land] <-
+        active_next$land_retry_n[hit_land] + 1L
 
       hit_land <- check_land_hit(
         dat = active_next,
@@ -293,69 +365,199 @@ simulate_particles <- function(
       )
     }
 
+    if (beached) {
+
+      active_next <- active_next |>
+        dplyr::mutate(
+          status = dplyr::if_else(hit_land, "beached", "active")
+        )
+
+    } else {
+
+      active_next <- active_next |>
+        dplyr::mutate(
+          x = dplyr::if_else(hit_land, .data$x_old, .data$x),
+          y = dplyr::if_else(hit_land, .data$y_old, .data$y),
+          status = "active"
+        )
+    }
+
     active_next <- active_next |>
-      dplyr::mutate(
-        x = dplyr::if_else(hit_land, x_old, x),
-        y = dplyr::if_else(hit_land, y_old, y),
-        status = "active"
-      ) |>
       dplyr::select(
-        particle_id,
-        particle_uid,
-        site_id,
-        particle_i,
-        release_i,
-        release_time,
-        time,
-        age_seconds,
-        x,
-        y,
-        status,
-        land_retry_n
+        .data$particle_id,
+        .data$particle_uid,
+        .data$site_id,
+        .data$particle_i,
+        .data$release_i,
+        .data$release_time,
+        .data$time,
+        .data$age_seconds,
+        .data$x,
+        .data$y,
+        .data$status,
+        .data$land_retry_n
       )
 
     dplyr::bind_rows(inactive, active_next)
   }
 
-  sim_times <- flow_times[
-    flow_times >= min(release_times, na.rm = TRUE) &
-      flow_times <= max(flow_times, na.rm = TRUE)
-  ]
+  run_serial <- function(release_sites_m_i, seed_i) {
 
-  particles_active <- tibble::tibble()
-  particle_tracks <- vector("list", length(sim_times))
+    set.seed(seed_i)
 
-  for (i in seq_along(sim_times)) {
-
-    tt <- sim_times[i]
-
-    new_particles <- particles0 |>
-      dplyr::filter(release_time == tt)
-
-    particles_active <- dplyr::bind_rows(
-      particles_active,
-      new_particles
-    )
-
-    particles_active <- move_particles(
-      particles_t = particles_active,
-      flow_lookup = flow_lookup,
-      land_m = land_m,
-      tt = tt,
-      dt = dt,
-      K = K,
-      max_land_retry = max_land_retry
-    )
-
-    particle_tracks[[i]] <- particles_active |>
+    particles0 <- release_sites_m_i |>
+      sf::st_drop_geometry() |>
+      dplyr::select(
+        .data$site_id,
+        .data$release_x,
+        .data$release_y
+      ) |>
+      tidyr::crossing(
+        release_time = release_times,
+        particle_i = seq_len(n_particles_per_site_per_release)
+      ) |>
+      dplyr::group_by(.data$site_id, .data$release_time) |>
       dplyr::mutate(
-        track_step = i,
-        track_time = tt
+        release_i = dplyr::cur_group_id()
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(
+        particle_uid = stringr::str_c(
+          "site", stringr::str_pad(.data$site_id, 2, pad = "0"),
+          "_rel", stringr::str_pad(.data$release_i, 3, pad = "0"),
+          "_p", stringr::str_pad(.data$particle_i, 4, pad = "0")
+        ),
+        particle_id = dplyr::row_number(),
+        time = .data$release_time,
+        age_seconds = 0,
+        x = .data$release_x,
+        y = .data$release_y,
+        status = "active",
+        land_retry_n = 0L
+      ) |>
+      dplyr::select(
+        .data$particle_id,
+        .data$particle_uid,
+        .data$site_id,
+        .data$particle_i,
+        .data$release_i,
+        .data$release_time,
+        .data$time,
+        .data$age_seconds,
+        .data$x,
+        .data$y,
+        .data$status,
+        .data$land_retry_n
       )
+
+    sim_times <- flow_times[
+      flow_times >= min(release_times, na.rm = TRUE) &
+        flow_times <= max(flow_times, na.rm = TRUE)
+    ]
+
+    particles_active <- tibble::tibble()
+    particle_tracks <- vector("list", length(sim_times))
+
+    for (i in seq_along(sim_times)) {
+
+      tt <- sim_times[i]
+
+      new_particles <- particles0 |>
+        dplyr::filter(.data$release_time == tt)
+
+      particles_active <- dplyr::bind_rows(
+        particles_active,
+        new_particles
+      )
+
+      particles_active <- move_particles(
+        particles_t = particles_active,
+        flow_lookup = flow_lookup,
+        land_m = land_m,
+        tt = tt,
+        dt = dt,
+        K = K,
+        max_land_retry = max_land_retry
+      )
+
+      particle_tracks[[i]] <- particles_active |>
+        dplyr::mutate(
+          track_step = i,
+          track_time = tt
+        )
+
+      if (beached) {
+        particles_active <- particles_active |>
+          dplyr::filter(.data$status != "beached")
+      }
+    }
+
+    list(
+      particles0 = particles0,
+      particle_tracks = dplyr::bind_rows(particle_tracks)
+    )
   }
 
-  particle_tracks <- dplyr::bind_rows(particle_tracks) |>
-    dplyr::arrange(particle_id, time, track_step)
+  if (parallel && nrow(release_sites_m) > 1) {
+
+    if (is.null(workers)) {
+      workers <- max(1, parallel::detectCores() - 1)
+    }
+
+    old_plan <- future::plan()
+    on.exit(future::plan(old_plan), add = TRUE)
+
+    future::plan(future::multisession, workers = workers)
+
+    release_site_list <- split(
+      release_sites_m,
+      release_sites_m$site_id
+    )
+
+    sims <- furrr::future_map2(
+      release_site_list,
+      seq_along(release_site_list),
+      \(release_sites_m_i, i) {
+        run_serial(
+          release_sites_m_i = release_sites_m_i,
+          seed_i = seed + i
+        )
+      },
+      .options = furrr::furrr_options(seed = TRUE)
+    )
+
+  } else {
+
+    sims <- list(
+      run_serial(
+        release_sites_m_i = release_sites_m,
+        seed_i = seed
+      )
+    )
+  }
+
+  particles0 <- sims |>
+    purrr::map("particles0") |>
+    dplyr::bind_rows()
+
+  particle_tracks <- sims |>
+    purrr::map("particle_tracks") |>
+    dplyr::bind_rows() |>
+    dplyr::mutate(
+      particle_uid = as.character(.data$particle_uid),
+      particle_id = dplyr::dense_rank(.data$particle_uid)
+    ) |>
+    dplyr::arrange(
+      .data$particle_id,
+      .data$time,
+      .data$track_step
+    )
+
+  particles0 <- particles0 |>
+    dplyr::mutate(
+      particle_uid = as.character(.data$particle_uid),
+      particle_id = dplyr::dense_rank(.data$particle_uid)
+    )
 
   particle_tracks_sf <- particle_tracks |>
     sf::st_as_sf(
@@ -365,18 +567,38 @@ simulate_particles <- function(
     )
 
   final_particles <- particle_tracks_sf |>
-    dplyr::group_by(particle_id, particle_uid) |>
-    dplyr::slice_max(time, n = 1, with_ties = FALSE) |>
+    dplyr::group_by(.data$particle_id, .data$particle_uid) |>
+    dplyr::slice_max(.data$time, n = 1, with_ties = FALSE) |>
     dplyr::ungroup()
 
   particle_track_summary <- particle_tracks |>
     dplyr::summarise(
-      n_particles = dplyr::n_distinct(particle_id),
-      n_particle_uids = dplyr::n_distinct(particle_uid),
+      n_particles = dplyr::n_distinct(.data$particle_id),
+      n_particle_uids = dplyr::n_distinct(.data$particle_uid),
       n_track_rows = dplyr::n(),
-      mean_land_retry_n = mean(land_retry_n, na.rm = TRUE),
-      max_land_retry_n = max(land_retry_n, na.rm = TRUE),
-      prop_retried_land = mean(land_retry_n > 0, na.rm = TRUE)
+      n_beached = sum(.data$status == "beached", na.rm = TRUE),
+      n_beached_particles = dplyr::n_distinct(
+        .data$particle_id[.data$status == "beached"]
+      ),
+      prop_beached_particles = .data$n_beached_particles / .data$n_particles,
+      mean_land_retry_n = mean(.data$land_retry_n, na.rm = TRUE),
+      max_land_retry_n = max(.data$land_retry_n, na.rm = TRUE),
+      prop_retried_land = mean(.data$land_retry_n > 0, na.rm = TRUE),
+      dt = dt,
+      K = K,
+      random_walk_sd = ifelse(
+        is.null(random_walk_sd),
+        sqrt(2 * K * dt),
+        random_walk_sd
+      ),
+      random_walk_sd_source = ifelse(
+        is.null(random_walk_sd),
+        "calculated_from_K",
+        "user_supplied"
+      ),
+      parallel = parallel,
+      workers = ifelse(is.null(workers), 1L, workers),
+      beached = beached
     )
 
   list(

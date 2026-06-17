@@ -7,7 +7,7 @@
 plot_draws_median(input)
 }
 \arguments{
-\item{n}{number of simulations}
+\item{input}{output from return_draws()}
 }
 \description{
 Function to plot median and 90\% CI draws from time-to-competency brms model
