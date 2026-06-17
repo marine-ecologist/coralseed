@@ -3,9 +3,11 @@
 #' Function to return draws from time-to-competency brms model
 #'
 #' @param input brms model fit
+#' @param fit distribution family: "exp", "weibull", or "lognormal"
 #' @param n number of simulations
 #' @param tmax max time in hours
 #' @param by seq by in minutes
+#' @param ... additional arguments (unused)
 #' @export
 #'
 
@@ -140,8 +142,8 @@ return_draws <- function(input, fit, tmax=12, by=1, n=1000, ...){
 #'
 #' Function to plot spaghetti draws from time-to-competency brms model
 #'
-#' @param n number of simulations
-#' @param slice n number of simulations for spaghetti plot
+#' @param input output from return_draws()
+#' @param slice number of simulations to draw for spaghetti plot (default 100)
 #' @export
 #'
 
@@ -165,7 +167,7 @@ plot_draws <- function(input, slice=100){
 #'
 #' Function to plot median and 90% CI draws from time-to-competency brms model
 #'
-#' @param n number of simulations
+#' @param input output from return_draws()
 #' @export
 #'
 

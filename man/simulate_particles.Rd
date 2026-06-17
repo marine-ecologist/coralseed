@@ -6,15 +6,19 @@
 \usage{
 simulate_particles(
   flow_field,
-  land_poly,
+  land_poly = NULL,
   release_sites,
   crs_m = 32755,
   dt = 5 * 60,
   release_duration_seconds = 60 * 60,
+  release_by = paste(dt, "sec"),
+  release_start = NULL,
   n_particles_per_site_per_release = 100,
   K = 0.05,
   max_land_retry = 200,
-  seed = 101
+  seed = 101,
+  parallel = FALSE,
+  workers = NULL
 )
 }
 \arguments{
@@ -23,7 +27,8 @@ contain columns \code{time}, \code{x}, \code{y}, \code{u_ms}, and \code{v_ms}. V
 in metres per second.}
 
 \item{land_poly}{An \code{sf} polygon object representing land or other exclusion
-areas that particles should not enter.}
+areas that particles should not enter. Use \code{NULL} to disable land
+exclusion.}
 
 \item{release_sites}{An \code{sf} point object giving particle release locations.}
 
@@ -36,6 +41,13 @@ used for particle movement in metres. Default is \code{32755}.}
 \item{release_duration_seconds}{Numeric. Duration over which particles are
 released, in seconds. Default is \code{60 * 60}.}
 
+\item{release_by}{Character. Interval between release times, passed to
+\code{seq.POSIXt()}. Default is \code{paste(dt, "sec")}, so release times align with
+flow-field time steps.}
+
+\item{release_start}{Optional release start time. If \code{NULL}, the first
+available flow-field timestamp is used.}
+
 \item{n_particles_per_site_per_release}{Integer. Number of particles released
 per site at each release time. Default is \code{100}.}
 
@@ -47,6 +59,12 @@ particles that intersect land after movement. Default is \code{200}.}
 
 \item{seed}{Integer. Random seed for reproducible particle release and
 diffusion. Default is \code{101}.}
+
+\item{parallel}{Logical. If \code{TRUE}, run release sites in parallel using
+\code{future} and \code{furrr}. Default is \code{FALSE}.}
+
+\item{workers}{Integer. Number of parallel workers. If \code{NULL}, uses one fewer
+than the number of available cores.}
 }
 \value{
 A named list with:
@@ -66,7 +84,8 @@ track rows, and land-retry diagnostics.}
 \item{particles0}{Initial particle release table.}
 \item{release_sites_m}{Release sites transformed to \code{crs_m}, with release
 coordinates.}
-\item{land_m}{Land polygon transformed to \code{crs_m}.}
+\item{land_m}{Land polygon transformed to \code{crs_m}, or \code{NULL} if
+\code{land_poly = NULL}.}
 }
 }
 \description{
@@ -78,6 +97,10 @@ particle positions that intersect land are repeatedly redrawn up to a
 maximum retry limit.
 }
 \details{
+The time loop is sequential because each particle position depends on its
+previous position. Optional parallel processing is therefore implemented by
+splitting independent simulations across release sites.
+
 Particle movement follows:
 
 \deqn{x_{t + 1} = x_t + u_t dt + \epsilon_x}
@@ -95,8 +118,9 @@ previous position using the same advective and diffusive step. If a particle
 still intersects land after \code{max_land_retry} attempts, it is returned to its
 previous position for that time step.
 
-Flow fields are matched exactly by timestamp. Time steps with no matching
-flow-field data return particles unchanged.
+Flow fields are matched exactly by timestamp. For this reason,
+\code{release_by = paste(dt, "sec")} is recommended unless the flow field has
+finer temporal resolution.
 }
 \examples{
 \dontrun{
@@ -110,7 +134,9 @@ particle_sim <- simulate_particles(
   n_particles_per_site_per_release = 100,
   K = 0.05,
   max_land_retry = 200,
-  seed = 101
+  seed = 101,
+  parallel = TRUE,
+  workers = 6
 )
 
 particle_sim$particle_tracks_sf

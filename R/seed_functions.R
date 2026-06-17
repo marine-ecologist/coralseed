@@ -7,7 +7,7 @@ simulate_larvae <- function (n_sims, n_id, b_intercept, n_seed){
   n_sims=n_sims # how many simulations to draw across
   b_Intercept=b_intercept # shape of the curve
 
-  b_Intercept_variance <- sd(coralseed::parameter_draws_exp$b_Intercept)
+  b_Intercept_variance <- sd(parameter_draws_exp$b_Intercept)
   sim_exp <- data.frame(b_Intercept = rnorm(1000, b_Intercept, b_Intercept_variance))
 
   dataset_quartiles <- do.call(rbind, lapply(seq_len(n_sims), function(i) {

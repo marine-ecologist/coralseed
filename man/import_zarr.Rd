@@ -9,6 +9,8 @@ import_zarr(input, origin = "1970-01-01 15:00:00", crs = 4326)
 \arguments{
 \item{input}{input zarr folder}
 
+\item{origin}{POSIXct origin datetime string (default "1970-01-01 15:00:00")}
+
 \item{crs}{coordinate reference system (default = 4326)}
 }
 \description{

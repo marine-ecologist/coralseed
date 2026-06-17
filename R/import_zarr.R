@@ -5,6 +5,7 @@
 #' zarr_file_path <- "/Users/rof011/oceanparcels/outputs/Elford_16073_Slope_71a.zarr/"
 #'
 #' @param input input zarr folder
+#' @param origin POSIXct origin datetime string (default "1970-01-01 15:00:00")
 #' @param crs coordinate reference system (default = 4326)
 #' @export
 #'

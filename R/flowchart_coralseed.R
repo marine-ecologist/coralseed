@@ -6,6 +6,9 @@
   #' @param settle_particles_input A named list containing `$points`, an `sf` object with settled larvae and `id`.
   #' @param multiplier Numeric multiplier to scale particle counts (e.g., if each simulated particle represents multiple larvae).
   #' @param postsettlement Postsettlement mortality in proportion (e.g. 80% = 0.8)
+  #' @param save_output optional file path to save output as png, jpg, or pdf
+  #' @param width output width in inches (default 10)
+  #' @param height output height in inches (default 6)
   #'
   #' @return An interactive Sankey diagram (htmlwidget).
   #' @export

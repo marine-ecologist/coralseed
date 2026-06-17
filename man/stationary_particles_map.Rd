@@ -7,7 +7,7 @@
 stationary_particles_map(input, subset = 100)
 }
 \arguments{
-\item{input}{input particle tracks (e.g. coralseed:::Mermaid_PointSource_Bay_01)}
+\item{input}{input particle tracks (e.g. coralseed::reef_map)}
 
 \item{subset}{n particles to subset}
 }
@@ -23,7 +23,7 @@ stat_particles_liz22_del_14_33 <-
 stat_liz22_del_14_33_map <-
   stationary_particles_map(liz22_del_14_33 |> filter(id \%in\% seq(0:1000)))
 stat_liz22_del_14_33_map <-
-  stationary_particles_map(coralseed:::Mermaid_PointSource_Bay_01 |>
+  stationary_particles_map(coralseed::reef_map |>
   filter(id \%in\% seq(0:1000)))
 
 stat_liz22_del_14_33_map <-

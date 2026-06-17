@@ -6,6 +6,7 @@
 #' @param seed_particles_input input from seed_particles_input
 #' @param settle_particles_input input from settle_particles_input
 #' @param settlement_density_input input from settlement density
+#' @param crs coordinate reference system (default 20353)
 #' @param seascape_probability input from seascape_probability
 #' @param restoration.plot dimensions of the restoration plot in metres
 #' @param show.tracks option to show particle tracks (TRUE, will be large files and slower renders)

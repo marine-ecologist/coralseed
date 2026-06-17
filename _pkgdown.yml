@@ -4,93 +4,148 @@ home:
 
 authors:
   George Roff:
-    href: https://github.com/marine.ecologist/
+    href: https://github.com/marine-ecologist/
 
 url: https://marine-ecologist.github.io/coralseed/
 
-template:
-  bootstrap: 5
-  math-rendering: mathjax
-  light-switch: true
-  css: extra.css
-  includes:
-    in_header: |
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+destination: docs
 
-    
 assets:
   - ../data/www
 
 development:
   mode: release
-  
+
+template:
+  bootstrap: 5
+  math-rendering: mathjax
+  light-switch: false
+  css: extra.css
+  includes:
+    in_header: |
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 navbar:
   structure:
-    left:
-      - intro
-      - reference
-      - updates
-      - manuscript
-      - tutorials
-      - simulations
-      - reseed
-    right:
-      - search
-      - github
+    left: [reference, tutorials, simulations, articles, news]
+    right: [search, github]
 
   components:
     reference:
-      icon: fa-layer-group
+      icon: fa-book
       text: Reference
       href: reference/index.html
 
-    updates:
-      icon: fa-spinner
-      text: Changelog
-      href: news/index.html
-
-    manuscript:
-      icon: fa-file
-      text: Manuscript
-      href: articles/manuscript.html
-
     tutorials:
-      icon: fa-copy
+      icon: fa-layer-group
       text: Tutorials
       menu:
-        - text: Lizard Island, northern GBR (CONNIE)
-          icon: fa-location-dot
-          href: articles/scenario_lizard.html
-        - text: Moore Reef, central GBR (oceanparcels)
-          icon: fa-location-dot
-          href: articles/scenario_moore.html
+        - text: "1. Lizard Island end-to-end"
+          href: articles/01_lizard_end_to_end.html
+        - text: "2. Seascape probability"
+          href: articles/02_seascape_probability.html
+        - text: "3. Particles, competency, and mortality"
+          href: articles/03_particles_competency_mortality.html
+        - text: "4. Settlement density and summaries"
+          href: articles/04_settlement_density_summary.html
+        - text: "5. Visualisation, maps, and animation"
+          href: articles/05_visualisation_maps_animation.html
+        - text: "6. Scenario comparison"
+          href: articles/06_scenario_comparison.html
+        - text: "7. Tiltmeter flow and particles"
+          href: articles/07_tiltmeter_flow_particles.html
+        - text: "8. Diagnostics and performance"
+          href: articles/08_diagnostics_performance_pkgdown.html"
 
     simulations:
       icon: fa-globe
       text: Outputs
       menu:
-        - text: Lizard Island, northern GBR (CONNIE)
+        - text: "coralseed Lizard Island (nGBR CONNIE)"
           icon: fa-location-dot
+        - text: "Workflow and outputs"
+          href: articles/scenario_lizard.html
+        - text: "Interactive map"
           href: articles/coralseed_lizard.html
-        - text: Moore Reef, central GBR (oceanparcels)
+        - text: "coralseed Moore Reef (nGBR OceanParcels)"
           icon: fa-location-dot
-          href: articles/coralseed_moore.html
+        - text: "Workflow and outputs"
+          href: articles/scenario_moore.html
+        - text: "Interactive map"
+          href: articles/coralseed_moore.html"
 
-    reseed:
-      icon: fa-seedling
-      text: reseed
+    articles:
+      icon: fa-copy
+      text: Articles
       menu:
-        - text: About reseed
-          icon: fa-cube
+        - text: "reseed: interactive data tools"
+        - text: "reseed overview"
           href: articles/reseed.html
-        - text: Mermaid Bay reseeding (2002)
-          icon: fa-cube
+        - text: "reseed restoration footprint"
           href: articles/reseed_lizard.html
+        - text: "Miscellaneous"
+        - text: "Particle dispersal simulations"
+          href: articles/langrangian.html"
 
     github:
       icon: fa-github
       text: GitHub
       href: https://github.com/marine-ecologist/coralseed/
 
-    search:
-      search: []
+reference:
+  - title: Particle simulation
+    contents:
+      - simulate_particles
+      - seed_particles
+      - particles_to_tracks
+
+  - title: Settlement and seascapes
+    contents:
+      - seascape_probability
+      - settle_particles
+      - simulate_mortality
+
+  - title: Visualisation and summaries
+    contents:
+      - contains("plot")
+      - contains("map")
+      - contains("summary")
+      - contains("density")
+
+  - title: Data
+    contents:
+      - starts_with("lizard")
+      - starts_with("moore")
+      - starts_with("reseed")
+
+  - title: All functions
+    contents:
+      - starts_with("")
+
+articles:
+  - title: Tutorials
+    navbar: false
+    contents:
+      - 01_lizard_end_to_end
+      - 02_seascape_probability
+      - 03_particles_competency_mortality
+      - 04_settlement_density_summary
+      - 05_visualisation_maps_animation
+      - 06_scenario_comparison
+      - 07_tiltmeter_flow_particles
+      - 08_diagnostics_performance_pkgdown
+
+  - title: Outputs
+    navbar: false
+    contents:
+      - scenario_lizard
+      - coralseed_lizard
+      - scenario_moore
+      - coralseed_moore
+
+  - title: Articles
+    navbar: false
+    contents:
+      - reseed
+      - reseed_lizard
+      - langrangian

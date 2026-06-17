@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Simulate Lagrangian particle trajectories from gridded flow fields — simulate_particles"><meta name="description" content="Simulates passive particle dispersal from one or more release sites using
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Simulate Lagrangian particle trajectories from gridded flow fields — simulate_particles"><meta name="description" content="Simulates passive particle dispersal from one or more release sites using
 gridded eastward and northward velocity fields. Particles are released over
 a specified release window, advected using the nearest available flow-field
 grid cell, and moved with an added random-walk diffusion term. Candidate
@@ -15,15 +15,15 @@ gridded eastward and northward velocity fields. Particles are released over
 a specified release window, advected using the nearest available flow-field
 grid cell, and moved with an added random-walk diffusion term. Candidate
 particle positions that intersect land are repeatedly redrawn up to a
-maximum retry limit."><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" < head></head><body>
+maximum retry limit."><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">coralseed</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,24 +31,36 @@ maximum retry limit."><link rel="stylesheet" href="https://cdnjs.cloudflare.com/
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html"><span class="fa fa-layer-group"></span> Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html"><span class="fa fa-spinner"></span> Changelog</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/manuscript.html"><span class="fa fa-file"></span> Manuscript</a></li>
+      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html"><span class="fa fa-book"></span> Reference</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-copy"></span> Tutorials</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/scenario_lizard.html"><span class="fa fa-location-dot"></span> Lizard Island, northern GBR (CONNIE)</a></li>
-    <li><a class="dropdown-item" href="../articles/scenario_moore.html"><span class="fa fa-location-dot"></span> Moore Reef, central GBR (oceanparcels)</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-layer-group"></span> Tutorials</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials"><li><a class="dropdown-item" href="../articles/01_lizard_end_to_end.html">1. Lizard Island end-to-end</a></li>
+    <li><a class="dropdown-item" href="../articles/02_seascape_probability.html">2. Seascape probability</a></li>
+    <li><a class="dropdown-item" href="../articles/03_particles_competency_mortality.html">3. Particles, competency, and mortality</a></li>
+    <li><a class="dropdown-item" href="../articles/04_settlement_density_summary.html">4. Settlement density and summaries</a></li>
+    <li><a class="dropdown-item" href="../articles/05_visualisation_maps_animation.html">5. Visualisation, maps, and animation</a></li>
+    <li><a class="dropdown-item" href="../articles/06_scenario_comparison.html">6. Scenario comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/07_tiltmeter_flow_particles.html">7. Tiltmeter flow and particles</a></li>
+    <li><a class="dropdown-item" href="../articles/08_diagnostics_performance_pkgdown.html" ">8. Diagnostics and performance</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-outputs" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-globe"></span> Outputs</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-outputs"><li><a class="dropdown-item" href="../articles/coralseed_lizard.html"><span class="fa fa-location-dot"></span> Lizard Island, northern GBR (CONNIE)</a></li>
-    <li><a class="dropdown-item" href="../articles/coralseed_moore.html"><span class="fa fa-location-dot"></span> Moore Reef, central GBR (oceanparcels)</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-outputs"><li><h6 class="dropdown-header" data-toc-skip><span class="fa fa-location-dot"></span> coralseed Lizard Island (nGBR CONNIE)</h6></li>
+    <li><a class="dropdown-item" href="../articles/scenario_lizard.html">Workflow and outputs</a></li>
+    <li><a class="dropdown-item" href="../articles/coralseed_lizard.html">Interactive map</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip><span class="fa fa-location-dot"></span> coralseed Moore Reef (nGBR OceanParcels)</h6></li>
+    <li><a class="dropdown-item" href="../articles/scenario_moore.html">Workflow and outputs</a></li>
+    <li><a class="dropdown-item" href="../articles/coralseed_moore.html" ">Interactive map</a></li>
   </ul></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-reseed" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-seedling"></span> reseed</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-reseed"><li><a class="dropdown-item" href="../articles/reseed.html"><span class="fa fa-cube"></span> About reseed</a></li>
-    <li><a class="dropdown-item" href="../articles/reseed_lizard.html"><span class="fa fa-cube"></span> Mermaid Bay reseeding (2002)</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-copy"></span> Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><h6 class="dropdown-header" data-toc-skip>reseed: interactive data tools</h6></li>
+    <li><a class="dropdown-item" href="../articles/reseed.html">reseed overview</a></li>
+    <li><a class="dropdown-item" href="../articles/reseed_lizard.html">reseed restoration footprint</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Miscellaneous</h6></li>
+    <li><a class="dropdown-item" href="../articles/langrangian.html" ">Particle dispersal simulations</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/marine-ecologist/coralseed/"><span class="fa fa-github"></span> GitHub</a></li>
@@ -78,15 +90,19 @@ maximum retry limit.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simulate_particles</span><span class="op">(</span></span>
 <span>  <span class="va">flow_field</span>,</span>
-<span>  <span class="va">land_poly</span>,</span>
+<span>  land_poly <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">release_sites</span>,</span>
 <span>  crs_m <span class="op">=</span> <span class="fl">32755</span>,</span>
 <span>  dt <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="fl">60</span>,</span>
 <span>  release_duration_seconds <span class="op">=</span> <span class="fl">60</span> <span class="op">*</span> <span class="fl">60</span>,</span>
+<span>  release_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">dt</span>, <span class="st">"sec"</span><span class="op">)</span>,</span>
+<span>  release_start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_particles_per_site_per_release <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  K <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  max_land_retry <span class="op">=</span> <span class="fl">200</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">101</span></span>
+<span>  seed <span class="op">=</span> <span class="fl">101</span>,</span>
+<span>  parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  workers <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -102,7 +118,8 @@ in metres per second.</p></dd>
 
 <dt id="arg-land-poly">land_poly<a class="anchor" aria-label="anchor" href="#arg-land-poly"></a></dt>
 <dd><p>An <code>sf</code> polygon object representing land or other exclusion
-areas that particles should not enter.</p></dd>
+areas that particles should not enter. Use <code>NULL</code> to disable land
+exclusion.</p></dd>
 
 
 <dt id="arg-release-sites">release_sites<a class="anchor" aria-label="anchor" href="#arg-release-sites"></a></dt>
@@ -124,6 +141,17 @@ used for particle movement in metres. Default is <code>32755</code>.</p></dd>
 released, in seconds. Default is <code>60 * 60</code>.</p></dd>
 
 
+<dt id="arg-release-by">release_by<a class="anchor" aria-label="anchor" href="#arg-release-by"></a></dt>
+<dd><p>Character. Interval between release times, passed to
+<code><a href="https://rdrr.io/r/base/seq.POSIXt.html" class="external-link">seq.POSIXt()</a></code>. Default is <code>paste(dt, "sec")</code>, so release times align with
+flow-field time steps.</p></dd>
+
+
+<dt id="arg-release-start">release_start<a class="anchor" aria-label="anchor" href="#arg-release-start"></a></dt>
+<dd><p>Optional release start time. If <code>NULL</code>, the first
+available flow-field timestamp is used.</p></dd>
+
+
 <dt id="arg-n-particles-per-site-per-release">n_particles_per_site_per_release<a class="anchor" aria-label="anchor" href="#arg-n-particles-per-site-per-release"></a></dt>
 <dd><p>Integer. Number of particles released
 per site at each release time. Default is <code>100</code>.</p></dd>
@@ -142,6 +170,16 @@ particles that intersect land after movement. Default is <code>200</code>.</p></
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Integer. Random seed for reproducible particle release and
 diffusion. Default is <code>101</code>.</p></dd>
+
+
+<dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
+<dd><p>Logical. If <code>TRUE</code>, run release sites in parallel using
+<code>future</code> and <code>furrr</code>. Default is <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-workers">workers<a class="anchor" aria-label="anchor" href="#arg-workers"></a></dt>
+<dd><p>Integer. Number of parallel workers. If <code>NULL</code>, uses one fewer
+than the number of available cores.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -178,13 +216,17 @@ track rows, and land-retry diagnostics.</p></dd>
 coordinates.</p></dd>
 
 <dt>land_m</dt>
-<dd><p>Land polygon transformed to <code>crs_m</code>.</p></dd>
+<dd><p>Land polygon transformed to <code>crs_m</code>, or <code>NULL</code> if
+<code>land_poly = NULL</code>.</p></dd>
 
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Particle movement follows:</p>
+    <p>The time loop is sequential because each particle position depends on its
+previous position. Optional parallel processing is therefore implemented by
+splitting independent simulations across release sites.</p>
+<p>Particle movement follows:</p>
 <p>$$x_{t + 1} = x_t + u_t dt + \epsilon_x$$</p>
 <p>$$y_{t + 1} = y_t + v_t dt + \epsilon_y$$</p>
 <p>where <code>u_t</code> and <code>v_t</code> are the nearest-neighbour flow velocities and
@@ -195,8 +237,9 @@ terms with standard deviation:</p>
 previous position using the same advective and diffusive step. If a particle
 still intersects land after <code>max_land_retry</code> attempts, it is returned to its
 previous position for that time step.</p>
-<p>Flow fields are matched exactly by timestamp. Time steps with no matching
-flow-field data return particles unchanged.</p>
+<p>Flow fields are matched exactly by timestamp. For this reason,
+<code>release_by = paste(dt, "sec")</code> is recommended unless the flow field has
+finer temporal resolution.</p>
     </div>
 
     <div class="section level2">
@@ -212,7 +255,9 @@ flow-field data return particles unchanged.</p>
 <span class="r-in"><span>  n_particles_per_site_per_release <span class="op">=</span> <span class="fl">100</span>,</span></span>
 <span class="r-in"><span>  K <span class="op">=</span> <span class="fl">0.05</span>,</span></span>
 <span class="r-in"><span>  max_land_retry <span class="op">=</span> <span class="fl">200</span>,</span></span>
-<span class="r-in"><span>  seed <span class="op">=</span> <span class="fl">101</span></span></span>
+<span class="r-in"><span>  seed <span class="op">=</span> <span class="fl">101</span>,</span></span>
+<span class="r-in"><span>  parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  workers <span class="op">=</span> <span class="fl">6</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">particle_sim</span><span class="op">$</span><span class="va">particle_tracks_sf</span></span></span>
@@ -227,7 +272,7 @@ flow-field data return particles unchanged.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/marine.ecologist/" class="external-link">George Roff</a>.</p>
+  <p>Developed by <a href="https://github.com/marine-ecologist/" class="external-link">George Roff</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

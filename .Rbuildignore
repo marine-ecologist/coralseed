@@ -11,3 +11,5 @@ outputs/
 vignettes/
 .nojekyll.txt
 cesium/
+reseed/
+^inst/extdata/output\.zarr

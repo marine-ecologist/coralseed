@@ -57,7 +57,7 @@ process_year <- function(year_dir, polygon, crop, mask, downsample, res, variabl
 
     varname <- paste0(variable, "_zlev=0")
     if (!(varname %in% names(r))) {
-      base::cat("Skipping:", file, " — variable not found\n")
+      base::cat("Skipping:", file, " - variable not found\n")
       next
     }
 

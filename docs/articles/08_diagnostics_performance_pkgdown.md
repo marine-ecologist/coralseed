@@ -1,0 +1,136 @@
+# Diagnostics, performance, and pkgdown rendering
+
+## Overview
+
+This tutorial gives practical checks for debugging `coralseed` workflows
+
+``` r
+library(coralseed)
+library(tidyverse)
+library(sf)
+library(ggplot2)
+```
+
+## Check spatial inputs
+
+``` r
+check_sf <- function(x, name = deparse(substitute(x))) {
+  cat("\n---", name, "---\n")
+  cat("class:", paste(class(x), collapse = ", "), "\n")
+
+  if (!inherits(x, "sf")) {
+    cat("not sf\n")
+    return(invisible(FALSE))
+  }
+
+  cat("nrow:", nrow(x), "\n")
+  cat("crs:", sf::st_crs(x)$input, "\n")
+  cat("geometry type:", paste(unique(as.character(sf::st_geometry_type(x))), collapse = ", "), "\n")
+  cat("empty geometries:", sum(sf::st_is_empty(x)), "\n")
+  cat("valid geometries:", sum(sf::st_is_valid(x, NA_on_exception = TRUE), na.rm = TRUE), "\n")
+
+  invisible(TRUE)
+}
+```
+
+Use it before mapping or modelling:
+
+``` r
+check_sf(seascape, "seascape")
+check_sf(lizard_particles_sf, "particles")
+check_sf(land_poly, "land_poly")
+```
+
+## Avoid empty-layer map failures
+
+Interactive mapping can fail if an empty `sf` layer reaches `tmap` or
+`leaflet`. Use small guards inside examples.
+
+``` r
+valid_sf <- function(x) {
+  inherits(x, "sf") &&
+    nrow(x) > 0 &&
+    length(sf::st_geometry(x)) > 0 &&
+    !all(sf::st_is_empty(x))
+}
+```
+
+``` r
+if (valid_sf(seascape) && valid_sf(settled$points)) {
+  plot_particles(settled$points, seascape)
+}
+```
+
+## Test with small particle numbers
+
+``` r
+particle_sim_test <- simulate_particles(
+  flow_field = flow_sim$flow_field,
+  land_poly = land_poly,
+  release_sites = release_sites,
+  dt = 5 * 60,
+  release_duration_seconds = 20 * 60,
+  n_particles_per_site_per_release = 10,
+  K = 0.05,
+  max_land_retry = 50,
+  seed = 101
+)
+```
+
+## Scale up with parallel release-site simulations
+
+``` r
+particle_sim <- simulate_particles(
+  flow_field = flow_sim$flow_field,
+  land_poly = land_poly,
+  release_sites = release_sites,
+  dt = 5 * 60,
+  release_duration_seconds = 60 * 60,
+  n_particles_per_site_per_release = 100,
+  K = 0.05,
+  max_land_retry = 200,
+  seed = 101,
+  parallel = TRUE,
+  workers = 6
+)
+```
+
+## Simplify land polygons
+
+Detailed coastlines make
+[`st_intersects()`](https://r-spatial.github.io/sf/reference/geos_binary_pred.html)
+expensive. Simplify land polygons for particle rejection tests.
+
+``` r
+land_poly_fast <- land_poly |>
+  st_transform(32755) |>
+  st_make_valid() |>
+  st_simplify(dTolerance = 1) |>
+  st_transform(4326)
+```
+
+## Build locally
+
+``` r
+devtools::document()
+devtools::install(".", upgrade = "never", quick = TRUE)
+
+pkgdown::clean_site(pkg = ".")
+pkgdown::build_site(
+  pkg = ".",
+  new_process = FALSE,
+  lazy = FALSE,
+  quiet = FALSE
+)
+```
+
+## Remove render artefacts
+
+``` r
+unlink("docs", recursive = TRUE, force = TRUE)
+unlink("_freeze", recursive = TRUE, force = TRUE)
+unlink(".quarto", recursive = TRUE, force = TRUE)
+unlink("vignettes/*_files", recursive = TRUE, force = TRUE)
+unlink("vignettes/*_cache", recursive = TRUE, force = TRUE)
+file.remove(list.files("vignettes", pattern = "\\.md$", full.names = TRUE))
+```

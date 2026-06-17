@@ -10,5 +10,4 @@ forcats
 lubridate
 janitor
 sf
-gstat
-FNN
+terra

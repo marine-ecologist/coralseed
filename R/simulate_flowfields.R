@@ -93,8 +93,6 @@ simulate_flowfields <- function(
     idp = 2
 ) {
 
-  requireNamespace("tidyverse")
-  requireNamespace("sf")
   requireNamespace("lubridate")
   requireNamespace("gstat")
   requireNamespace("sp")

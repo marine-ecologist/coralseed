@@ -1,0 +1,152 @@
+---
+title: "Seed particles, competency, and mortality"
+author: "George Roff"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+execute:
+  echo: true
+  warning: false
+  message: false
+  cache: false
+---
+
+## Overview
+
+This tutorial focuses on `seed_particles()`: the step that converts particle-track output into biologically filtered larval particles by applying dispersal-time limits, competency, mortality, and habitat settlement probability.
+
+```{r}
+library(coralseed)
+library(tidyverse)
+library(sf)
+library(ggplot2)
+
+sf::sf_use_s2(FALSE)
+```
+
+## Prepare seascape and particle inputs
+
+```{r}
+benthic_map <- system.file("extdata", "Lizard_Benthic.geojson", package = "coralseed") |>
+  st_read(quiet = TRUE)
+
+reef_map <- system.file("extdata", "Lizard_Geomorphic.geojson", package = "coralseed") |>
+  st_read(quiet = TRUE)
+
+seascape <- seascape_probability(
+  reefoutline = reef_map,
+  habitat = benthic_map
+)
+
+particles_sf <- system.file("extdata", "lizard_del_14_1512_sim1_10.json", package = "coralseed") |>
+  st_read(quiet = TRUE)
+```
+
+## Run a baseline seed-particle model
+
+```{r}
+
+seeded <- seed_particles(
+  input = particles_sf,
+  zarr = FALSE,
+  set.centre = TRUE,
+  seascape = seascape,
+  probability = "additive",
+  limit.time = 12,
+  competency.function = "exponential",
+  crs = 20353,
+  simulate.mortality = "typeIII",
+  simulate.mortality.n = 0.1,
+  return.plot = TRUE,
+  return.summary = TRUE,
+  silent = FALSE
+)
+```
+
+## Inspect outputs
+
+```{r}
+names(seeded)
+
+seeded$summary
+```
+
+If the returned object includes points, inspect key fields:
+
+```{r}
+seeded$points |>
+  st_drop_geometry() |>
+  glimpse()
+```
+
+## Compare competency functions
+
+Use a small scenario grid to compare model behaviour.
+
+```{r}
+#| eval: false
+competency_models <- c("exponential", "weibull", "lognormal")
+
+seeded_competency <- purrr::map(
+  competency_models,
+  \(model) {
+    seed_particles(
+      input = particles_sf,
+      zarr = FALSE,
+      set.centre = TRUE,
+      seascape = seascape,
+      probability = "additive",
+      limit.time = 12,
+      competency.function = model,
+      crs = 20353,
+      simulate.mortality = "typeIII",
+      simulate.mortality.n = 0.1,
+      return.plot = FALSE,
+      return.summary = TRUE,
+      silent = TRUE
+    )
+  }
+) |>
+  set_names(competency_models)
+```
+
+## Compare mortality curves
+
+```{r}
+#| eval: false
+mortality_models <- c("typeI", "typeII", "typeIII")
+
+seeded_mortality <- purrr::map(
+  mortality_models,
+  \(mortality) {
+    seed_particles(
+      input = particles_sf,
+      zarr = FALSE,
+      set.centre = TRUE,
+      seascape = seascape,
+      probability = "additive",
+      limit.time = 12,
+      competency.function = "exponential",
+      crs = 20353,
+      simulate.mortality = mortality,
+      simulate.mortality.n = 0.1,
+      return.plot = FALSE,
+      return.summary = TRUE,
+      silent = TRUE
+    )
+  }
+) |>
+  set_names(mortality_models)
+```
+
+## Extract particle tracks
+
+Use `particles_to_tracks()` or related helpers when you need line features for plotting or spatial summaries.
+
+```{r}
+#| eval: false
+tracks <- particles_to_tracks(seeded$points)
+tracks
+```

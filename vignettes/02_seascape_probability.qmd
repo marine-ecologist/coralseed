@@ -1,0 +1,126 @@
+---
+title: "Build settlement-probability seascapes"
+author: "George Roff"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+execute:
+  echo: true
+  warning: false
+  message: false
+  cache: false
+---
+
+## Overview
+
+This tutorial focuses on the spatial habitat component of `coralseed`: converting reef and benthic maps into a settlement-probability seascape.
+
+```{r}
+library(coralseed)
+library(tidyverse)
+library(sf)
+library(ggplot2)
+
+sf::sf_use_s2(FALSE)
+```
+
+## Load example maps
+
+```{r}
+benthic_map <- system.file("extdata", "Lizard_Benthic.geojson", package = "coralseed") |>
+  st_read(quiet = TRUE)
+
+reef_map <- system.file("extdata", "Lizard_Geomorphic.geojson", package = "coralseed") |>
+  st_read(quiet = TRUE)
+```
+
+## Inspect habitat classes
+
+```{r}
+benthic_map |>
+  st_drop_geometry() |>
+  glimpse()
+
+reef_map |>
+  st_drop_geometry() |>
+  glimpse()
+```
+
+```{r}
+benthic_map |>
+  st_drop_geometry() |>
+  count(class, sort = TRUE)
+```
+
+Adjust the `class` column name if the source dataset uses a different habitat field.
+
+## Create a seascape probability layer
+
+```{r}
+seascape <- seascape_probability(
+  reefoutline = reef_map,
+  habitat = benthic_map
+)
+
+seascape
+```
+
+## Visualise the seascape
+
+```{r}
+#| fig-height: 7
+#| fig-width: 9
+
+ggplot(seascape) +
+  geom_sf(aes(fill = settlement_probability), colour = NA) +
+  scale_fill_viridis_c(na.value = "grey85") +
+  labs(
+    title = "Habitat-specific settlement probability",
+    fill = "Settlement\nprobability"
+  ) +
+  theme_bw()
+```
+
+## Summarise available settlement habitat
+
+```{r}
+seascape_area <- seascape |>
+  st_transform(20353) |>
+  mutate(area_m2 = as.numeric(st_area(geometry))) |>
+  st_drop_geometry() |>
+  group_by(settlement_probability) |>
+  summarise(
+    area_m2 = sum(area_m2, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    area_ha = area_m2 / 10000,
+    prop_area = area_m2 / sum(area_m2, na.rm = TRUE)
+  )
+
+seascape_area
+```
+
+```{r}
+ggplot(seascape_area, aes(factor(settlement_probability), area_ha)) +
+  geom_col() +
+  labs(
+    x = "Settlement probability",
+    y = "Area (ha)",
+    title = "Available area by settlement-probability class"
+  ) +
+  theme_bw()
+```
+
+## Export the seascape
+
+```{r}
+#| eval: false
+st_write(
+  seascape,
+  "outputs/lizard_seascape_probability.gpkg",
+  delete_dsn = TRUE
+)
+```

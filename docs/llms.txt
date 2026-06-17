@@ -1,0 +1,333 @@
+# coralseed 1.2.0
+
+![](reference/figures/coralseedtrace.png)
+
+`coralseed` is a spatially explicit probabilistic model aims to quantify
+the spatial footprint of coral larval re-seeding from restoration
+progjects. The model is based on input from high-resolution
+oceanographic models ([CONNIE](https://connie.csiro.au)) that tracking
+individual particles through space and time. By parameterising larval
+behaviour (competency, habitat specific substrate settlement
+preferences, swimming behaviour) individual-based probability of
+settlement can be modelled for 10⁵ - 10⁷ larvae. Individual-based
+settlement probability an dispersal paths then overlaid onto
+high-resolution habitat maps ([Allen Coral
+Atlas](https://www.allencoralatlas.org)) to form a spatially-explicit
+model of settlement following release of coral larvae.
+
+`coralseed` aims to provide insight into key knowledge gaps in larval
+restoration:
+
+- Where do larvae settle following release?
+- What is the spatial footprint of larval reseeding projects?
+- what are the likely densities of settled corals?
+- What densities of adult corals (~10cm size) are produced from
+  reseeding and where are they located?
+
+By varying initial model parameters (e.g. tidal currents, time of
+release, larval competency, larval densities, location of release
+sites), a simulation modelling approach can be used to quantify the
+likely spatial footprint and expected settlement densities, allowing for
+optimisation and upscaling of larval reseeding programs on the Great
+Barrier Reef and elsewhere.
+
+## Installation
+
+`coralseed` can be installed on github
+
+``` r
+#install.packages("remotes")
+install_github("marine-ecologist/coralseed")
+```
+
+Below is a base parameterisation of coralseed across a 6.95hr time
+period (limit_time) with an exponential time-to-settlement model
+parameterisation (competency.function) with a type I mortality curve
+(simulate.mortality) applied to 10% of the population over a 24 hr
+period (simulate.mortality.n) with an additive settlement function
+(probability).
+
+``` r
+library(coralseed)
+library(ggplot2)
+library(tidyverse)
+library(sf)
+library(tmap)
+
+sf_use_s2(FALSE)
+
+## 0. Load example datasets
+
+lizard_benthic_map <- st_read("../data-aux/Lizard-20250314042923/Benthic-Map/benthic.geojson", quiet=TRUE)
+lizard_reef_map <- st_read("../data-aux/Lizard-20250314042923/Geomorphic-Map/geomorphic.geojson", quiet=TRUE)
+lizard_particles <- st_read("../data-aux/run_day_12036_lizard_del_14_1512_sim1_10K_10.json", quiet=TRUE)
+
+
+
+## 1. simulate settlement probabilities from habitat maps
+# `seascape_probability` takes coral atlas inputs and a data.frame of settlement
+# probability (mean, se) to simulate probability of settlement in habitats surrounding the release area
+
+lizard_seascape <- seascape_probability(reefoutline=lizard_reef_map, habitat=lizard_benthic_map)
+
+
+## 2. seed particles from dispersal model and simulate competency
+# `seed_particles` outputs summary statistics and a four panel diagnostic plot
+
+
+lizard_particles <- seed_particles(input = "../data-aux/run_day_12036_lizard_del_14_1512_sim1_10K_10.json",
+                                   zarr = FALSE,
+                                   set.centre = TRUE,
+                                   seascape = lizard_seascape,
+                                   probability = "additive",
+                                   limit.time = 12,
+                                   competency.function = "exponential",
+                                   crs = 20353,
+                                   simulate.mortality = "typeIII",
+                                   simulate.mortality.n = 0.1,
+                                   return.plot = TRUE,
+                                   return.summary = TRUE,
+                                   silent = FALSE)
+                                   
+## 3. simulate settlement of particles
+# `settle_particles` then applies probability across the seascape to simulate spatially
+# explicit patterns of settlement across the seascape:
+
+
+lizard_settlers <- settle_particles(lizard_particles,
+                                    probability = "additive",
+                                    return.plot=FALSE,
+                                    silent = TRUE)
+
+lizard_settlement_density <- settlement_density(lizard_settlers$points)
+
+
+## 4. Map combined coralseed outputs
+# `map_coralseed` visualises all outputs from the above three models
+
+
+
+map_coralseed(seed_particles_input = lizard_particles,
+              settle_particles_input = lizard_settlers,
+              settlement_density_input = lizard_settlement_density,
+              seascape_probability = lizard_seascape,
+              restoration.plot = c(100,100),
+              show.footprint = TRUE,
+              show.tracks = TRUE,
+              subsample = 1000,
+              webGL = TRUE)
+```
+
+# Package index
+
+## Particle simulation
+
+- [`simulate_particles()`](https://marine-ecologist.github.io/coralseed/reference/simulate_particles.md)
+  : Simulate Lagrangian particle trajectories from gridded flow fields
+- [`seed_particles()`](https://marine-ecologist.github.io/coralseed/reference/seed_particles.md)
+  : Seed particles
+- [`particles_to_tracks()`](https://marine-ecologist.github.io/coralseed/reference/particles_to_tracks.md)
+  : Particles to tracks
+
+## Settlement and seascapes
+
+- [`seascape_probability()`](https://marine-ecologist.github.io/coralseed/reference/seascape_probability.md)
+  : Seascape Probability
+- [`settle_particles()`](https://marine-ecologist.github.io/coralseed/reference/settle_particles.md)
+  : Settle Particles
+- [`simulate_mortality()`](https://marine-ecologist.github.io/coralseed/reference/simulate_mortality.md)
+  : Simulate Mortality
+
+## Visualisation and summaries
+
+- [`ggplot_silent()`](https://marine-ecologist.github.io/coralseed/reference/ggplot_silent.md)
+  : Silence ggplot warnings
+- [`plot_draws()`](https://marine-ecologist.github.io/coralseed/reference/plot_draws.md)
+  : plot draws
+- [`plot_draws_median()`](https://marine-ecologist.github.io/coralseed/reference/plot_draws_median.md)
+  : plot draws
+- [`plot_particles()`](https://marine-ecologist.github.io/coralseed/reference/plot_particles.md)
+  : Plot output from settle_particles
+- [`plot_recom()`](https://marine-ecologist.github.io/coralseed/reference/plot_recom.md)
+  : plot_recom: Visualize Ocean Currents and Wind from NetCDF Data
+- [`plot_settlers()`](https://marine-ecologist.github.io/coralseed/reference/plot_settlers.md)
+  : Plot output from settle_particles
+- [`set_restoration_plot()`](https://marine-ecologist.github.io/coralseed/reference/set_restoration_plot.md)
+  : Set restoration plot
+- [`benthic_map`](https://marine-ecologist.github.io/coralseed/reference/benthic_map.md)
+  : benthic_map
+- [`seascapecolors()`](https://marine-ecologist.github.io/coralseed/reference/extract_parallel.md)
+  [`extract_parallel()`](https://marine-ecologist.github.io/coralseed/reference/extract_parallel.md)
+  [`map_coralseed()`](https://marine-ecologist.github.io/coralseed/reference/extract_parallel.md)
+  : Color palettes
+- [`lizard_osm_map`](https://marine-ecologist.github.io/coralseed/reference/lizard_osm_map.md)
+  : Lizard Island OSM basemap
+- [`reef_map`](https://marine-ecologist.github.io/coralseed/reference/reef_map.md)
+  : reef_map
+- [`settler_heatmap()`](https://marine-ecologist.github.io/coralseed/reference/settler_heatmap.md)
+  : Generate a Heatmap of Settler Particles
+- [`stationary_particles_map()`](https://marine-ecologist.github.io/coralseed/reference/stationary_particles_map.md)
+  : Map stationary particles
+- [`settlement_summary()`](https://marine-ecologist.github.io/coralseed/reference/settlement_summary.md)
+  : Summarise settlement results
+- [`settlement_density()`](https://marine-ecologist.github.io/coralseed/reference/settlement_density.md)
+  : Settlement density
+
+## Data
+
+- [`lizard_osm_map`](https://marine-ecologist.github.io/coralseed/reference/lizard_osm_map.md)
+  : Lizard Island OSM basemap
+
+## All functions
+
+- [`animate_coralseed()`](https://marine-ecologist.github.io/coralseed/reference/animate_coralseed.md)
+  : Animate Coral Seed Particle Tracks
+- [`benthic_map`](https://marine-ecologist.github.io/coralseed/reference/benthic_map.md)
+  : benthic_map
+- [`benthic_probability`](https://marine-ecologist.github.io/coralseed/reference/benthic_probability.md)
+  : benthic_probability
+- [`calculate_dispersion()`](https://marine-ecologist.github.io/coralseed/reference/calculate_dispersion.md)
+  : Calculate dispersion
+- [`drop_stick()`](https://marine-ecologist.github.io/coralseed/reference/drop_stick.md)
+  : Drop stuck particles
+- [`extract_ocean_parcels()`](https://marine-ecologist.github.io/coralseed/reference/extract_ocean_parcels.md)
+  : extract_ocean_particles
+- [`seascapecolors()`](https://marine-ecologist.github.io/coralseed/reference/extract_parallel.md)
+  [`extract_parallel()`](https://marine-ecologist.github.io/coralseed/reference/extract_parallel.md)
+  [`map_coralseed()`](https://marine-ecologist.github.io/coralseed/reference/extract_parallel.md)
+  : Color palettes
+- [`flowchart_coralseed()`](https://marine-ecologist.github.io/coralseed/reference/flowchart_coralseed.md)
+  : Flowchart of Coral Larval Fates
+- [`ggplot_silent()`](https://marine-ecologist.github.io/coralseed/reference/ggplot_silent.md)
+  : Silence ggplot warnings
+- [`import_zarr()`](https://marine-ecologist.github.io/coralseed/reference/import_zarr.md)
+  : Seed particles
+- [`infamis_tiles_exp`](https://marine-ecologist.github.io/coralseed/reference/infamis_tiles_exp.md)
+  : A fitted brms model for tile-level settlement
+- [`infamis_tiles_log`](https://marine-ecologist.github.io/coralseed/reference/infamis_tiles_log.md)
+  : Infamis tiles (lognormal model)
+- [`infamis_tiles_weibull`](https://marine-ecologist.github.io/coralseed/reference/infamis_tiles_weibull.md)
+  : Infamis tiles (Weibull model)
+- [`lizard_osm_map`](https://marine-ecologist.github.io/coralseed/reference/lizard_osm_map.md)
+  : Lizard Island OSM basemap
+- [`metadata`](https://marine-ecologist.github.io/coralseed/reference/metadata.md)
+  : metadata
+- [`parameter_draws_exp`](https://marine-ecologist.github.io/coralseed/reference/parameter_draws_exp.md)
+  : parameter_draws_exp
+- [`parameter_draws_log`](https://marine-ecologist.github.io/coralseed/reference/parameter_draws_log.md)
+  : parameter_draws_log
+- [`parameter_draws_weibull`](https://marine-ecologist.github.io/coralseed/reference/parameter_draws_weibull.md)
+  : parameter_draws_weibull
+- [`particle_distances()`](https://marine-ecologist.github.io/coralseed/reference/particle_distances.md)
+  : Particle distances
+- [`particles_to_tracks()`](https://marine-ecologist.github.io/coralseed/reference/particles_to_tracks.md)
+  : Particles to tracks
+- [`particles_to_tracks_linestring()`](https://marine-ecologist.github.io/coralseed/reference/particles_to_tracks_linestring.md)
+  : Particles to tracks
+- [`particles_to_tracks_time()`](https://marine-ecologist.github.io/coralseed/reference/particles_to_tracks_time.md)
+  : Particles to tracks v3.0
+- [`plot_draws()`](https://marine-ecologist.github.io/coralseed/reference/plot_draws.md)
+  : plot draws
+- [`plot_draws_median()`](https://marine-ecologist.github.io/coralseed/reference/plot_draws_median.md)
+  : plot draws
+- [`plot_particles()`](https://marine-ecologist.github.io/coralseed/reference/plot_particles.md)
+  : Plot output from settle_particles
+- [`plot_recom()`](https://marine-ecologist.github.io/coralseed/reference/plot_recom.md)
+  : plot_recom: Visualize Ocean Currents and Wind from NetCDF Data
+- [`plot_settlers()`](https://marine-ecologist.github.io/coralseed/reference/plot_settlers.md)
+  : Plot output from settle_particles
+- [`predict_competency()`](https://marine-ecologist.github.io/coralseed/reference/predict_competency.md)
+  : Predict competency
+- [`process_year()`](https://marine-ecologist.github.io/coralseed/reference/process_year.md)
+  : Process NetCDF rasters for a given year
+- [`reef_map`](https://marine-ecologist.github.io/coralseed/reference/reef_map.md)
+  : reef_map
+- [`render_vignettes()`](https://marine-ecologist.github.io/coralseed/reference/render_vignettes.md)
+  : Render package Quarto vignettes one by one
+- [`return_draws()`](https://marine-ecologist.github.io/coralseed/reference/return_draws.md)
+  : return draws
+- [`save2()`](https://marine-ecologist.github.io/coralseed/reference/save2.md)
+  : Safely Save R Objects Without Overwriting the File
+- [`seascape_color_pal()`](https://marine-ecologist.github.io/coralseed/reference/seascape_color_pal.md)
+  : Seascape color palette
+- [`seascape_probability()`](https://marine-ecologist.github.io/coralseed/reference/seascape_probability.md)
+  : Seascape Probability
+- [`seasims_tiles_exp`](https://marine-ecologist.github.io/coralseed/reference/seasims_tiles_exp.md)
+  : Seasims tiles (exponential model)
+- [`seasims_tiles_log`](https://marine-ecologist.github.io/coralseed/reference/seasims_tiles_log.md)
+  : Seasims tiles (lognormal model)
+- [`seasims_tiles_weibull`](https://marine-ecologist.github.io/coralseed/reference/seasims_tiles_weibull.md)
+  : Seasims tiles (Weibull model)
+- [`seed_particles()`](https://marine-ecologist.github.io/coralseed/reference/seed_particles.md)
+  : Seed particles
+- [`seed_particles_dt()`](https://marine-ecologist.github.io/coralseed/reference/seed_particles_dt.md)
+  : Seed particles
+- [`set_buffer()`](https://marine-ecologist.github.io/coralseed/reference/set_buffer.md)
+  : Set buffer
+- [`set_restoration_plot()`](https://marine-ecologist.github.io/coralseed/reference/set_restoration_plot.md)
+  : Set restoration plot
+- [`settle_particles()`](https://marine-ecologist.github.io/coralseed/reference/settle_particles.md)
+  : Settle Particles
+- [`settlement_density()`](https://marine-ecologist.github.io/coralseed/reference/settlement_density.md)
+  : Settlement density
+- [`settlement_statistics()`](https://marine-ecologist.github.io/coralseed/reference/settlement_statistics.md)
+  : Settlement statistics
+- [`settlement_summary()`](https://marine-ecologist.github.io/coralseed/reference/settlement_summary.md)
+  : Summarise settlement results
+- [`settler_heatmap()`](https://marine-ecologist.github.io/coralseed/reference/settler_heatmap.md)
+  : Generate a Heatmap of Settler Particles
+- [`sf_to_xyzm()`](https://marine-ecologist.github.io/coralseed/reference/sf_to_xyzm.md)
+  : Build LINESTRING XYZM trips (integer M from a time column)
+- [`simulate_flowfields()`](https://marine-ecologist.github.io/coralseed/reference/simulate_flowfields.md)
+  : Simulate interpolated flow fields from tiltmeter velocity data
+- [`simulate_mortality()`](https://marine-ecologist.github.io/coralseed/reference/simulate_mortality.md)
+  : Simulate Mortality
+- [`simulate_particles()`](https://marine-ecologist.github.io/coralseed/reference/simulate_particles.md)
+  : Simulate Lagrangian particle trajectories from gridded flow fields
+- [`st_set_point()`](https://marine-ecologist.github.io/coralseed/reference/st_set_point.md)
+  : st_set_point
+- [`stationary_particles()`](https://marine-ecologist.github.io/coralseed/reference/stationary_particles.md)
+  : Stationary particles
+- [`stationary_particles_map()`](https://marine-ecologist.github.io/coralseed/reference/stationary_particles_map.md)
+  : Map stationary particles
+
+# Articles
+
+### Tutorials
+
+- [End-to-end coralseed workflow: Lizard
+  Island](https://marine-ecologist.github.io/coralseed/articles/01_lizard_end_to_end.md):
+- [Build settlement-probability
+  seascapes](https://marine-ecologist.github.io/coralseed/articles/02_seascape_probability.md):
+- [Seed particles, competency, and
+  mortality](https://marine-ecologist.github.io/coralseed/articles/03_particles_competency_mortality.md):
+- [Settlement, density, and spatial
+  summaries](https://marine-ecologist.github.io/coralseed/articles/04_settlement_density_summary.md):
+- [Visualising coralseed
+  outputs](https://marine-ecologist.github.io/coralseed/articles/05_visualisation_maps_animation.md):
+- [Compare larval reseeding
+  scenarios](https://marine-ecologist.github.io/coralseed/articles/06_scenario_comparison.md):
+- [Tiltmeter-derived flow fields and particle
+  simulations](https://marine-ecologist.github.io/coralseed/articles/07_tiltmeter_flow_particles.md):
+- [Diagnostics, performance, and pkgdown
+  rendering](https://marine-ecologist.github.io/coralseed/articles/08_diagnostics_performance_pkgdown.md):
+
+### Outputs
+
+- [2i. coralseed - Lizard Island (nGBR
+  CONNIE)](https://marine-ecologist.github.io/coralseed/articles/scenario_lizard.md):
+- [2ii. coralseed simulation - Lizard Island
+  (nGBR)](https://marine-ecologist.github.io/coralseed/articles/coralseed_lizard.md):
+- [3i. coralseed example Moore Reef (cGBR
+  oceanparcels)](https://marine-ecologist.github.io/coralseed/articles/scenario_moore.md):
+- [3ii. coralseed simulation - Moore Reef
+  (nGBR)](https://marine-ecologist.github.io/coralseed/articles/coralseed_moore.md):
+
+### Articles
+
+- [4i: reseed: interactive data
+  tools](https://marine-ecologist.github.io/coralseed/articles/reseed.md):
+- [4ii: reseed example: visualising coralseed
+  output](https://marine-ecologist.github.io/coralseed/articles/reseed_lizard.md):
+- [5: Particle dispersal
+  simulation](https://marine-ecologist.github.io/coralseed/articles/langrangian.md):

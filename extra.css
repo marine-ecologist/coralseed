@@ -11,3 +11,32 @@ h1, h2, h3, h4, h5, h6,
 .navbar .nav-link {
   font-size: 0.8em !important;   /* 80% of default */
 }
+
+
+/* Keep ggplot/knitr images unchanged in dark mode */
+html[data-bs-theme="dark"] img,
+html[data-bs-theme="dark"] .figure img,
+html[data-bs-theme="dark"] .quarto-figure img,
+html[data-bs-theme="dark"] .cell-output-display img,
+html[data-bs-theme="dark"] .plotly,
+html[data-bs-theme="dark"] canvas,
+html[data-bs-theme="dark"] svg {
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  background-color: white !important;
+}
+
+/* Prevent dark-mode image inversion */
+[data-bs-theme="dark"] img {
+  filter: none !important;
+  -webkit-filter: none !important;
+  background: white !important;
+}
+
+/* Keep plot containers white */
+[data-bs-theme="dark"] .figure,
+[data-bs-theme="dark"] .cell-output-display,
+[data-bs-theme="dark"] .r-plt,
+[data-bs-theme="dark"] .plot {
+  background: white !important;
+}

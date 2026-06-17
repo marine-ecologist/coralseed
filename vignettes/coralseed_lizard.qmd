@@ -1,5 +1,5 @@
 ---
-title: ""
+title: "2ii. coralseed simulation - Lizard Island (nGBR)"
 format:
   html:
     toc: false

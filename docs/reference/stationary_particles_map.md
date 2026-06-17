@@ -1,0 +1,42 @@
+# Map stationary particles
+
+Function to identify and map stationary particles in particle tracks
+
+## Usage
+
+``` r
+stationary_particles_map(input, subset = 100)
+```
+
+## Arguments
+
+- input:
+
+  input particle tracks (e.g. coralseed::reef_map)
+
+- subset:
+
+  n particles to subset
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+
+stat_particles_liz22_del_14_33 <-
+  stationary_particles(liz22_del_14_33)
+
+stat_liz22_del_14_33_map <-
+  stationary_particles_map(liz22_del_14_33 |> filter(id %in% seq(0:1000)))
+stat_liz22_del_14_33_map <-
+  stationary_particles_map(coralseed::reef_map |>
+  filter(id %in% seq(0:1000)))
+
+stat_liz22_del_14_33_map <-
+  stationary_particles_map(run_day_12039_liz22_del_11_35 |>
+  filter(id %in% seq(0:100)))
+
+stat_liz22_del_14_33_stationary <-
+  stationary_particles(run_day_12039_liz22_del_11_35)
+} # }
+```
